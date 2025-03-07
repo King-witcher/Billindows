@@ -5,10 +5,14 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "codegen": "prisma generate",
+    "migrate": "prisma migrate dev",
     "start": "next start",
-    "lint": "biome check src --error-on-warnings --diagnostic-level=warn"
+    "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
+    "@prisma/client": "^6.4.1",
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -20,6 +24,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "prisma": "^6.4.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
