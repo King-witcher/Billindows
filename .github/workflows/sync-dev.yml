@@ -1,0 +1,27 @@
+name: Sync dev branch with main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-dev:
+    name: Sync staging with main
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: "dev"
+
+      - name: Sync staging with main locally
+        run: |
+          git fetch origin main
+          git reset --hard FETCH_HEAD
+
+      - name: Force push new staging reference
+        run: git push --force
