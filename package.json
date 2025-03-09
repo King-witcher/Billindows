@@ -7,25 +7,34 @@
     "build": "next build",
     "codegen": "prisma generate",
     "migrate": "prisma migrate dev",
+    "seed": "prisma db seed",
     "start": "next start",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
     "postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "firebase": "^11.4.0",
+    "lodash": "^4.17.21",
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@faker-js/faker": "^9.6.0",
     "@giuseppelanna/biomejs-configs": "^3.0.0",
     "@tailwindcss/postcss": "^4",
+    "@types/lodash": "^4.17.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "prisma": "^6.4.1",
     "tailwindcss": "^4",
+    "tsx": "^4.19.3",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed"
   }
 }
