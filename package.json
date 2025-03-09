@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "codegen": "prisma generate",
-    "migrate": "prisma migrate dev",
-    "seed": "prisma db seed",
+    "db:codegen": "prisma generate",
+    "db:migrate": "prisma migrate dev && yarn db:codegen",
+    "db:reset": "prisma migrate reset && yarn db:codegen",
+    "db:push": "prisma db push && yarn db:codegen",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
     "start": "next start",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
     "postinstall": "prisma generate && prisma migrate deploy"
