@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { PrismaClient } from '@prisma/client'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,7 +28,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
+      <Analytics />
+      <SpeedInsights />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

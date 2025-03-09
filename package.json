@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "firebase": "^11.4.0",
     "lodash": "^4.17.21",
     "next": "15.2.1",
