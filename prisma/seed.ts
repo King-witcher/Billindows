@@ -15,7 +15,8 @@ function createCategory(): Prisma.CategoryCreateWithoutUserInput {
 function createUser(): Prisma.UserCreateInput {
   return {
     name: faker.person.fullName(),
-    firebaseId: faker.string.alphanumeric(28),
+    email: faker.internet.email(),
+    passwordDigest: '',
   }
 }
 
@@ -28,7 +29,6 @@ async function main() {
   console.log('Seeding categories...')
   for (const user of users) {
     const categories = range(20).map(createCategory)
-    console.log(user.id)
     await prisma.user.update({
       where: { id: user.id },
       data: {

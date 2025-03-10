@@ -1,7 +1,23 @@
-import { prisma } from '@/services'
+import { deleteSession, verifySession } from '@/lib/session'
 
 export default async function Home() {
-  const user = await prisma.user.findFirst()
+  const session = await verifySession()
 
-  return <>{JSON.stringify(user)}</>
+  async function logout() {
+    'use server'
+    await deleteSession()
+  }
+
+  return (
+    <>
+      Hello {session?.name}
+      {session ? (
+        <button type="button" onClick={logout}>
+          Logout
+        </button>
+      ) : (
+        <a href="/sign-in">Login</a>
+      )}
+    </>
+  )
 }
