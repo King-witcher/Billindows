@@ -67,7 +67,6 @@ export async function signUp(
   const user = await prisma.user.create({
     data: {
       email: validatedFields.data.email,
-      firebaseId: '',
       name: validatedFields.data.name,
       passwordDigest: bcrypt.hashSync(validatedFields.data.password, 10),
     },
