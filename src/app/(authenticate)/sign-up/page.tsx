@@ -45,7 +45,7 @@ export default function Page() {
         />
         <input type="hidden" name="referrer" value={referrer} />
         <button
-          className="h-[50px] w-full rounded-[4px] bg-emerald-600 text-white mt-[20px]"
+          className="h-[50px] w-full rounded-[4px] bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition-colors duration-150 text-white mt-[20px] cursor-pointer"
           type="submit"
         >
           Continue
