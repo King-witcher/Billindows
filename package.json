@@ -13,7 +13,6 @@
     "db:studio": "prisma studio",
     "start": "next start",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
-    "postinstall": "prisma generate && prisma migrate deploy",
     "test": "vitest"
   },
   "dependencies": {
