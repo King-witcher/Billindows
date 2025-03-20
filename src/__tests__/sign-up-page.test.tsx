@@ -1,6 +1,6 @@
 import Page from '@/app/(authenticate)/sign-up/page'
-import { expect, test } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import { test } from 'vitest'
 
 test('Sign up page', () => {
   render(<Page />)

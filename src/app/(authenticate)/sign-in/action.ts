@@ -1,11 +1,11 @@
 'use server'
 
+import { createSession } from '@/lib/session'
 import { prisma } from '@/services'
 import { FormState } from '@/types/form-state'
-import { z } from 'zod'
 import bcrypt from 'bcrypt'
-import { createSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 
 const schema = z.object({
   email: z.string().email(),

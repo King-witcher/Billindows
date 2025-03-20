@@ -42,32 +42,32 @@ export default async function Page() {
     </div>
   )
 
-  return (
-    <>
-      <h2>Categories</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Goal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {user?.categories.map((category) => {
-            return (
-              <tr key={category.id} style={{ color: category.color }}>
-                <td>{category.id}</td>
-                <td>{category.name}</td>
-                <td>{category.goal}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      <button>Create new category</button>
-      <h2>Expenses</h2>
-      <button>Create new expense</button>
-    </>
-  )
+  // return (
+  //   <>
+  //     <h2>Categories</h2>
+  //     <table>
+  //       <thead>
+  //         <tr>
+  //           <th>Id</th>
+  //           <th>Name</th>
+  //           <th>Goal</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody>
+  //         {user?.categories.map((category) => {
+  //           return (
+  //             <tr key={category.id} style={{ color: category.color }}>
+  //               <td>{category.id}</td>
+  //               <td>{category.name}</td>
+  //               <td>{category.goal}</td>
+  //             </tr>
+  //           )
+  //         })}
+  //       </tbody>
+  //     </table>
+  //     <button>Create new category</button>
+  //     <h2>Expenses</h2>
+  //     <button>Create new expense</button>
+  //   </>
+  // )
 }

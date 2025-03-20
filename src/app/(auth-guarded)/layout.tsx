@@ -15,14 +15,4 @@ export default async function Layout(props: Props) {
   }
 
   return props.children
-
-  return (
-    <>
-      <span>Hello, {session.name}!</span>
-      <button type="button" onClick={logout}>
-        Logout
-      </button>
-      {props.children}
-    </>
-  )
 }

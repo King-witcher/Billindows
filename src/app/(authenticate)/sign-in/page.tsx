@@ -1,11 +1,11 @@
 'use client'
 
-import { FormState, FormStateEnum } from '@/types/form-state'
-import { signIn } from './action'
-import { useActionState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { InputGroup } from '@/components/atoms/input-group/input-group'
+import { FormState, FormStateEnum } from '@/types/form-state'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { useActionState } from 'react'
+import { signIn } from './action'
 
 export default function Page() {
   const [state, action, pending] = useActionState(signIn, FormState.idle())
