@@ -23,7 +23,7 @@ model Category {
   name   String
   color  String
   goal   Int
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int    @map("user_id")
 
   @@map("categories")
