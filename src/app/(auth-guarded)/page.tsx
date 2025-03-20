@@ -20,10 +20,8 @@ export default async function Page() {
     redirect('/sign-in')
   }
 
-  async function createCategory() {}
-
   return (
-    <div className="w-dvw h-dvh flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center">
       <div className="bg-white p-[40px] border-gray-300 border-1 rounded-[6px] shadow-md">
         <h1 className="text-xl text-emerald-700 text-center">
           Hello, {session.name}!
@@ -32,7 +30,7 @@ export default async function Page() {
           We have nothing to show yet, but you can{' '}
           <span
             onClick={signOut}
-            className="text-emerald-700 cursor-pointer hover:text-emerald-500"
+            className="text-emerald-600 cursor-pointer hover:text-emerald-800"
           >
             sign-out
           </span>{' '}
