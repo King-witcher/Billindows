@@ -1,10 +1,10 @@
+import { verifySession } from '@/lib/session'
+import { FaCircleUser } from 'react-icons/fa6'
 import { GrTransaction } from 'react-icons/gr'
 import { LuAlarmClock } from 'react-icons/lu'
 import { MdOutlineCategory } from 'react-icons/md'
 import { RiDashboard2Line } from 'react-icons/ri'
 import { SidebarButton } from './button'
-import { verifySession } from '@/lib/session'
-import { FaCircleUser } from 'react-icons/fa6'
 
 export async function Sidebar() {
   const session = await verifySession()

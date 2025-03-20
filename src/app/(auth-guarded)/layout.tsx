@@ -1,6 +1,6 @@
+import { Sidebar } from '@/components/organisms'
 import { deleteSession, verifySession } from '@/lib/session'
 import { ReactNode } from 'react'
-import { Sidebar } from '@/components/organisms'
 
 interface Props {
   children: ReactNode
