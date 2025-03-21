@@ -19,7 +19,9 @@ export default async function Layout(props: Props) {
     <div className="flex absolute w-dvw h-dvh overflow-hidden">
       <Sidebar />
       <div className="flex-1 relative">
-        <div className="absolute inset-0">{props.children}</div>
+        <div className="absolute inset-0 overflow-y-scroll overflow-x-hidden">
+          {props.children}
+        </div>
       </div>
     </div>
   )

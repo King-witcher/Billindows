@@ -19,12 +19,24 @@ model User {
 }
 
 model Category {
-  id     Int    @id @default(autoincrement())
-  name   String
-  color  String
-  goal   Int
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int    @map("user_id")
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  color              String
+  goal               Int?
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             Int                 @map("user_id")
+  oneOffTransactions OneOffTransaction[]
 
   @@map("categories")
+}
+
+model OneOffTransaction {
+  id         Int      @id @default(autoincrement())
+  name       String
+  value      Int // Cents
+  date       DateTime
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int      @map("category_id")
+
+  @@map("one_off_transactions")
 }
