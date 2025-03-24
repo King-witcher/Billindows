@@ -17,7 +17,7 @@ export async function deleteCategory(id: number) {
     return
   }
 
-  if (category.userId !== Number(session?.id)) {
+  if (category.user_id !== Number(session?.id)) {
     console.error('wrong ownership')
     return
   }

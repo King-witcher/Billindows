@@ -2,9 +2,9 @@
 
 import { Button, Modal, Paper, TextField, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { ChangeEvent, useState } from 'react'
 import { createCategory } from './action'
-import { useRouter } from 'next/navigation'
 
 interface Props {
   open: boolean

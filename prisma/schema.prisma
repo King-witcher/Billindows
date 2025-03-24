@@ -8,12 +8,12 @@ datasource db {
 }
 
 model User {
-  id             Int        @id @default(autoincrement())
-  name           String
-  email          String     @unique
-  passwordDigest String     @map("password_digest")
-  createdAt      DateTime   @default(now()) @map("created_at")
-  categories     Category[]
+  id              Int        @id @default(autoincrement())
+  name            String
+  email           String     @unique
+  password_digest String
+  created_at      DateTime   @default(now())
+  categories      Category[]
 
   @@map("users")
 }
@@ -23,20 +23,20 @@ model Category {
   name               String
   color              String
   goal               Int?
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId             Int                 @map("user_id")
+  user               User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id            Int
   oneOffTransactions OneOffTransaction[]
 
   @@map("categories")
 }
 
 model OneOffTransaction {
-  id         Int      @id @default(autoincrement())
-  name       String
-  value      Int // Cents
-  date       DateTime
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId Int      @map("category_id")
+  id          Int      @id @default(autoincrement())
+  name        String
+  value       Int // Cents
+  date        DateTime
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id Int
 
   @@map("one_off_transactions")
 }
