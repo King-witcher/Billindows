@@ -13,5 +13,8 @@ export async function middleware(request: NextRequest) {
       console.log(request.nextUrl.pathname)
       return NextResponse.redirect(url)
     }
+
+    if (request.nextUrl.pathname === '/')
+      return NextResponse.redirect(new URL('/dashboard', request.nextUrl))
   }
 }

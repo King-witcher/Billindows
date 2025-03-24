@@ -11,13 +11,13 @@ export async function Sidebar() {
 
   return (
     <div className="w-[300px] bg-white shadow-lg p-[10px] gap-[10px] flex flex-col">
-      <SidebarButton icon={<RiDashboard2Line />} disabled>
+      <SidebarButton url="/dashboard" icon={<RiDashboard2Line />}>
         Dashboard
       </SidebarButton>
-      <SidebarButton icon={<GrTransaction />} disabled>
-        Transactions (coming soon!)
+      <SidebarButton url="/transactions" icon={<GrTransaction />}>
+        Transactions
       </SidebarButton>
-      <SidebarButton icon={<MdOutlineCategory />} disabled>
+      <SidebarButton url="/categories" icon={<MdOutlineCategory />}>
         Categories
       </SidebarButton>
       <SidebarButton icon={<LuAlarmClock />} disabled>
