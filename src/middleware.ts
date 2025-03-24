@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { verifySession } from './lib/session'
 
-const protectedRoutes = ['/']
+const protectedRoutes = ['/', '/dashboard', '/categories', '/transactions']
 
 export async function middleware(request: NextRequest) {
   if (protectedRoutes.includes(request.nextUrl.pathname)) {
