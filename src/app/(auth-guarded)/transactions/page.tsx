@@ -1,5 +1,5 @@
-import { ClientComponent } from './client-component'
 import { getTransactions } from './actions'
+import { ClientComponent } from './client-component'
 
 export default async function Page() {
   const transactions = await getTransactions()

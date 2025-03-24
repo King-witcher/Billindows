@@ -1,24 +1,24 @@
 'use client'
 
+import { CreateCategoryModal } from '@/components/organisms/modals/create-category'
+import { DeleteCategoryModal } from '@/components/organisms/modals/delete-category'
+import { EditCategoryModal } from '@/components/organisms/modals/edit-category'
+import { Add } from '@mui/icons-material'
 // import { Button } from '@/components/atoms/button/button'
 import {
   Button,
-  Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TableCell,
-  Table,
-  TableBody,
-  Paper,
+  Typography,
 } from '@mui/material'
-import { Add } from '@mui/icons-material'
-import { CreateCategoryModal } from '@/components/organisms/modals/create-category'
-import { useState } from 'react'
-import { DeleteCategoryModal } from '@/components/organisms/modals/delete-category'
-import { EditCategoryModal } from '@/components/organisms/modals/edit-category'
-import { CategoryRow } from './category-row'
 import { Category } from '@prisma/client'
+import { useState } from 'react'
+import { CategoryRow } from './category-row'
 
 interface Props {
   categories: Category[]

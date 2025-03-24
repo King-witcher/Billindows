@@ -1,8 +1,8 @@
 import { Button, Modal, Paper, Typography } from '@mui/material'
+import { Category } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { deleteCategory } from './action'
-import { Category } from '@prisma/client'
 
 interface Props {
   open: boolean
