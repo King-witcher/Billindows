@@ -1,27 +1,52 @@
 'use client'
 
-import { MdDeleteOutline } from 'react-icons/md'
+import { Delete, Edit } from '@mui/icons-material'
+import { IconButton, TableCell, TableRow, Tooltip } from '@mui/material'
 
 interface Props {
   category: any
+  setCategoryToEdit: (category: any) => void
+  setCategoryToDelete: (category: any) => void
 }
 
-export function CategoryRow({ category }: Props) {
-  const goal = ((category.goal / 100) as number).toFixed(2)
-
+export function CategoryRow({
+  category,
+  setCategoryToDelete,
+  setCategoryToEdit,
+}: Props) {
   return (
-    <div className="bg-white h-[50px] rounded-[4px] col-span-full grid grid-cols-subgrid shadow-sm items-center px-[20px] gap-[10px]">
-      <div className="flex items-center gap-[10px]">
-        <div
-          className="ball w-[8px] h-[8px] rounded-[9999px]"
-          style={{ background: category.color }}
-        />
-        {category.name}
-      </div>
-      <span className="text-right">R$ {goal}</span>
-      <div>
-        <MdDeleteOutline />
-      </div>
-    </div>
+    <TableRow key={category.id} hover>
+      <TableCell>
+        <div className="flex items-center gap-[10px]">
+          <style jsx>{`
+          .color-badge {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: ${category.color};
+          }
+        `}</style>
+          <div className="color-badge" />
+          {category.name}
+        </div>
+      </TableCell>
+      <TableCell align="center">
+        {category.goal !== null
+          ? `R$ ${(category.goal / 100).toFixed(2)}`
+          : '-'}
+      </TableCell>
+      <TableCell align="right">
+        <Tooltip title="Edit">
+          <IconButton onClick={() => setCategoryToEdit(category)}>
+            <Edit />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Delete">
+          <IconButton onClick={() => setCategoryToDelete(category)}>
+            <Delete />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
   )
 }

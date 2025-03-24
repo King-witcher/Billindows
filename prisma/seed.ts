@@ -82,13 +82,15 @@ async function main() {
   await createUsers(50, true, true)
 
   console.log('Creating test user...')
-  await prisma.user.create({
+  const testUser = await prisma.user.create({
     data: {
       email: 'test@test.com',
       name: 'Test Account',
       passwordDigest: await hashSync('1234', 10),
     },
   })
+
+  await createCategories(testUser.id, 10, true)
 }
 
 main()
