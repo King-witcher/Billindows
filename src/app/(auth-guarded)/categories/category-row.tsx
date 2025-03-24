@@ -2,11 +2,12 @@
 
 import { Delete, Edit } from '@mui/icons-material'
 import { IconButton, TableCell, TableRow, Tooltip } from '@mui/material'
+import { Category } from '@prisma/client'
 
 interface Props {
-  category: any
-  setCategoryToEdit: (category: any) => void
-  setCategoryToDelete: (category: any) => void
+  category: Category
+  setCategoryToEdit: (category: Category) => void
+  setCategoryToDelete: (category: Category) => void
 }
 
 export function CategoryRow({
@@ -15,7 +16,7 @@ export function CategoryRow({
   setCategoryToEdit,
 }: Props) {
   return (
-    <TableRow key={category.id} hover>
+    <TableRow hover>
       <TableCell>
         <div className="flex items-center gap-[10px]">
           <style jsx>{`

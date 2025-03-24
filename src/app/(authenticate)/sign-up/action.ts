@@ -68,7 +68,7 @@ export async function signUp(
     data: {
       email: validatedFields.data.email,
       name: validatedFields.data.name,
-      passwordDigest: bcrypt.hashSync(validatedFields.data.password, 10),
+      password_digest: bcrypt.hashSync(validatedFields.data.password, 10),
     },
   })
 

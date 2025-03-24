@@ -9,7 +9,7 @@ async function createTransactions(categoryId: number, count: number) {
   const transactionsData: Prisma.OneOffTransactionCreateWithoutCategoryInput[] =
     range(count).map(() => ({
       date: faker.date.recent({
-        days: 60,
+        days: 120,
       }),
       name: faker.commerce.product(),
       value: faker.number.int({
@@ -32,7 +32,7 @@ async function createCategories(
   const TRANSACTION_COUNT = 400
   const categoriesData: Prisma.CategoryCreateManyInput[] = range(count).map(
     () => ({
-      userId,
+      user_id: userId,
       name: faker.finance.transactionType(),
       color: faker.color.rgb(),
       goal: faker.number.int({ min: 4, max: 30 }) * 10_000,
@@ -61,7 +61,7 @@ async function createUsers(
   const usersData: Prisma.UserCreateInput[] = range(count).map(() => ({
     name: faker.person.fullName(),
     email: faker.internet.email(),
-    passwordDigest: '',
+    password_digest: '',
   }))
 
   const users = await prisma.user.createManyAndReturn({
@@ -86,7 +86,7 @@ async function main() {
     data: {
       email: 'test@test.com',
       name: 'Test Account',
-      passwordDigest: await hashSync('1234', 10),
+      password_digest: await hashSync('1234', 10),
     },
   })
 

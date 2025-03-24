@@ -7,9 +7,9 @@ export default async function Page() {
 
   const results = await prisma.category.findMany({
     where: {
-      userId: Number(session?.id),
+      user_id: Number(session?.id),
     },
   })
 
-  return <ClientComponent results={results} />
+  return <ClientComponent categories={results} />
 }

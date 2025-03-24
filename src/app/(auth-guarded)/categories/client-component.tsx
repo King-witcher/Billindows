@@ -2,7 +2,6 @@
 
 // import { Button } from '@/components/atoms/button/button'
 import {
-  Modal,
   Button,
   Typography,
   TableContainer,
@@ -12,19 +11,17 @@ import {
   Table,
   TableBody,
   Paper,
-  IconButton,
-  Tooltip,
 } from '@mui/material'
-import { Edit, Delete, Add } from '@mui/icons-material'
+import { Add } from '@mui/icons-material'
 import { CreateCategoryModal } from '@/components/organisms/modals/create-category'
 import { useState } from 'react'
-import css from 'styled-jsx/css'
 import { DeleteCategoryModal } from '@/components/organisms/modals/delete-category'
 import { EditCategoryModal } from '@/components/organisms/modals/edit-category'
 import { CategoryRow } from './category-row'
+import { Category } from '@prisma/client'
 
 interface Props {
-  results: any[]
+  categories: Category[]
 }
 
 const customStyles = {
@@ -38,10 +35,12 @@ const customStyles = {
   },
 }
 
-export function ClientComponent({ results }: Props) {
+export function ClientComponent({ categories: results }: Props) {
   const [createCategoryModalOpen, setCreateCategoryModalOpen] = useState(false)
-  const [categoryToDelete, setCategoryToDelete] = useState<any | null>(null)
-  const [categoryToEdit, setCategoryToEdit] = useState<any>(null)
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+    null
+  )
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null)
 
   return (
     <div className="p-[20px]">

@@ -14,7 +14,7 @@ export async function createCategory(name: string) {
     data: {
       color,
       name,
-      userId: Number(session?.id),
+      user_id: Number(session?.id),
     },
   })
 }

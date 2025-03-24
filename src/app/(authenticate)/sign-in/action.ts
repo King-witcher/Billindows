@@ -40,7 +40,7 @@ export async function signIn(
   }
 
   if (
-    !(await bcrypt.compare(validatedFields.data.password, user.passwordDigest))
+    !(await bcrypt.compare(validatedFields.data.password, user.password_digest))
   )
     return FormState.error('invalid credentials')
 

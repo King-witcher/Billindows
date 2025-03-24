@@ -2,18 +2,19 @@ import { Button, Modal, Paper, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { deleteCategory } from './action'
+import { Category } from '@prisma/client'
 
 interface Props {
   open: boolean
   onClose: () => void
-  category: any | null
+  category: Category | null
 }
 
 export function DeleteCategoryModal({ open, onClose, category }: Props) {
   const router = useRouter()
 
   const mutation = useMutation({
-    mutationFn: async () => deleteCategory(category?.id),
+    mutationFn: async () => deleteCategory(category!.id),
     mutationKey: ['delete-category', category?.id],
     onSuccess: () => {
       onClose()
