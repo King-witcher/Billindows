@@ -5,7 +5,7 @@ on: [push]
 jobs:
   lint:
     name: Run linter
-    runs-on: windows-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
 
   build:
     name: Run yarn build
-    runs-on: windows-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
