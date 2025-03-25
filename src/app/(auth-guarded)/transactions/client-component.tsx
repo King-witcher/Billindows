@@ -1,9 +1,12 @@
 'use client'
 
-import { Add } from '@mui/icons-material'
+import { Add, AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material'
 // import { Button } from '@/components/atoms/button/button'
 import {
   Button,
+  ListItemIcon,
+  Menu,
+  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -14,8 +17,9 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import { ChangeEvent, useMemo, useState } from 'react'
+import React, { ChangeEvent, useMemo, useState } from 'react'
 import { ListedTransaction, TransactionRow } from './transaction-row'
+import { CreateTransactionModal } from '@/components/organisms/modals/create-transaction/create-transaction'
 
 interface Props {
   transactions: ListedTransaction[]
@@ -31,6 +35,7 @@ export function ClientComponent({ transactions }: Props) {
 
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(0)
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
   const visibleTransactions = useMemo(
     () =>
@@ -45,9 +50,17 @@ export function ClientComponent({ transactions }: Props) {
     setPage(0)
   }
 
+  function handleClickAddTransaction(e: React.MouseEvent<HTMLButtonElement>) {
+    setAnchorEl(e.currentTarget)
+  }
+
+  function handleClose() {
+    setAnchorEl(null)
+  }
+
   return (
     <div className="p-[20px] flex flex-col gap-[20px] h-full">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-[10px] w-full ml-auto">
         <Typography variant="h2" color="primary">
           Transactions
         </Typography>
@@ -55,9 +68,10 @@ export function ClientComponent({ transactions }: Props) {
           variant="contained"
           color="primary"
           startIcon={<Add />}
+          sx={{ marginLeft: 'auto' }}
           onClick={() => setCreateTransactionModalOpen(true)}
         >
-          Add transaction
+          New transaction
         </Button>
       </div>
 
@@ -67,10 +81,10 @@ export function ClientComponent({ transactions }: Props) {
             <Table stickyHeader className="absolute inset-0">
               <TableHead>
                 <TableRow>
-                  <TableCell>Transaction</TableCell>
-                  <TableCell align="center">Value</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell align="center">Transaction</TableCell>
                   <TableCell align="center">Category</TableCell>
-                  <TableCell align="center">Date</TableCell>
+                  <TableCell align="center">Value</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -97,6 +111,10 @@ export function ClientComponent({ transactions }: Props) {
           page={page}
         />
       </Paper>
+      <CreateTransactionModal
+        open={createTransactionModalOpen}
+        onClose={() => setCreateTransactionModalOpen(false)}
+      />
     </div>
   )
 }

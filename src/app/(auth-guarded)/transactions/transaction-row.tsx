@@ -1,7 +1,14 @@
 'use client'
 
-import { Delete, Edit } from '@mui/icons-material'
-import { IconButton, TableCell, TableRow, Tooltip } from '@mui/material'
+import Delete from '@mui/icons-material/Delete'
+import Edit from '@mui/icons-material/Edit'
+import {
+  IconButton,
+  TableCell,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 
 export interface ListedTransaction {
   id: number
@@ -27,25 +34,17 @@ export function TransactionRow({
 }: Props) {
   return (
     <TableRow hover>
-      <TableCell>
-        <div className="flex items-center gap-[10px]">
-          <style jsx>{`
-          .color-badge {
-            width: 14px;
-            height: 14px;
-            border-radius: 999px;
-            background: ${transaction.category.color};
-          }
-        `}</style>
-          <div className="color-badge" />
+      {/* Date */}
+      <TableCell>{transaction.date.toDateString()}</TableCell>
+
+      {/* Name */}
+      <TableCell align="center">
+        <div className="flex items-center gap-[10px] justify-center">
           {transaction.name}
         </div>
       </TableCell>
 
-      <TableCell align="center">
-        {`R$ ${(transaction.value / 100).toFixed(2)}`}
-      </TableCell>
-
+      {/* Category */}
       <TableCell align="center">
         <div className="flex items-center justify-center gap-[10px]">
           <style jsx>{`
@@ -61,8 +60,17 @@ export function TransactionRow({
         </div>
       </TableCell>
 
-      <TableCell align="center">{transaction.date.toDateString()}</TableCell>
+      {/* Value */}
+      <TableCell align="center">
+        <Typography
+          fontWeight={500}
+          color={transaction.value < 0 ? 'error' : 'success'}
+        >
+          {`R$ ${Math.abs(transaction.value / 100).toFixed(2)}`}
+        </Typography>
+      </TableCell>
 
+      {/* Actions */}
       <TableCell align="right">
         <Tooltip title="Edit">
           <IconButton onClick={onClickEdit}>

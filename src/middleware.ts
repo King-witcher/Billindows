@@ -10,7 +10,6 @@ export async function middleware(request: NextRequest) {
     if (!session) {
       const url = new URL('/sign-in', request.nextUrl)
       url.searchParams.set('referrer', request.nextUrl.pathname)
-      console.log(request.nextUrl.pathname)
       return NextResponse.redirect(url)
     }
 

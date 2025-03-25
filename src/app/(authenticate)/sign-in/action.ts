@@ -46,7 +46,7 @@ export async function signIn(
 
   await createSession({
     email: user.email,
-    id: String(user.id),
+    id: user.id,
     name: user.name,
     role: 'user',
   })

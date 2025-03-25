@@ -74,7 +74,7 @@ export async function signUp(
 
   await createSession({
     email: user.email,
-    id: String(user.id),
+    id: user.id,
     name: user.name,
     role: 'user',
   })
