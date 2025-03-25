@@ -41,7 +41,12 @@ export function MoneyField<Variant extends TextFieldVariants>(
         {...textFieldProps}
         onChange={handleChange}
         value={displayValue}
+        type="number"
         slotProps={{
+          htmlInput: {
+            min: 0.01,
+            step: 0.01,
+          },
           input: {
             startAdornment: (
               <InputAdornment position="start">R$</InputAdornment>

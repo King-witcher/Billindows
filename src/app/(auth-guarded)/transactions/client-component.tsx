@@ -1,12 +1,9 @@
 'use client'
 
-import { Add, AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material'
-// import { Button } from '@/components/atoms/button/button'
+import { CreateTransactionModal } from '@/components/organisms/modals/create-transaction/create-transaction'
+import { Add } from '@mui/icons-material'
 import {
   Button,
-  ListItemIcon,
-  Menu,
-  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -19,13 +16,13 @@ import {
 } from '@mui/material'
 import React, { ChangeEvent, useMemo, useState } from 'react'
 import { ListedTransaction, TransactionRow } from './transaction-row'
-import { CreateTransactionModal } from '@/components/organisms/modals/create-transaction/create-transaction'
 
 interface Props {
   transactions: ListedTransaction[]
+  now: Date
 }
 
-export function ClientComponent({ transactions }: Props) {
+export function ClientComponent({ transactions, now }: Props) {
   const [createTransactionModalOpen, setCreateTransactionModalOpen] =
     useState(false)
   const [transactionToDelete, setTransactionToDelete] =
@@ -112,6 +109,7 @@ export function ClientComponent({ transactions }: Props) {
         />
       </Paper>
       <CreateTransactionModal
+        now={now}
         open={createTransactionModalOpen}
         onClose={() => setCreateTransactionModalOpen(false)}
       />

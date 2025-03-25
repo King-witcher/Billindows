@@ -3,6 +3,7 @@ import { ClientComponent } from './client-component'
 
 export default async function Page() {
   const transactions = await getTransactions()
+  const now = new Date()
 
-  return <ClientComponent transactions={transactions} />
+  return <ClientComponent now={now} transactions={transactions} />
 }

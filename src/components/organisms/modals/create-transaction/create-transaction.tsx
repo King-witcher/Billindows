@@ -1,5 +1,6 @@
 'use client'
 
+import { MoneyField } from '@/components/atoms/inputs/money-input'
 import {
   Button,
   Checkbox,
@@ -9,6 +10,7 @@ import {
   FormLabel,
   InputLabel,
   MenuItem,
+  MenuProps,
   Modal,
   Paper,
   Radio,
@@ -18,19 +20,47 @@ import {
   Typography,
 } from '@mui/material'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import _ from 'lodash'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useState } from 'react'
+import { useCallback } from 'react'
 import { createTransaction, getCategories } from './actions'
-import { MoneyField } from '@/components/atoms/inputs/money-input'
 
 interface Props {
   open: boolean
+  now: Date
   onClose: () => void
 }
 
-export function CreateTransactionModal({ open, onClose }: Props) {
-  const [name, setName] = useState('')
+const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
+const menuProps: Partial<MenuProps> = {
+  PaperProps: {
+    sx: {
+      maxHeight: '300px',
+    },
+  },
+}
+
+export function CreateTransactionModal({ open, onClose, now }: Props) {
   const router = useRouter()
+
+  const year = now.getFullYear()
+  const month = now.getMonth()
+  const monthName = months[month]
+  const daysOnTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
 
   const mutation = useMutation({
     mutationFn: createTransaction,
@@ -47,14 +77,9 @@ export function CreateTransactionModal({ open, onClose }: Props) {
     queryFn: getCategories,
   })
 
-  function handleClose() {
-    setName('')
+  const handleClose = useCallback(() => {
     onClose()
-  }
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    setName(e.target.value)
-  }
+  }, [onClose])
 
   return (
     <Modal
@@ -88,8 +113,6 @@ export function CreateTransactionModal({ open, onClose }: Props) {
             </RadioGroup>
           </FormControl>
           <TextField
-            value={name}
-            onChange={handleChange}
             variant="outlined"
             label="Name"
             name="name"
@@ -103,8 +126,6 @@ export function CreateTransactionModal({ open, onClose }: Props) {
                 id="category"
                 name="category"
                 label="Category"
-                labelId="ola"
-                defaultValue=""
                 disabled={categoriesQuery.isLoading}
               >
                 {categoriesQuery.data?.map((category) => (
@@ -125,7 +146,47 @@ export function CreateTransactionModal({ open, onClose }: Props) {
             />
           </div>
 
-          {/* <Switch color="error" /> */}
+          <div className="flex gap-[10px] w-full">
+            <FormControl className="flex-3" required disabled>
+              <input type="hidden" name="year" value={year} />
+              <InputLabel htmlFor="year">Year</InputLabel>
+              <Select
+                id="year"
+                name="year"
+                label="Year"
+                value={now.getFullYear()}
+              >
+                <MenuItem value={now.getFullYear()}>
+                  {now.getFullYear()}
+                </MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl className="flex-3" required disabled>
+              <input type="hidden" name="month" value={month} />
+              <InputLabel htmlFor="month">Month</InputLabel>
+              <Select id="month" name="month" label="Month" value={month}>
+                <MenuItem value={month}>{monthName}</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl className="flex-2" required>
+              <InputLabel htmlFor="day">Day</InputLabel>
+              <Select
+                id="day"
+                name="day"
+                label="Day"
+                defaultValue={now.getDate()}
+                MenuProps={menuProps}
+              >
+                {daysOnTheMonth.map((day) => (
+                  <MenuItem key={day} value={day}>
+                    {day}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
 
           <FormControl>
             <FormLabel>Behavior</FormLabel>
@@ -144,15 +205,14 @@ export function CreateTransactionModal({ open, onClose }: Props) {
             <Button
               variant="text"
               onClick={onClose}
-              // disabled={mutation.isPending}
+              disabled={mutation.isPending}
             >
               Cancel
             </Button>
             <Button
               variant="contained"
               type="submit"
-              // onClick={() => mutation.mutate()}
-              // disabled={mutation.isPending}
+              disabled={mutation.isPending}
             >
               Create
             </Button>

@@ -25,12 +25,21 @@ export async function createTransaction(formData: FormData) {
   let value = Number(formData.get('value'))
   const categoryId = Number(formData.get('category'))
   const type = formData.get('type') as string
+  const year = Number(formData.get('year'))
+  const month = Number(formData.get('month'))
+  const day = Number(formData.get('day'))
 
+  // Validation
   if (!name.length || name.length > 32) throw new Error('Invalid name')
-  if (Number.isNaN(value) || value < 0) throw new Error('Invalid value')
+  if (Number.isNaN(value) || value <= 0) throw new Error('Invalid value')
   if (Number.isNaN(categoryId) || categoryId < 0 || categoryId % 1 !== 0)
     throw new Error('Invalid category')
   if (!['income', 'expense'].includes(type)) throw new Error('Invalid type')
+  if (Number.isNaN(year)) throw new Error('Invalid year')
+  if (Number.isNaN(month)) throw new Error('Invalid month')
+  if (Number.isNaN(day)) throw new Error('Invalid day')
+
+  console.log(year, month, day, new Date(year, month, day))
 
   if (type === 'expense') value = -value
 
@@ -45,7 +54,7 @@ export async function createTransaction(formData: FormData) {
 
   await prisma.oneOffTransaction.create({
     data: {
-      date: new Date(),
+      date: new Date(year, month, day),
       name,
       value: value,
       category_id: categoryId,
