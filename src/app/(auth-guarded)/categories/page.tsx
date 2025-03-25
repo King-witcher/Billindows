@@ -1,5 +1,5 @@
 import { verifySession } from '@/lib/session'
-import { prisma } from '@/services'
+import { prisma } from '@/services/prisma'
 import { ClientComponent } from './client-component'
 
 export default async function Page() {

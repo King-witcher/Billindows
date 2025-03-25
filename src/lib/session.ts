@@ -6,7 +6,7 @@ const key = new TextEncoder().encode(process.env.JWT_SECRET)
 const COOKIE_NAME = 'session'
 
 export type JWTPaylaod = {
-  id: string
+  id: number
   name: string
   email: string
   role: 'user'
