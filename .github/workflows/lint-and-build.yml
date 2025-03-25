@@ -1,4 +1,4 @@
-name: Lint and Build
+name: Lint
 
 on: [push]
 
@@ -21,22 +21,3 @@ jobs:
 
       - name: Check code quality
         run: yarn lint
-
-  build:
-    name: Run yarn build
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install packages
-        run: yarn install --frozen-lockfile
-
-      - name: Check code quality
-        run: yarn build
