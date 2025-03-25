@@ -4,6 +4,7 @@ import { CreateTransactionModal } from '@/components/organisms/modals/create-tra
 import { Add } from '@mui/icons-material'
 import {
   Button,
+  Modal,
   Paper,
   Table,
   TableBody,
@@ -16,6 +17,7 @@ import {
 } from '@mui/material'
 import React, { ChangeEvent, useMemo, useState } from 'react'
 import { ListedTransaction, TransactionRow } from './transaction-row'
+import { DeleteTransactionDialog } from '@/components/organisms/modals/delete-transaction/delete-transaction'
 
 interface Props {
   transactions: ListedTransaction[]
@@ -113,6 +115,20 @@ export function ClientComponent({ transactions, now }: Props) {
         open={createTransactionModalOpen}
         onClose={() => setCreateTransactionModalOpen(false)}
       />
+      <Modal
+        open={Boolean(transactionToDelete)}
+        onClose={() => setTransactionToDelete(null)}
+      >
+        {transactionToDelete ? (
+          <DeleteTransactionDialog
+            transaction={transactionToDelete}
+            onSuccess={() => setTransactionToDelete(null)}
+            onCancel={() => setTransactionToDelete(null)}
+          />
+        ) : (
+          <></>
+        )}
+      </Modal>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { prisma } from '@/services'
 
 export async function deleteCategory(id: number) {
   const session = await verifySession()
+  if (!session) return
 
   const category = await prisma.category.findUnique({
     where: {
@@ -13,12 +14,12 @@ export async function deleteCategory(id: number) {
   })
 
   if (!category) {
-    console.error('failed to delete')
+    console.error("couldn't find category")
     return
   }
 
   if (category.user_id !== Number(session?.id)) {
-    console.error('wrong ownership')
+    console.error('wrong owner')
     return
   }
 
