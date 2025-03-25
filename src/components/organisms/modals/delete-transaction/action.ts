@@ -12,7 +12,7 @@ export async function deleteTransaction(id: number) {
       category: {
         user_id: session.id,
       },
-      id: 1,
+      id,
     },
   })
 }

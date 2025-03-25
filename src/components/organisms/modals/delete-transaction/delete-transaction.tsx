@@ -1,7 +1,7 @@
+import { ListedTransaction } from '@/app/(auth-guarded)/transactions/transaction-row'
 import { Button, Paper, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { ListedTransaction } from '@/app/(auth-guarded)/transactions/transaction-row'
 import { deleteTransaction } from './action'
 
 interface Props {
