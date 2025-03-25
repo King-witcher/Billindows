@@ -1,5 +1,5 @@
 import { deleteSession, verifySession } from '@/lib/session'
-import { prisma } from '@/services'
+import { prisma } from '@/services/prisma'
 import { redirect } from 'next/navigation'
 
 export default async function Page() {

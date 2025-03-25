@@ -1,7 +1,7 @@
 'use server'
 
 import { createSession } from '@/lib/session'
-import { prisma } from '@/services'
+import { prisma } from '@/services/prisma'
 import { FormState } from '@/types/form-state'
 import bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'

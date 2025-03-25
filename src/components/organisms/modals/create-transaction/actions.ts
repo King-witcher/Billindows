@@ -1,7 +1,7 @@
 'use server'
 
 import { verifySession } from '@/lib/session'
-import { prisma } from '@/services'
+import { prisma } from '@/services/prisma'
 import { Category } from '@prisma/client'
 
 export async function getCategories(): Promise<Category[]> {
