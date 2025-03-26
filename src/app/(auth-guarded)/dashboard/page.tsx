@@ -1,18 +1,15 @@
 import { deleteSession, verifySession } from '@/lib/session'
-import { prisma } from '@/services/prisma'
+import { Typography } from '@mui/material'
+import Paper from '@mui/material/Paper'
 import { redirect } from 'next/navigation'
+
+export const metadata = {
+  title: 'Billindows - Dashboard',
+}
 
 export default async function Page() {
   const session = await verifySession()
   if (!session) return null
-  const user = await prisma.user.findUnique({
-    where: {
-      id: Number(session.id),
-    },
-    include: {
-      categories: true,
-    },
-  })
 
   async function signOut() {
     'use server'
@@ -22,21 +19,24 @@ export default async function Page() {
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="bg-white p-[40px] border-gray-300 border-1 rounded-[6px] shadow-md">
-        <h1 className="text-xl text-emerald-700 text-center">
+      <Paper className="p-[40px] gap-[20px] flex flex-col">
+        <Typography variant="h4" color="primary" className="text-center">
           Hello, {session.name}!
-        </h1>
-        <p className="mt-6 w-[300px] text-sm text-center text-gray-600">
-          We have nothing to show yet, but you can{' '}
-          <span
+        </Typography>
+        <Typography variant="body1" className="w-[300px]">
+          We have nothing to show yet, but you can add transactions, categories
+          or{' '}
+          <Typography
             onClick={signOut}
-            className="text-emerald-600 cursor-pointer hover:text-emerald-800"
+            component="span"
+            color="primary"
+            className="cursor-pointer"
           >
             sign-out
-          </span>{' '}
+          </Typography>{' '}
           from your account.
-        </p>
-      </div>
+        </Typography>
+      </Paper>
     </div>
   )
 

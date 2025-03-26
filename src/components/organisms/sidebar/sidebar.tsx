@@ -1,36 +1,28 @@
-import { verifySession } from '@/lib/session'
-import { FaCircleUser } from 'react-icons/fa6'
-import { GrTransaction } from 'react-icons/gr'
-import { LuAlarmClock } from 'react-icons/lu'
-import { MdOutlineCategory } from 'react-icons/md'
-import { RiDashboard2Line } from 'react-icons/ri'
 import { SidebarButton } from './button'
+import { Divider, Paper } from '@mui/material'
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
 
-export async function Sidebar() {
-  const session = await verifySession()
-
+export function Sidebar() {
   return (
-    <div className="w-[300px] bg-white shadow-lg p-[10px] gap-[10px] flex flex-col">
-      <SidebarButton url="/dashboard" icon={<RiDashboard2Line />}>
+    <Paper square className="w-[300px]">
+      <SidebarButton url="/dashboard" icon={<DashboardOutlinedIcon />}>
         Dashboard
       </SidebarButton>
-      <SidebarButton url="/transactions" icon={<GrTransaction />}>
+      <Divider />
+      <SidebarButton url="/transactions" icon={<ShoppingCartOutlinedIcon />}>
         Transactions
       </SidebarButton>
-      <SidebarButton url="/categories" icon={<MdOutlineCategory />}>
+      <Divider />
+      <SidebarButton url="/categories" icon={<CategoryOutlinedIcon />}>
         Categories
       </SidebarButton>
-      <SidebarButton icon={<LuAlarmClock />} disabled>
+      <Divider />
+      <SidebarButton icon={<NotificationsActiveOutlinedIcon />} disabled>
         Reminders
       </SidebarButton>
-
-      <section className="mt-auto flex items-center gap-[10px] p-[10px] cursor-pointer rounded-[4px] hover:bg-gray-100">
-        <FaCircleUser className="text-5xl" />
-        <div className="flex flex-col">
-          <h3>{session?.name}</h3>
-          <h3 className="text-sm text-gray-500">{session?.email}</h3>
-        </div>
-      </section>
-    </div>
+    </Paper>
   )
 }

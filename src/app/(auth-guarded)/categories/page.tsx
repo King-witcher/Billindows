@@ -2,6 +2,10 @@ import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { ClientComponent } from './client-component'
 
+export const metadata = {
+  title: 'Billindows - Categories',
+}
+
 export default async function Page() {
   const session = await verifySession()
 
