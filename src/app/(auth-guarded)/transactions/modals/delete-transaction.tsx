@@ -2,7 +2,7 @@ import { ListedTransaction } from '@/app/(auth-guarded)/transactions/transaction
 import { Button, Paper, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { deleteTransaction } from './action'
+import { deleteTransaction } from '../actions'
 
 interface Props {
   transaction: ListedTransaction

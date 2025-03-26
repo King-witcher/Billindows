@@ -1,8 +1,5 @@
 'use client'
 
-import { CreateTransactionModal } from '@/components/organisms/modals/create-transaction/create-transaction'
-import { DeleteTransactionDialog } from '@/components/organisms/modals/delete-transaction/delete-transaction'
-import { EditTransactionDialog } from '@/components/organisms/modals/edit-transaction/edit-transaction'
 import { Add } from '@mui/icons-material'
 import {
   Button,
@@ -19,6 +16,9 @@ import {
 } from '@mui/material'
 import React, { ChangeEvent, useMemo, useState } from 'react'
 import { ListedTransaction, TransactionRow } from './transaction-row'
+import { CreateTransactionModal } from './modals/create-transaction'
+import { DeleteTransactionDialog } from './modals/delete-transaction'
+import { EditTransactionDialog } from './modals/edit-transaction'
 
 interface Props {
   transactions: ListedTransaction[]

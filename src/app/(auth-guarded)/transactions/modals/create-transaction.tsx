@@ -22,8 +22,8 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
 import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
-import { createTransaction, getCategories } from './actions'
+import { useCallback, useState } from 'react'
+import { createTransaction, getCategories } from '../actions'
 
 interface Props {
   open: boolean
@@ -61,6 +61,7 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
   const month = now.getMonth()
   const monthName = months[month]
   const daysOnTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
+  const [day, setDay] = useState(now.getDate())
 
   const mutation = useMutation({
     mutationFn: createTransaction,
@@ -150,12 +151,7 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
             <FormControl className="flex-3" required disabled>
               <input type="hidden" name="year" value={year} />
               <InputLabel htmlFor="year">Year</InputLabel>
-              <Select
-                id="year"
-                name="year"
-                label="Year"
-                value={now.getFullYear()}
-              >
+              <Select id="year" label="Year" value={now.getFullYear()}>
                 <MenuItem value={now.getFullYear()}>
                   {now.getFullYear()}
                 </MenuItem>
@@ -165,7 +161,7 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
             <FormControl className="flex-3" required disabled>
               <input type="hidden" name="month" value={month} />
               <InputLabel htmlFor="month">Month</InputLabel>
-              <Select id="month" name="month" label="Month" value={month}>
+              <Select id="month" label="Month" value={month}>
                 <MenuItem value={month}>{monthName}</MenuItem>
               </Select>
             </FormControl>
@@ -174,9 +170,9 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
               <InputLabel htmlFor="day">Day</InputLabel>
               <Select
                 id="day"
-                name="day"
                 label="Day"
-                defaultValue={now.getDate()}
+                value={day}
+                onChange={(e) => setDay(Number(e.target.value))}
                 MenuProps={menuProps}
               >
                 {daysOnTheMonth.map((day) => (
@@ -186,6 +182,12 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
                 ))}
               </Select>
             </FormControl>
+
+            <input
+              type="hidden"
+              name="date"
+              value={new Date(year, month, day).getTime()}
+            />
           </div>
 
           <FormControl>
