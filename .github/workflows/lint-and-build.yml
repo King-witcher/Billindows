@@ -16,7 +16,16 @@ jobs:
         with:
           node-version: 22
 
+      - name: Cache Dependencies
+        id: cache-dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
+
       - name: Install packages
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: yarn install --dev --frozen-lockfile
 
       - name: Check code quality
