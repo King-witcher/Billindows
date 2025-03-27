@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, ReactNode, use } from 'react'
+import { ReactNode, createContext, use } from 'react'
 
 export interface UserContextData {
   name: string

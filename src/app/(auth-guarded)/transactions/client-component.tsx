@@ -15,10 +15,10 @@ import {
   Typography,
 } from '@mui/material'
 import React, { ChangeEvent, useMemo, useState } from 'react'
-import { ListedTransaction, TransactionRow } from './transaction-row'
 import { CreateTransactionModal } from './modals/create-transaction'
 import { DeleteTransactionDialog } from './modals/delete-transaction'
 import { EditTransactionDialog } from './modals/edit-transaction'
+import { ListedTransaction, TransactionRow } from './transaction-row'
 
 interface Props {
   transactions: ListedTransaction[]
