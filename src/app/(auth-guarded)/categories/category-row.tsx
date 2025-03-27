@@ -1,13 +1,7 @@
 'use client'
 
 import { Delete, Edit } from '@mui/icons-material'
-import {
-  IconButton,
-  TableCell,
-  TableRow,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import { IconButton, TableCell, TableRow, Tooltip } from '@mui/material'
 import { Category } from '@prisma/client'
 
 interface Props {
