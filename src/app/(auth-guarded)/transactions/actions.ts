@@ -2,8 +2,8 @@
 
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import { ListedTransaction } from './transaction-row'
 import { Category } from '@prisma/client'
+import { ListedTransaction } from './transaction-row'
 
 type QueryType = {
   id: number

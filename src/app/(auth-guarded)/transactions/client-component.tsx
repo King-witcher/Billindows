@@ -14,11 +14,11 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import React, { ChangeEvent, useMemo, useState } from 'react'
-import { ListedTransaction, TransactionRow } from './transaction-row'
+import { ChangeEvent, useMemo, useState } from 'react'
 import { CreateTransactionModal } from './modals/create-transaction'
 import { DeleteTransactionDialog } from './modals/delete-transaction'
 import { EditTransactionDialog } from './modals/edit-transaction'
+import { ListedTransaction, TransactionRow } from './transaction-row'
 
 interface Props {
   transactions: ListedTransaction[]
@@ -35,7 +35,6 @@ export function ClientComponent({ transactions, now }: Props) {
 
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(0)
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
   const visibleTransactions = useMemo(
     () =>
@@ -50,25 +49,16 @@ export function ClientComponent({ transactions, now }: Props) {
     setPage(0)
   }
 
-  function handleClickAddTransaction(e: React.MouseEvent<HTMLButtonElement>) {
-    setAnchorEl(e.currentTarget)
-  }
-
-  function handleClose() {
-    setAnchorEl(null)
-  }
-
   return (
     <div className="p-[20px] flex flex-col gap-[20px] h-full">
-      <div className="flex items-center gap-[10px] w-full ml-auto">
-        <Typography variant="h2" color="primary">
+      <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[20px] w-full ml-auto">
+        <Typography className="self-start" variant="h3" color="primary">
           Transactions
         </Typography>
         <Button
           variant="contained"
           color="primary"
           startIcon={<Add />}
-          sx={{ marginLeft: 'auto' }}
           onClick={() => setCreateTransactionModalOpen(true)}
         >
           New transaction
@@ -81,11 +71,11 @@ export function ClientComponent({ transactions, now }: Props) {
             <Table stickyHeader className="absolute inset-0">
               <TableHead>
                 <TableRow>
-                  <TableCell>Date</TableCell>
+                  <TableCell className="!hidden sm:!table-cell">Date</TableCell>
                   <TableCell align="center">Transaction</TableCell>
                   <TableCell align="center">Category</TableCell>
                   <TableCell align="center">Value</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -119,6 +109,7 @@ export function ClientComponent({ transactions, now }: Props) {
       <Modal
         open={Boolean(transactionToDelete)}
         onClose={() => setTransactionToDelete(null)}
+        className="max-w-full"
       >
         {transactionToDelete ? (
           <DeleteTransactionDialog

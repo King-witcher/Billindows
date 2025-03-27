@@ -24,17 +24,6 @@ interface Props {
   categories: Category[]
 }
 
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-}
-
 export function ClientComponent({ categories: results }: Props) {
   const [createCategoryModalOpen, setCreateCategoryModalOpen] = useState(false)
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
@@ -43,9 +32,9 @@ export function ClientComponent({ categories: results }: Props) {
   const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null)
 
   return (
-    <div className="p-[20px]">
-      <div className="flex items-center justify-between">
-        <Typography variant="h2" color="primary">
+    <div className="p-[20px] flex flex-col gap-[20px] h-full">
+      <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[20px] w-full ml-auto">
+        <Typography className="self-start" variant="h3" color="primary">
           Categories
         </Typography>
         <Button
@@ -59,12 +48,14 @@ export function ClientComponent({ categories: results }: Props) {
       </div>
 
       <TableContainer component={Paper}>
-        <Table>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Category</TableCell>
-              <TableCell align="center">Goal</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell align="center" className="!hidden sm:!table-cell">
+                Goal
+              </TableCell>
+              <TableCell align="right" />
             </TableRow>
           </TableHead>
           <TableBody>

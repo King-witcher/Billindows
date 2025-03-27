@@ -35,28 +35,34 @@ export function TransactionRow({
   return (
     <TableRow hover>
       {/* Date */}
-      <TableCell>{transaction.date.toDateString()}</TableCell>
+      <TableCell className="!hidden sm:!table-cell">
+        {transaction.date.getMonth() + 1}/{transaction.date.getDate()}/
+        {transaction.date.getFullYear()}
+      </TableCell>
 
       {/* Name */}
-      <TableCell align="center">
-        <div className="flex items-center gap-[10px] justify-center">
-          {transaction.name}
-        </div>
+      <TableCell align="center" className="truncate max-w-[150px]">
+        <Tooltip title={transaction.name}>
+          <span>{transaction.name}</span>
+        </Tooltip>
       </TableCell>
 
       {/* Category */}
-      <TableCell align="center">
+      <TableCell align="center" className="max-w-[150px]">
         <div className="flex items-center justify-center gap-[10px]">
           <style jsx>{`
           .color-badge {
             width: 14px;
+            flex-shrink: 0;
             height: 14px;
             border-radius: 999px;
             background: ${transaction.category.color};
           }
         `}</style>
           <div className="color-badge" />
-          {transaction.category.name}
+          <Tooltip title={transaction.category.name}>
+            <span className="truncate">{transaction.category.name}</span>
+          </Tooltip>
         </div>
       </TableCell>
 
@@ -64,6 +70,7 @@ export function TransactionRow({
       <TableCell align="center">
         <Typography
           fontWeight={500}
+          className="truncate"
           color={transaction.value < 0 ? 'error' : 'success'}
         >
           {`R$ ${Math.abs(transaction.value / 100).toFixed(2)}`}
@@ -71,7 +78,7 @@ export function TransactionRow({
       </TableCell>
 
       {/* Actions */}
-      <TableCell align="right">
+      <TableCell align="right" className="truncate">
         <Tooltip title="Edit">
           <IconButton onClick={onClickEdit}>
             <Edit />
