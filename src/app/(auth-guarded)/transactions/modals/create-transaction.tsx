@@ -128,7 +128,7 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
             required
             fullWidth
           />
-          <div className="flex gap-[10px] w-full">
+          <div className="flex gap-[20px] w-full">
             <FormControl className="flex-1" required>
               <InputLabel htmlFor="category">Category</InputLabel>
               <Select
@@ -155,41 +155,43 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-[10px] w-full">
-            <FormControl className="flex-3" required>
-              <InputLabel htmlFor="month">Month</InputLabel>
-              <Select
-                id="month"
-                label="Month"
-                value={month}
-                onChange={handleChangeMonth}
-              >
-                {_.range(0, 12).map((month) => (
-                  <MenuItem key={month} value={month}>
-                    {months[month]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <div className="flex flex-col sm:flex-row gap-[20px] w-full">
+            <div className="flex gap-[20px] flex-3">
+              <FormControl className="flex-1" required>
+                <InputLabel htmlFor="month">Month</InputLabel>
+                <Select
+                  id="month"
+                  label="Month"
+                  value={month}
+                  onChange={handleChangeMonth}
+                >
+                  {_.range(0, 12).map((month) => (
+                    <MenuItem key={month} value={month}>
+                      {months[month]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <FormControl className="flex-2" required>
-              <InputLabel htmlFor="day">Day</InputLabel>
-              <Select
-                id="day"
-                label="Day"
-                value={day}
-                onChange={(e) => setDay(Number(e.target.value))}
-                MenuProps={menuProps}
-              >
-                {daysInTheMonth.map((day) => (
-                  <MenuItem key={day} value={day}>
-                    {day}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              <FormControl className="flex-1" required>
+                <InputLabel htmlFor="day">Day</InputLabel>
+                <Select
+                  id="day"
+                  label="Day"
+                  value={day}
+                  onChange={(e) => setDay(Number(e.target.value))}
+                  MenuProps={menuProps}
+                >
+                  {daysInTheMonth.map((day) => (
+                    <MenuItem key={day} value={day}>
+                      {day}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
 
-            <FormControl className="flex-3" required disabled>
+            <FormControl className="flex-2" required disabled>
               <InputLabel htmlFor="year">Year</InputLabel>
               <Select id="year" label="Year" value={now.getFullYear()}>
                 <MenuItem value={now.getFullYear()}>
