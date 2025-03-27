@@ -41,13 +41,15 @@ export function TransactionRow({
       </TableCell>
 
       {/* Name */}
-      <TableCell align="center" className="truncate">
-        {transaction.name}
+      <TableCell align="center" className="truncate max-w-[150px]">
+        <Tooltip title={transaction.name}>
+          <span>{transaction.name}</span>
+        </Tooltip>
       </TableCell>
 
       {/* Category */}
-      <TableCell align="center">
-        <div className="flex items-center justify-center gap-[10px] truncate">
+      <TableCell align="center" className="max-w-[150px]">
+        <div className="flex items-center justify-center gap-[10px]">
           <style jsx>{`
           .color-badge {
             width: 14px;
@@ -58,7 +60,9 @@ export function TransactionRow({
           }
         `}</style>
           <div className="color-badge" />
-          {transaction.category.name}
+          <Tooltip title={transaction.category.name}>
+            <span className="truncate">{transaction.category.name}</span>
+          </Tooltip>
         </div>
       </TableCell>
 

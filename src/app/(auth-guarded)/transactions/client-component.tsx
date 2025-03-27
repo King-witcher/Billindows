@@ -51,7 +51,7 @@ export function ClientComponent({ transactions, now }: Props) {
 
   return (
     <div className="p-[20px] flex flex-col gap-[20px] h-full">
-      <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[10px] w-full ml-auto">
+      <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[20px] w-full ml-auto">
         <Typography className="self-start" variant="h3" color="primary">
           Transactions
         </Typography>
