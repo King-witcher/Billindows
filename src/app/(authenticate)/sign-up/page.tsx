@@ -1,7 +1,7 @@
 'use client'
 
-import { InputGroup } from '@/components/atoms/input-group/input-group'
 import { FormState, FormStateEnum } from '@/types/form-state'
+import { Button, TextField, Typography } from '@mui/material'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
@@ -13,49 +13,79 @@ export default function Page() {
   const referrer = search.get('referrer') ?? '/'
 
   return (
-    <div className="flex flex-col items-center gap-[20px] w-[300px]">
-      <h1 className="text-3xl">Sign up</h1>
-      <span className="text-sm">
-        Already have an account?{' '}
-        <Link
-          className="text-emerald-600 hover:text-emerald-800"
-          href="/sign-in"
-        >
-          Sign in
-        </Link>
-      </span>
+    <>
+      <Typography variant="h4" color="primary">
+        Sign up
+      </Typography>
       <form
-        className="w-full flex flex-col items-center gap-[20px]"
+        className="w-full flex flex-col items-center gap-[20px] mt-[20px]"
         action={action}
       >
         <input type="hidden" name="referrer" value={referrer} />
-        <InputGroup placeholder="Email" type="email" name="email" required />
-        <InputGroup placeholder="Name" type="text" name="name" required />
-        <InputGroup
-          placeholder="Password"
-          type="password"
-          name="password"
+        <TextField
+          label="Email"
+          type="email"
+          name="email"
+          fullWidth
+          error={state.state === FormStateEnum.Error}
+          disabled={pending}
           required
         />
-        <InputGroup
-          placeholder="Password confirmation"
+        <TextField
+          label="Name"
+          type="name"
+          name="name"
+          fullWidth
+          error={state.state === FormStateEnum.Error}
+          disabled={pending}
+          required
+        />
+        <TextField
+          label="Password"
+          type="password"
+          name="password"
+          fullWidth
+          error={state.state === FormStateEnum.Error}
+          disabled={pending}
+          required
+        />
+        <TextField
+          label="Password confirmation"
           type="password"
           name="passwordConfirmation"
+          fullWidth
+          error={state.state === FormStateEnum.Error}
+          helperText={
+            state.state === FormStateEnum.Error ? state.message : undefined
+          }
+          disabled={pending}
           required
         />
         <input type="hidden" name="referrer" value={referrer} />
-        <button
-          className="h-[50px] w-full rounded-[4px] bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition-colors duration-150 text-white mt-[20px] cursor-pointer"
+        <Button
+          className="!mt-[20px]"
           type="submit"
+          variant="contained"
+          size="large"
+          disabled={pending}
+          fullWidth
         >
           Continue
-        </button>
-        {state.state === FormStateEnum.Error && (
-          <p className="text-red-500 w-full text-center leading-4 text-xs font-mono">
-            {state.message}
-          </p>
-        )}
+        </Button>
       </form>
-    </div>
+      <Typography variant="subtitle1" align="center">
+        Already have an account?
+      </Typography>
+      <Button
+        LinkComponent={Link}
+        href="/sign-in"
+        variant="outlined"
+        size="large"
+        disabled={pending}
+        fullWidth
+      >
+        Sign in
+      </Button>
+    </>
   )
 }

@@ -60,7 +60,6 @@ export default function Page() {
       <Button
         LinkComponent={Link}
         href="/sign-up"
-        type="submit"
         variant="outlined"
         size="large"
         disabled={pending}
