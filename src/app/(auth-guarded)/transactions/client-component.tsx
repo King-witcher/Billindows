@@ -109,6 +109,7 @@ export function ClientComponent({ transactions, now }: Props) {
       <Modal
         open={Boolean(transactionToDelete)}
         onClose={() => setTransactionToDelete(null)}
+        className="max-w-full"
       >
         {transactionToDelete ? (
           <DeleteTransactionDialog

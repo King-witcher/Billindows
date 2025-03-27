@@ -98,7 +98,7 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
     >
       <Paper
         elevation={10}
-        className="absolute top-1/2 left-1/2 w-[520px] max-w-[calc(100%_-_20px)] translate-x-[-50%] translate-y-[-50%] p-[20px]"
+        className="absolute top-1/2 left-1/2 w-[520px] max-w-[calc(100%_-_40px)] translate-x-[-50%] translate-y-[-50%] p-[20px]"
       >
         <form
           action={mutation.mutate}
