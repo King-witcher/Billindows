@@ -1,35 +1,20 @@
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { range } from 'lodash'
 import { faker } from '@faker-js/faker'
 import { hashSync } from 'bcrypt'
-
-const prisma = new PrismaClient()
-
-async function createTransactions(categoryId: number, count: number) {
-  const transactionsData: Prisma.OneOffTransactionCreateWithoutCategoryInput[] =
-    range(count).map(() => ({
-      date: faker.date.recent({
-        days: 120,
-      }),
-      name: faker.commerce.product(),
-      value: faker.number.int({
-        min: -1000,
-        max: 1000,
-      }),
-    }))
-
-  await prisma.category.update({
-    where: { id: categoryId },
-    data: { oneOffTransactions: { create: transactionsData } },
-  })
-}
+import { prisma } from './helpers/prisma'
+import {
+  addFixedTransactions,
+  addOneOffTransactions,
+} from './helpers/transactions'
 
 async function createCategories(
   userId: number,
   count: number,
   transactions = true
 ): Promise<void> {
-  const TRANSACTION_COUNT = 400
+  const TRANSACTION_COUNT = 50
+  const FIXED_TRANSACTION_COUNT = 1
   const categoriesData: Prisma.CategoryCreateManyInput[] = range(count).map(
     () => ({
       user_id: userId,
@@ -44,11 +29,14 @@ async function createCategories(
   })
 
   if (transactions) {
-    await Promise.all(
-      categories.map((category) =>
-        createTransactions(category.id, TRANSACTION_COUNT)
-      )
-    )
+    await Promise.all([
+      ...categories.map(({ id }) =>
+        addOneOffTransactions(id, TRANSACTION_COUNT)
+      ),
+      ...categories.map(({ id }) =>
+        addFixedTransactions(id, FIXED_TRANSACTION_COUNT)
+      ),
+    ])
   }
 }
 

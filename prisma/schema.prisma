@@ -26,6 +26,7 @@ model Category {
   user               User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id            Int
   oneOffTransactions OneOffTransaction[]
+  fixedTransactions  FixedTransaction[]
 
   @@map("categories")
 }
@@ -39,4 +40,17 @@ model OneOffTransaction {
   category_id Int
 
   @@map("one_off_transactions")
+}
+
+model FixedTransaction {
+  id         Int       @id @default(autoincrement())
+  name       String
+  value      Int
+  start_date DateTime // Represents the first day when the transaction happened.
+  end_date   DateTime? // Represents the first day of the first month after the transaction stopped.
+
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id Int
+
+  @@map("fixed_transactions")
 }
