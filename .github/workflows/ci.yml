@@ -1,11 +1,11 @@
-name: Lint
+name: CI
 
 on:
   push:
   workflow_dispatch:
 
 jobs:
-  lint:
+  ci:
     name: Run linter
     runs-on: macos-latest
 
@@ -17,6 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Run Audit to Check fo Vulnerabillities
+        run: yarn audit
 
       - name: Cache Dependencies
         id: cache-dependencies
