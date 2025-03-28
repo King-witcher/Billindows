@@ -6,7 +6,7 @@ on:
 
 jobs:
   ci:
-    name: Run linter
+    name: Check code
     runs-on: macos-latest
 
     steps:
