@@ -29,7 +29,7 @@ export default async function Page() {
   if (!session) return null
 
   return (
-    <div className="w-full h-full p-[20px]">
+    <div className="w-full min-h-full p-[20px]">
       <Paper className="p-[40px] h-full">
         <Typography variant="h3" gutterBottom color="primary">
           Welcome, {session.name}!
