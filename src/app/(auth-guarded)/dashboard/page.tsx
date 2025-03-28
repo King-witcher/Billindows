@@ -1,7 +1,8 @@
-import { deleteSession, verifySession } from '@/lib/session'
-import { Typography } from '@mui/material'
+import { verifySession } from '@/lib/session'
+import { formatMoney } from '@/utils/utils'
+import { Card, CardContent, Typography } from '@mui/material'
 import Paper from '@mui/material/Paper'
-import { redirect } from 'next/navigation'
+import { getTransactions } from './actions'
 
 export const metadata = {
   title: 'Billindows - Dashboard',
@@ -9,63 +10,108 @@ export const metadata = {
 
 export default async function Page() {
   const session = await verifySession()
+  const transactions = await getTransactions()
+  const now = new Date()
+
+  const balance = transactions.reduce(
+    (prev, current) => prev + current.value,
+    0
+  )
+
+  const daysInTheMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0
+  ).getDate()
+  const currentDay = now.getDate()
+  const monthProgress = currentDay / daysInTheMonth
+
   if (!session) return null
 
-  async function signOut() {
-    'use server'
-    await deleteSession()
-    redirect('/sign-in')
-  }
-
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <Paper className="p-[40px] gap-[20px] flex flex-col">
-        <Typography variant="h4" color="primary" className="text-center">
-          Hello, {session.name}!
+    <div className="w-full h-full p-[20px]">
+      <Paper className="p-[40px] h-full">
+        <Typography variant="h3" gutterBottom color="primary">
+          Welcome, {session.name}!
         </Typography>
-        <Typography variant="body1" className="w-[300px]">
-          We have nothing to show yet, but you can add transactions, categories
-          or{' '}
-          <Typography
-            onClick={signOut}
-            component="span"
-            color="primary"
-            className="cursor-pointer"
-          >
-            sign-out
-          </Typography>{' '}
-          from your account.
+        <Typography variant="h4" color="textSecondary" gutterBottom>
+          One-off performance
         </Typography>
+        <div className="flex flex-col sm:flex-row gap-[20px]">
+          <Card className="flex-1">
+            <CardContent>
+              <Typography variant="h4" gutterBottom component="div">
+                Balance
+              </Typography>
+              <Typography
+                color={balance > 0 ? 'success' : 'error'}
+                variant="h5"
+                gutterBottom
+                component="div"
+              >
+                {formatMoney(balance)}
+              </Typography>
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                gutterBottom
+                component="div"
+              >
+                Expected: -
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card className="flex-1">
+            <CardContent>
+              <Typography variant="h4" gutterBottom component="div">
+                Rate
+              </Typography>
+              <Typography
+                color={balance > 0 ? 'success' : 'error'}
+                variant="h5"
+                gutterBottom
+                component="div"
+              >
+                {formatMoney(balance / currentDay)}
+                <Typography component="span" color="textSecondary">
+                  /day
+                </Typography>
+              </Typography>
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                gutterBottom
+                component="div"
+              >
+                Expected: -
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card className="flex-1">
+            <CardContent>
+              <Typography variant="h4" gutterBottom component="div">
+                Monthly forecast
+              </Typography>
+              <Typography
+                color={balance > 0 ? 'success' : 'error'}
+                variant="h5"
+                gutterBottom
+                component="div"
+              >
+                {formatMoney(Math.abs(balance / monthProgress))}
+              </Typography>
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                gutterBottom
+                component="div"
+              >
+                Goal: -
+              </Typography>
+            </CardContent>
+          </Card>
+        </div>
       </Paper>
     </div>
   )
-
-  // return (
-  //   <>
-  //     <h2>Categories</h2>
-  //     <table>
-  //       <thead>
-  //         <tr>
-  //           <th>Id</th>
-  //           <th>Name</th>
-  //           <th>Goal</th>
-  //         </tr>
-  //       </thead>
-  //       <tbody>
-  //         {user?.categories.map((category) => {
-  //           return (
-  //             <tr key={category.id} style={{ color: category.color }}>
-  //               <td>{category.id}</td>
-  //               <td>{category.name}</td>
-  //               <td>{category.goal}</td>
-  //             </tr>
-  //           )
-  //         })}
-  //       </tbody>
-  //     </table>
-  //     <button>Create new category</button>
-  //     <h2>Expenses</h2>
-  //     <button>Create new expense</button>
-  //   </>
-  // )
 }
