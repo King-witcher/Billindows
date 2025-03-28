@@ -4,6 +4,7 @@ import { MoneyField } from '@/components/atoms/inputs/money-input'
 import {
   Button,
   Checkbox,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -11,7 +12,6 @@ import {
   InputLabel,
   MenuItem,
   MenuProps,
-  Modal,
   Paper,
   Radio,
   RadioGroup,
@@ -22,12 +22,12 @@ import {
 } from '@mui/material'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import { createTransaction, getCategories } from '../actions'
 
 interface Props {
-  open: boolean
   now: Date
   onClose: () => void
 }
@@ -55,7 +55,7 @@ const menuProps: Partial<MenuProps> = {
   },
 }
 
-export function CreateTransactionModal({ open, onClose, now }: Props) {
+export function CreateTransactionModal({ onClose, now }: Props) {
   const router = useRouter()
 
   const year = now.getFullYear()
@@ -74,7 +74,6 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
 
   const categoriesQuery = useQuery({
     queryKey: ['get-categories'],
-    enabled: open,
     queryFn: getCategories,
   })
 
@@ -91,22 +90,47 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
   }, [onClose])
 
   return (
-    <Modal
-      aria-label="create-transaction-modal"
-      open={open}
-      onClose={handleClose}
+    <Paper
+      elevation={10}
+      className="absolute top-1/2 left-1/2 w-[520px] max-w-[calc(100%_-_40px)] translate-x-[-50%] translate-y-[-50%] p-[20px] flex flex-col gap-[20px]"
     >
-      <Paper
-        elevation={10}
-        className="absolute top-1/2 left-1/2 w-[520px] max-w-[calc(100%_-_40px)] translate-x-[-50%] translate-y-[-50%] p-[20px]"
-      >
+      <Typography variant="h5" color="primary">
+        Create transaction
+      </Typography>
+
+      {categoriesQuery.isFetching && (
+        <div className="w-full h-[200px] flex items-center justify-center">
+          <CircularProgress size="60px" />
+        </div>
+      )}
+
+      {!categoriesQuery.isFetching && !categoriesQuery.data?.length && (
+        <>
+          <Typography variant="body1">
+            You haven&apos;t created a category yet. You must create at least
+            one category to create transactions.
+          </Typography>
+          <div className="flex self-end gap-[20px]">
+            <Button variant="outlined" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              LinkComponent={Link}
+              href="/categories"
+              onClick={onClose}
+            >
+              Create categories
+            </Button>
+          </div>
+        </>
+      )}
+
+      {!categoriesQuery.isFetching && Boolean(categoriesQuery.data?.length) && (
         <form
           action={mutation.mutate}
           className="flex flex-col gap-[20px] items-start"
         >
-          <Typography variant="h5" color="primary">
-            Create transaction
-          </Typography>
           <FormControl required>
             <RadioGroup defaultValue="expense" name="type" row>
               <FormControlLabel
@@ -237,7 +261,7 @@ export function CreateTransactionModal({ open, onClose, now }: Props) {
             </Button>
           </div>
         </form>
-      </Paper>
-    </Modal>
+      )}
+    </Paper>
   )
 }

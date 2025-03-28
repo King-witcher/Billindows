@@ -101,11 +101,17 @@ export function ClientComponent({ transactions, now }: Props) {
           page={page}
         />
       </Paper>
-      <CreateTransactionModal
-        now={now}
+
+      <Modal
         open={createTransactionModalOpen}
         onClose={() => setCreateTransactionModalOpen(false)}
-      />
+        className="max-w-full"
+      >
+        <CreateTransactionModal
+          now={now}
+          onClose={() => setCreateTransactionModalOpen(false)}
+        />
+      </Modal>
       <Modal
         open={Boolean(transactionToDelete)}
         onClose={() => setTransactionToDelete(null)}
