@@ -16,11 +16,22 @@ export function MoneyField<Variant extends TextFieldVariants>(
 
     /** The value in cents. */
     value?: number
+
+    defaultValue?: number | null
     onChange?: (valueCents: number) => void
-  } & Omit<TextFieldProps, 'variant' | 'value' | 'onChange' | 'slotProps'>
+  } & Omit<
+    TextFieldProps,
+    'variant' | 'value' | 'onChange' | 'slotProps' | 'defaultValue'
+  >
 ) {
-  const { value: controlledValue, onChange, name, ...textFieldProps } = props
-  const [internalValue, setInternalValue] = useState(0)
+  const {
+    value: controlledValue,
+    defaultValue,
+    onChange,
+    name,
+    ...textFieldProps
+  } = props
+  const [internalValue, setInternalValue] = useState(defaultValue ?? 0)
   const value = controlledValue ?? internalValue
   const controlled = controlledValue !== undefined
   const displayValue = (value / 100).toFixed(2)
@@ -36,7 +47,12 @@ export function MoneyField<Variant extends TextFieldVariants>(
 
   return (
     <>
-      <input type="hidden" name={name} value={value} />
+      <input
+        type="hidden"
+        disabled={textFieldProps.disabled}
+        name={name}
+        value={value}
+      />
       <TextField
         {...textFieldProps}
         onChange={handleChange}

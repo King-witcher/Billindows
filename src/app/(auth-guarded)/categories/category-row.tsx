@@ -6,15 +6,11 @@ import { Category } from '@prisma/client'
 
 interface Props {
   category: Category
-  setCategoryToEdit: (category: Category) => void
-  setCategoryToDelete: (category: Category) => void
+  onEdit: (category: Category) => void
+  onDelete: (category: Category) => void
 }
 
-export function CategoryRow({
-  category,
-  setCategoryToDelete,
-  setCategoryToEdit,
-}: Props) {
+export function CategoryRow({ category, onDelete, onEdit }: Props) {
   return (
     <TableRow hover>
       <TableCell>
@@ -41,12 +37,12 @@ export function CategoryRow({
       </TableCell>
       <TableCell align="right" className="whitespace-nowrap">
         <Tooltip title="Edit">
-          <IconButton onClick={() => setCategoryToEdit(category)}>
+          <IconButton onClick={() => onEdit(category)}>
             <Edit />
           </IconButton>
         </Tooltip>
         <Tooltip title="Delete">
-          <IconButton onClick={() => setCategoryToDelete(category)}>
+          <IconButton onClick={() => onDelete(category)}>
             <Delete />
           </IconButton>
         </Tooltip>

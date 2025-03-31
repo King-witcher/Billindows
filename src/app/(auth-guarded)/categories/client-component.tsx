@@ -1,12 +1,10 @@
 'use client'
 
-import { CreateCategoryModal } from '@/components/organisms/modals/create-category'
-import { DeleteCategoryModal } from '@/components/organisms/modals/delete-category'
-import { EditCategoryModal } from '@/components/organisms/modals/edit-category'
 import { Add } from '@mui/icons-material'
 // import { Button } from '@/components/atoms/button/button'
 import {
   Button,
+  Modal,
   Paper,
   Table,
   TableBody,
@@ -18,18 +16,35 @@ import {
 } from '@mui/material'
 import { Category } from '@prisma/client'
 import { useState } from 'react'
+import { createCategory } from './actions/create-category'
+import { editCategory } from './actions/edit-category'
 import { CategoryRow } from './category-row'
+import { CategoryDialog } from './modals/category-dialog'
+import { DeleteCategoryDialog } from './modals/delete-category'
 
 interface Props {
   categories: Category[]
 }
 
 export function ClientComponent({ categories: results }: Props) {
-  const [createCategoryModalOpen, setCreateCategoryModalOpen] = useState(false)
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
-    null
-  )
-  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null)
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | undefined>()
+  const [categoryToDelete, setCategoryToDelete] = useState<
+    Category | undefined
+  >()
+
+  const categoryAction = categoryToEdit ? editCategory : createCategory
+
+  function handleClose() {
+    setCategoryDialogOpen(false)
+    setCategoryToEdit(undefined)
+    setCategoryToDelete(undefined)
+  }
+
+  function handleEdit(category: Category) {
+    setCategoryToEdit(category)
+    setCategoryDialogOpen(true)
+  }
 
   return (
     <div className="p-[20px] flex flex-col gap-[20px] h-full">
@@ -41,7 +56,7 @@ export function ClientComponent({ categories: results }: Props) {
           variant="contained"
           color="primary"
           startIcon={<Add />}
-          onClick={() => setCreateCategoryModalOpen(true)}
+          onClick={() => setCategoryDialogOpen(true)}
         >
           Add category
         </Button>
@@ -61,8 +76,8 @@ export function ClientComponent({ categories: results }: Props) {
           <TableBody>
             {results.map((category) => (
               <CategoryRow
-                setCategoryToDelete={setCategoryToDelete}
-                setCategoryToEdit={setCategoryToEdit}
+                onDelete={setCategoryToDelete}
+                onEdit={handleEdit}
                 key={category.id}
                 category={category}
               />
@@ -70,19 +85,19 @@ export function ClientComponent({ categories: results }: Props) {
           </TableBody>
         </Table>
       </TableContainer>
-      <CreateCategoryModal
-        open={createCategoryModalOpen}
-        onClose={() => setCreateCategoryModalOpen(false)}
-      />
-      <DeleteCategoryModal
-        open={!!categoryToDelete}
-        onClose={() => setCategoryToDelete(null)}
-        category={categoryToDelete}
-      />
-      <EditCategoryModal
-        open={!!categoryToEdit}
-        onClose={() => setCategoryToEdit(null)}
-      />
+      <Modal onClose={handleClose} open={categoryDialogOpen}>
+        <CategoryDialog
+          action={categoryAction}
+          onClose={handleClose}
+          category={categoryToEdit}
+        />
+      </Modal>
+      <Modal open={!!categoryToDelete} onClose={handleClose}>
+        <DeleteCategoryDialog
+          onClose={handleClose}
+          category={categoryToDelete}
+        />
+      </Modal>
     </div>
   )
 }

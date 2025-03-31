@@ -15,7 +15,6 @@ export async function deleteTransactionAction(
   }
 
   const userId = await getTxUserId(type, id)
-  console.log(userId)
 
   if (userId !== session.id) {
     console.error('wrong user')

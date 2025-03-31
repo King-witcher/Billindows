@@ -130,7 +130,7 @@ export default async function Page() {
                   <TableCell align="right">Forecast</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody></TableBody>
+              <TableBody> </TableBody>
             </Table>
           </TableContainer>
         </div>
