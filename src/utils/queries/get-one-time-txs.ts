@@ -50,7 +50,7 @@ export async function getOneTimeTxs(
       t.name,
       t.value,
       t.day,
-      c.id AS category_id
+      c.id AS category_id,
       c.color AS category_color,
       c.name AS category_name
     FROM c INNER JOIN one_time_txs t
