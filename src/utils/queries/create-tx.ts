@@ -1,6 +1,6 @@
 import { prisma } from '@/services/prisma'
-import { TxDto } from './get-one-time-txs'
 import { DBTime } from '../time'
+import { TxDto } from './get-one-time-txs'
 
 export async function createTx(
   categoryId: number,

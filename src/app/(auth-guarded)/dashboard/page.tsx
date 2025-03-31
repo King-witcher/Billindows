@@ -1,9 +1,9 @@
 import { verifySession } from '@/lib/session'
+import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
+import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
 import { formatMoney } from '@/utils/utils'
 import { Card, CardContent, Typography } from '@mui/material'
 import Paper from '@mui/material/Paper'
-import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
-import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
 
 export const metadata = {
   title: 'Billindows - Dashboard',

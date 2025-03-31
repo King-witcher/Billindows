@@ -1,10 +1,10 @@
 'use client'
 
+import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { Button, Paper, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { deleteTransaction } from '../actions/delete-transaction'
-import { TxDto } from '@/utils/queries/get-one-time-txs'
 
 interface Props {
   transaction: TxDto

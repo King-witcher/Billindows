@@ -1,5 +1,6 @@
 'use client'
 
+import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { Add } from '@mui/icons-material'
 import {
   Button,
@@ -19,7 +20,6 @@ import { CreateTransactionModal } from './modals/create-transaction'
 import { DeleteTransactionDialog } from './modals/delete-transaction'
 import { EditTransactionDialog } from './modals/edit-transaction'
 import { TransactionRow } from './transaction-row'
-import { TxDto } from '@/utils/queries/get-one-time-txs'
 
 interface Props {
   transactions: TxDto[]

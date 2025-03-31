@@ -1,5 +1,5 @@
 import { getFixedTxs } from './get-fixed-txs'
-import { getOneTimeTxs, TxDto } from './get-one-time-txs'
+import { TxDto, getOneTimeTxs } from './get-one-time-txs'
 
 export async function getAllTxs(
   userId: number,

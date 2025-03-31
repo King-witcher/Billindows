@@ -25,8 +25,8 @@ import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
-import { getCategories } from '../actions/get-categories'
 import { createTxAction } from '../actions/create-transaction'
+import { getCategories } from '../actions/get-categories'
 
 interface Props {
   now: Date
