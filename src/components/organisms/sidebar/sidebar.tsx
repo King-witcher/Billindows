@@ -1,3 +1,5 @@
+'use client'
+
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'

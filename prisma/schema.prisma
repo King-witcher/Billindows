@@ -8,35 +8,54 @@ datasource db {
 }
 
 model User {
-  id              Int        @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   name            String
-  email           String     @unique
+  email           String   @unique
   password_digest String
-  created_at      DateTime   @default(now())
-  categories      Category[]
+  created_at      DateTime @default(now())
+
+  categories Category[]
 
   @@map("users")
 }
 
 model Category {
-  id                 Int                 @id @default(autoincrement())
-  name               String
-  color              String
-  goal               Int?
-  user               User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id            Int
-  oneOffTransactions OneOffTransaction[]
+  id      Int    @id @default(autoincrement())
+  name    String
+  color   String
+  goal    Int?
+  user_id Int
+
+  user       User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  oneTimeTxs OneTimeTx[]
+  fixedTxs   FixedTx[]
 
   @@map("categories")
 }
 
-model OneOffTransaction {
-  id          Int      @id @default(autoincrement())
+model OneTimeTx {
+  id          Int    @id @default(autoincrement())
   name        String
   value       Int // Cents
-  date        DateTime
-  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  month       Int    @db.SmallInt // Months since January/1970
+  day         Int    @db.SmallInt
   category_id Int
 
-  @@map("one_off_transactions")
+  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@map("one_time_txs")
+}
+
+model FixedTx {
+  id          Int    @id @default(autoincrement())
+  name        String
+  value       Int
+  start_month Int    @db.SmallInt
+  end_month   Int?   @db.SmallInt
+  day         Int    @db.SmallInt
+  category_id Int
+
+  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@map("fixed_txs")
 }

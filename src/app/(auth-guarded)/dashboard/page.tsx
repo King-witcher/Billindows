@@ -1,8 +1,9 @@
 import { verifySession } from '@/lib/session'
+import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
+import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
 import { formatMoney } from '@/utils/utils'
 import { Card, CardContent, Typography } from '@mui/material'
 import Paper from '@mui/material/Paper'
-import { getTransactions } from './actions'
 
 export const metadata = {
   title: 'Billindows - Dashboard',
@@ -10,13 +11,23 @@ export const metadata = {
 
 export default async function Page() {
   const session = await verifySession()
-  const transactions = await getTransactions()
+  if (!session) return null
+
   const now = new Date()
 
-  const balance = transactions.reduce(
+  const [fixed, oneTime] = await Promise.all([
+    getFixedTxs(session.id, now.getFullYear(), now.getMonth()),
+    getOneTimeTxs(session.id, now.getFullYear(), now.getMonth()),
+  ])
+
+  const fixedBalance = fixed.reduce((prev, current) => prev + current.value, 0)
+
+  const oneTimeBalance = oneTime.reduce(
     (prev, current) => prev + current.value,
     0
   )
+
+  const balance = fixedBalance + oneTimeBalance
 
   const daysInTheMonth = new Date(
     now.getFullYear(),
@@ -25,8 +36,6 @@ export default async function Page() {
   ).getDate()
   const currentDay = now.getDate()
   const monthProgress = currentDay / daysInTheMonth
-
-  if (!session) return null
 
   return (
     <div className="w-full min-h-full p-[20px]">
@@ -44,7 +53,7 @@ export default async function Page() {
                 Balance
               </Typography>
               <Typography
-                color={balance > 0 ? 'success' : 'error'}
+                color={balance < 0 ? 'error' : 'success'}
                 variant="h5"
                 gutterBottom
                 component="div"
@@ -67,7 +76,7 @@ export default async function Page() {
                 Rate
               </Typography>
               <Typography
-                color={balance > 0 ? 'success' : 'error'}
+                color={balance < 0 ? 'error' : 'success'}
                 variant="h5"
                 gutterBottom
                 component="div"
@@ -93,12 +102,12 @@ export default async function Page() {
                 Monthly forecast
               </Typography>
               <Typography
-                color={balance > 0 ? 'success' : 'error'}
+                color={balance < 0 ? 'error' : 'success'}
                 variant="h5"
                 gutterBottom
                 component="div"
               >
-                {formatMoney(Math.abs(balance / monthProgress))}
+                {formatMoney(oneTimeBalance / monthProgress + fixedBalance)}
               </Typography>
               <Typography
                 variant="body1"

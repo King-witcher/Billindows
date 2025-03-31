@@ -25,7 +25,8 @@ import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
-import { createTransaction, getCategories } from '../actions'
+import { createTxAction } from '../actions/create-transaction'
+import { getCategories } from '../actions/get-categories'
 
 interface Props {
   now: Date
@@ -64,7 +65,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
   const daysInTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
 
   const mutation = useMutation({
-    mutationFn: createTransaction,
+    mutationFn: createTxAction,
     mutationKey: ['create-category'],
     onSuccess: () => {
       handleClose()
@@ -186,6 +187,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                 <Select
                   id="month"
                   label="Month"
+                  name="month"
                   value={month}
                   onChange={handleChangeMonth}
                 >
@@ -202,6 +204,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                 <Select
                   id="day"
                   label="Day"
+                  name="day"
                   value={day}
                   onChange={(e) => setDay(Number(e.target.value))}
                   MenuProps={menuProps}
@@ -211,36 +214,41 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                       {day}
                     </MenuItem>
                   ))}
+                  ``
                 </Select>
               </FormControl>
             </div>
 
-            <FormControl className="flex-2" required disabled>
+            <FormControl className="flex-2" required>
               <InputLabel htmlFor="year">Year</InputLabel>
-              <Select id="year" label="Year" value={now.getFullYear()}>
+              <Select
+                id="year"
+                name="year"
+                label="Year"
+                value={now.getFullYear()}
+              >
                 <MenuItem value={now.getFullYear()}>
                   {now.getFullYear()}
                 </MenuItem>
               </Select>
             </FormControl>
-
-            <input
-              type="hidden"
-              name="date"
-              value={new Date(year, month, day).getTime()}
-            />
           </div>
 
           <FormControl>
             <FormLabel>Behavior</FormLabel>
             <FormGroup>
-              <FormControlLabel
+              {/* <FormControlLabel
                 disabled
                 checked
+                name="forecast"
                 label="Forecast"
                 control={<Checkbox />}
+              /> */}
+              <FormControlLabel
+                name="fixed"
+                label="Fixed transaction"
+                control={<Checkbox />}
               />
-              <FormControlLabel disabled label="Fixed" control={<Checkbox />} />
             </FormGroup>
           </FormControl>
 

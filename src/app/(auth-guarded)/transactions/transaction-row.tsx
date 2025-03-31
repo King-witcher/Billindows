@@ -1,5 +1,6 @@
 'use client'
 
+import { TxDto } from '@/utils/queries/get-one-time-txs'
 import Delete from '@mui/icons-material/Delete'
 import Edit from '@mui/icons-material/Edit'
 import {
@@ -22,7 +23,7 @@ export interface ListedTransaction {
 }
 
 interface Props {
-  transaction: ListedTransaction
+  transaction: TxDto
   onClickEdit: () => void
   onClickDelete: () => void
 }
@@ -36,8 +37,7 @@ export function TransactionRow({
     <TableRow hover>
       {/* Date */}
       <TableCell className="!hidden sm:!table-cell">
-        {transaction.date.getMonth() + 1}/{transaction.date.getDate()}/
-        {transaction.date.getFullYear()}
+        {transaction.day}
       </TableCell>
 
       {/* Name */}
