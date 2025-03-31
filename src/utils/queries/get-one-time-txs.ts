@@ -38,9 +38,10 @@ export async function getOneTimeTxs(
     value: number
     day: number
     category_color: string
+    category_id: number
     category_name: string
   }[] = await prisma.$queryRaw`
-    WITH c as (
+    WITH c AS (
       SELECT id, color, name FROM categories WHERE user_id = ${userId}
     )
     
@@ -49,8 +50,9 @@ export async function getOneTimeTxs(
       t.name,
       t.value,
       t.day,
-      c.color as category_color,
-      c.name as category_name
+      c.id AS category_id
+      c.color AS category_color,
+      c.name AS category_name
     FROM c INNER JOIN one_time_txs t
         ON c.id = t.category_id
     WHERE
@@ -63,6 +65,7 @@ export async function getOneTimeTxs(
   return queryResults.map(
     (result): TxDto => ({
       category: {
+        id: result.category_id,
         color: result.category_color,
         name: result.category_name,
         goal: null,
