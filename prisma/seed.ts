@@ -60,7 +60,7 @@ async function createUsers(
 
 async function main() {
   console.log('Seeding users...')
-  await createUsers(50, true, true)
+  await createUsers(10, true, true)
 
   console.log('Creating test user...')
   const testUser = await prisma.user.create({

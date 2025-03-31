@@ -28,7 +28,7 @@ export async function addFixedTxs(categoryId: number, count: number) {
         day: start_date.getDate(),
         name: `FIXED ${faker.commerce.product()}`,
         value: faker.number.int({
-          min: -10000,
+          min: -4000,
           max: 10000,
         }),
       }
