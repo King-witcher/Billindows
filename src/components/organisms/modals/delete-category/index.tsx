@@ -1,3 +1,5 @@
+'use client'
+
 import { Button, Modal, Paper, Typography } from '@mui/material'
 import { Category } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'

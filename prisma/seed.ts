@@ -3,18 +3,15 @@ import { range } from 'lodash'
 import { faker } from '@faker-js/faker'
 import { hashSync } from 'bcrypt'
 import { prisma } from './helpers/prisma'
-import {
-  addFixedTransactions,
-  addOneOffTransactions,
-} from './helpers/transactions'
+import { addFixedTxs, addOneTimeTxs } from './helpers/transactions'
 
 async function createCategories(
   userId: number,
   count: number,
   transactions = true
 ): Promise<void> {
-  const TRANSACTION_COUNT = 50
-  const FIXED_TRANSACTION_COUNT = 1
+  const TX_COUNT = 50
+  const FIXED_TX_COUNT = 2
   const categoriesData: Prisma.CategoryCreateManyInput[] = range(count).map(
     () => ({
       user_id: userId,
@@ -30,12 +27,8 @@ async function createCategories(
 
   if (transactions) {
     await Promise.all([
-      ...categories.map(({ id }) =>
-        addOneOffTransactions(id, TRANSACTION_COUNT)
-      ),
-      ...categories.map(({ id }) =>
-        addFixedTransactions(id, FIXED_TRANSACTION_COUNT)
-      ),
+      ...categories.map(({ id }) => addOneTimeTxs(id, TX_COUNT)),
+      ...categories.map(({ id }) => addFixedTxs(id, FIXED_TX_COUNT)),
     ])
   }
 }
@@ -78,7 +71,7 @@ async function main() {
     },
   })
 
-  await createCategories(testUser.id, 10, true)
+  await createCategories(testUser.id, 4, true)
 }
 
 main()

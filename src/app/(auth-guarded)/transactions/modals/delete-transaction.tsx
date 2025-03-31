@@ -1,11 +1,13 @@
-import { ListedTransaction } from '@/app/(auth-guarded)/transactions/transaction-row'
+'use client'
+
 import { Button, Paper, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { deleteTransaction } from '../actions'
+import { deleteTransaction } from '../actions/delete-transaction'
+import { TxDto } from '@/utils/queries/get-one-time-txs'
 
 interface Props {
-  transaction: ListedTransaction
+  transaction: TxDto
   onSuccess: () => void
   onCancel: () => void
 }

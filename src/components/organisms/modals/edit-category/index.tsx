@@ -1,3 +1,5 @@
+'use client'
+
 import { Button, Modal, Paper, Typography } from '@mui/material'
 
 interface Props {

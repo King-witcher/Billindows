@@ -18,20 +18,21 @@ import { ChangeEvent, useMemo, useState } from 'react'
 import { CreateTransactionModal } from './modals/create-transaction'
 import { DeleteTransactionDialog } from './modals/delete-transaction'
 import { EditTransactionDialog } from './modals/edit-transaction'
-import { ListedTransaction, TransactionRow } from './transaction-row'
+import { TransactionRow } from './transaction-row'
+import { TxDto } from '@/utils/queries/get-one-time-txs'
 
 interface Props {
-  transactions: ListedTransaction[]
+  transactions: TxDto[]
   now: Date
 }
 
 export function ClientComponent({ transactions, now }: Props) {
   const [createTransactionModalOpen, setCreateTransactionModalOpen] =
     useState(false)
-  const [transactionToDelete, setTransactionToDelete] =
-    useState<ListedTransaction | null>(null)
-  const [transactionToEdit, setTransactionToEdit] =
-    useState<ListedTransaction | null>(null)
+  const [transactionToDelete, setTransactionToDelete] = useState<TxDto | null>(
+    null
+  )
+  const [transactionToEdit, setTransactionToEdit] = useState<TxDto | null>(null)
 
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(0)
@@ -39,7 +40,7 @@ export function ClientComponent({ transactions, now }: Props) {
   const visibleTransactions = useMemo(
     () =>
       transactions
-        .sort((a, b) => b.date.getTime() - a.date.getTime())
+        .sort((a, b) => b.day - a.day)
         .slice(page * pageSize, page * pageSize + pageSize),
     [transactions, page, pageSize]
   )
@@ -83,7 +84,7 @@ export function ClientComponent({ transactions, now }: Props) {
                   <TransactionRow
                     onClickDelete={() => setTransactionToDelete(transaction)}
                     onClickEdit={() => setTransactionToEdit(transaction)}
-                    key={transaction.id}
+                    key={`${transaction.type}-${transaction.id}`}
                     transaction={transaction}
                   />
                 ))}
