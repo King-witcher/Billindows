@@ -4,7 +4,7 @@ import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { Button, Paper, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { deleteTransaction } from '../actions/delete-transaction'
+import { deleteTransactionAction } from '../actions/delete-transaction'
 
 interface Props {
   transaction: TxDto
@@ -22,7 +22,8 @@ export function DeleteTransactionDialog({
   const value = Math.abs(transaction.value / 100).toFixed(2)
 
   const mutation = useMutation({
-    mutationFn: async () => deleteTransaction(transaction.id),
+    mutationFn: async () =>
+      deleteTransactionAction(transaction.type, transaction.id),
     mutationKey: ['delete-transaction', transaction.id],
     onSuccess: () => {
       onSuccess()

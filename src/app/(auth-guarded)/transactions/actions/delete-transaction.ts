@@ -1,18 +1,26 @@
 'use server'
 
 import { verifySession } from '@/lib/session'
-import { prisma } from '@/services/prisma'
+import { deleteTransaction } from '@/utils/queries/delete-transaction'
+import { getTxUserId } from '@/utils/queries/get-tx-user-id'
 
-export async function deleteTransaction(id: number) {
+export async function deleteTransactionAction(
+  type: 'one-time' | 'fixed',
+  id: number
+) {
   const session = await verifySession()
-  if (!session) return
+  if (!session) {
+    console.error('unauthenticated')
+    return
+  }
 
-  await prisma.oneTimeTx.delete({
-    where: {
-      category: {
-        user_id: session.id,
-      },
-      id,
-    },
-  })
+  const userId = await getTxUserId(type, id)
+  console.log(userId)
+
+  if (userId !== session.id) {
+    console.error('wrong user')
+    return
+  }
+
+  await deleteTransaction(type, id)
 }
