@@ -1,4 +1,5 @@
 import { verifySession } from '@/lib/session'
+import { prisma } from '@/services/prisma'
 import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
 import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
 import { formatMoney } from '@/utils/utils'
@@ -14,6 +15,7 @@ import {
   Typography,
 } from '@mui/material'
 import Paper from '@mui/material/Paper'
+import { CategoryRow, DashboardCategory } from './category-row'
 
 export const metadata = {
   title: 'Billindows - Dashboard',
@@ -24,11 +26,42 @@ export default async function Page() {
   if (!session) return null
 
   const now = new Date(2025, 3, 1)
+  const daysInTheMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0
+  ).getDate()
+  const currentDay = now.getDate()
+  const monthProgress = currentDay / daysInTheMonth
 
-  const [fixed, oneTime] = await Promise.all([
+  const [fixed, oneTime, categories] = await Promise.all([
     getFixedTxs(session.id, now.getFullYear(), now.getMonth()),
     getOneTimeTxs(session.id, now.getFullYear(), now.getMonth()),
+    prisma.category.findMany({
+      where: {
+        user_id: session.id,
+      },
+    }),
   ])
+
+  const categoryRows: DashboardCategory[] = categories.map((category) => {
+    const categoryFixed = fixed
+      .filter((tx) => tx.category.id === category.id)
+      .reduce((prev, current) => prev + current.value, 0)
+
+    const categoryOt = oneTime
+      .filter((tx) => tx.category.id === category.id)
+      .reduce((prev, current) => prev + current.value, 0)
+
+    return {
+      id: category.id,
+      name: category.name,
+      balance: categoryFixed + categoryOt,
+      color: category.color,
+      goal: category.goal,
+      forecast: categoryFixed + categoryOt / monthProgress,
+    }
+  })
 
   const currentOt = oneTime.filter(
     (tx) =>
@@ -67,14 +100,6 @@ export default async function Page() {
   const currentBalance = fixedBalance + currentOtBalance
   const totalBalance = fixedBalance + totalOtBalance
 
-  const daysInTheMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0
-  ).getDate()
-  const currentDay = now.getDate()
-  const monthProgress = currentDay / daysInTheMonth
-
   return (
     <div className="w-full min-h-full p-[20px]">
       <Paper className="p-[40px] h-full">
@@ -86,7 +111,7 @@ export default async function Page() {
             Monthly performance
           </Typography>
           <div className="flex flex-col sm:flex-row gap-[20px]">
-            <Card className="flex-1">
+            <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
                   Current Balance
@@ -109,7 +134,7 @@ export default async function Page() {
                 </Typography>
               </CardContent>
             </Card>
-            <Card className="flex-1">
+            <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
                   Balance Forecast
@@ -134,7 +159,7 @@ export default async function Page() {
             </Card>
           </div>
           <div className="flex flex-col sm:flex-row gap-[20px]">
-            <Card className="flex-1">
+            <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
                   Fixed Incomes
@@ -149,7 +174,7 @@ export default async function Page() {
                 </Typography>
               </CardContent>
             </Card>
-            <Card className="flex-1">
+            <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
                   Fixed Expenses
@@ -164,7 +189,7 @@ export default async function Page() {
                 </Typography>
               </CardContent>
             </Card>
-            <Card className="flex-1">
+            <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
                   One Time Expenses
@@ -183,7 +208,7 @@ export default async function Page() {
           <Typography variant="h5" color="textSecondary">
             Categories
           </Typography>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} variant="outlined">
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
@@ -193,7 +218,11 @@ export default async function Page() {
                   <TableCell align="right">Forecast</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody> </TableBody>
+              <TableBody>
+                {categoryRows.map((category) => (
+                  <CategoryRow key={category.id} category={category} />
+                ))}
+              </TableBody>
             </Table>
           </TableContainer>
         </div>
