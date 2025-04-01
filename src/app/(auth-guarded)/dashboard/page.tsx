@@ -36,6 +36,22 @@ export default async function Page() {
       (tx.month === now.getMonth() && tx.day <= now.getDate())
   )
 
+  const fixedIncomes = fixed
+    .filter((income) => income.value > 0)
+    .reduce((prev, current) => prev + current.value, 0)
+
+  const fixedExpenses = fixed
+    .filter((income) => income.value < 0)
+    .reduce((prev, current) => prev + current.value, 0)
+
+  const otIncomes = oneTime
+    .filter((income) => income.value > 0)
+    .reduce((prev, current) => prev + current.value, 0)
+
+  const otExpenses = oneTime
+    .filter((income) => income.value < 0)
+    .reduce((prev, current) => prev + current.value, 0)
+
   const fixedBalance = fixed.reduce((prev, current) => prev + current.value, 0)
 
   const currentOtBalance = currentOt.reduce(
@@ -113,6 +129,53 @@ export default async function Page() {
                   component="div"
                 >
                   Goal: -
+                </Typography>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-[20px]">
+            <Card className="flex-1">
+              <CardContent>
+                <Typography variant="h4" gutterBottom component="div">
+                  Fixed Incomes
+                </Typography>
+                <Typography
+                  color="success"
+                  variant="h5"
+                  gutterBottom
+                  component="div"
+                >
+                  {formatMoney(fixedIncomes)}
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card className="flex-1">
+              <CardContent>
+                <Typography variant="h4" gutterBottom component="div">
+                  Fixed Expenses
+                </Typography>
+                <Typography
+                  color="error"
+                  variant="h5"
+                  gutterBottom
+                  component="div"
+                >
+                  {formatMoney(fixedExpenses)}
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card className="flex-1">
+              <CardContent>
+                <Typography variant="h4" gutterBottom component="div">
+                  One Time Expenses
+                </Typography>
+                <Typography
+                  color="error"
+                  variant="h5"
+                  gutterBottom
+                  component="div"
+                >
+                  {formatMoney(otExpenses)}
                 </Typography>
               </CardContent>
             </Card>
