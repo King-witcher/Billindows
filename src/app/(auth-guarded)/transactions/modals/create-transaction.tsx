@@ -237,13 +237,6 @@ export function CreateTransactionModal({ onClose, now }: Props) {
           <FormControl>
             <FormLabel>Behavior</FormLabel>
             <FormGroup>
-              {/* <FormControlLabel
-                disabled
-                checked
-                name="forecast"
-                label="Forecast"
-                control={<Checkbox />}
-              /> */}
               <FormControlLabel
                 name="fixed"
                 label="Fixed transaction"

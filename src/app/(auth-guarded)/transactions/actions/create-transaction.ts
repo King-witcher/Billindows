@@ -14,12 +14,14 @@ const createTxSchema = z.object({
   year: z.coerce.number().min(0).int(),
   month: z.coerce.number().min(0).max(11).int(),
   day: z.coerce.number().min(0).int(),
-  fixed: z.enum(['on', 'off']),
+  fixed: z.literal('on').optional(),
 })
 
 export async function createTxAction(formData: FormData) {
   const session = await verifySession()
   if (!session) return
+
+  console.log(formData)
 
   const parseResult = createTxSchema.safeParse(parseFormData(formData))
 
