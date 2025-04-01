@@ -39,6 +39,7 @@ export function CategoryRow({ category }: Props) {
       <TableCell align="center">
         <Typography
           fontWeight={500}
+          className="truncate"
           color={category.balance < 0 ? 'error' : 'success'}
           variant="body2"
         >
@@ -48,6 +49,7 @@ export function CategoryRow({ category }: Props) {
       <TableCell align="center">
         <Typography
           fontWeight={500}
+          className="truncate"
           color={
             category.goal
               ? category.goal < 0
@@ -64,6 +66,7 @@ export function CategoryRow({ category }: Props) {
         <Typography
           fontWeight={500}
           color={category.forecast < 0 ? 'error' : 'success'}
+          className="truncate"
           variant="body2"
         >
           {formatMoney(category.forecast)}
