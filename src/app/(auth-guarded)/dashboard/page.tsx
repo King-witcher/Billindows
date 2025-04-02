@@ -25,7 +25,7 @@ export default async function Page() {
   const session = await verifySession()
   if (!session) return null
 
-  const now = new Date(2025, 3, 1)
+  const now = new Date()
   const daysInTheMonth = new Date(
     now.getFullYear(),
     now.getMonth() + 1,
