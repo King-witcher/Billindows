@@ -21,8 +21,6 @@ export async function createTxAction(formData: FormData) {
   const session = await verifySession()
   if (!session) return
 
-  console.log(formData)
-
   const parseResult = createTxSchema.safeParse(parseFormData(formData))
 
   if (parseResult.error) {
