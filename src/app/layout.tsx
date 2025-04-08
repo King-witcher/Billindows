@@ -7,6 +7,8 @@ import { Providers } from './providers'
 
 const roboto = Roboto({
   variable: '--font-roboto',
+  weight: ['300', '400', '500', '700'],
+  display: 'swap',
   subsets: ['latin'],
 })
 

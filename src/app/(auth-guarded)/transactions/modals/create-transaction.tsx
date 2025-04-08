@@ -18,6 +18,7 @@ import {
   Select,
   SelectChangeEvent,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -242,6 +243,15 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                 label="Fixed transaction"
                 control={<Checkbox />}
               />
+            </FormGroup>
+            <FormGroup>
+              <Tooltip title="Whether this transaction should be forecasted or not">
+                <FormControlLabel
+                  name="forecast"
+                  label="Should forecast (new!)"
+                  control={<Checkbox defaultChecked />}
+                />
+              </Tooltip>
             </FormGroup>
           </FormControl>
 
