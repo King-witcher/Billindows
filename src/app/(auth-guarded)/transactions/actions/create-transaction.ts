@@ -17,6 +17,7 @@ const createTxSchema = zfd.formData({
   month: z.coerce.number().min(0).max(11).int(),
   day: z.coerce.number().min(0).int(),
   fixed: z.literal('on').optional(),
+  forecast: zfd.checkbox(),
 })
 
 export const createTxAction = withActionState(async (formData: FormData) => {
@@ -42,6 +43,7 @@ export const createTxAction = withActionState(async (formData: FormData) => {
     month: body.month,
     day: body.day,
     name: body.name,
+    forecast: body.forecast,
     type: body.fixed === 'on' ? 'fixed' : 'one-time',
     value: body.type === 'expense' ? -body.value : body.value,
   })

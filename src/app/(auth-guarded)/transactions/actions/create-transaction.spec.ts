@@ -33,6 +33,7 @@ function getBaseFormData(): FormData {
   formData.set('month', faker.number.int({ min: 0, max: 11 }).toString())
   formData.set('day', faker.number.int({ min: 0, max: 31 }).toString())
   formData.set('fixed', 'on')
+  formData.set('forecast', 'on')
   return formData
 }
 
