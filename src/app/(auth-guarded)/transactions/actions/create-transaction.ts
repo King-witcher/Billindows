@@ -4,11 +4,11 @@ import { ActionError, withActionState } from '@/lib/action-state-management'
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { createTx } from '@/utils/queries/create-tx'
-import { parseFormData } from '@/utils/utils'
 import { z } from 'zod'
+import { zfd } from 'zod-form-data'
 import { CreateTxError } from './_errors'
 
-const createTxSchema = z.object({
+const createTxSchema = zfd.formData({
   name: z.string().nonempty().max(50),
   category: z.coerce.number().int(),
   type: z.enum(['expense', 'income']),
@@ -23,12 +23,10 @@ export const createTxAction = withActionState(async (formData: FormData) => {
   const session = await verifySession()
   if (!session) throw new ActionError(CreateTxError.Unauthorized)
 
-  const body = await createTxSchema
-    .parseAsync(parseFormData(formData))
-    .catch((e) => {
-      console.error(e)
-      throw new ActionError(CreateTxError.InvalidFormData)
-    })
+  const body = await createTxSchema.parseAsync(formData).catch((e) => {
+    console.error(e)
+    throw new ActionError(CreateTxError.InvalidFormData)
+  })
 
   const category = await prisma.category.findUnique({
     where: {

@@ -1,7 +1,7 @@
 import { queryClient } from '@/lib/query-client'
 import { theme } from '@/lib/theme'
-import { ThemeProvider } from '@mui/material/styles'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
+import { ThemeProvider } from '@mui/material/styles'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 

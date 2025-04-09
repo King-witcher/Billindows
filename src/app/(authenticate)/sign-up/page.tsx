@@ -1,11 +1,11 @@
 'use client'
 
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 import { Button, TextField, Typography } from '@mui/material'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { signUp } from './action'
-import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 
 export default function Page() {
   const [state, action, pending] = useActionState(signUp, ActionState.idle())

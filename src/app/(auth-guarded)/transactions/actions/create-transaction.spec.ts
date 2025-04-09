@@ -1,10 +1,11 @@
 import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
-import { createTxAction, CreateTxError } from './create-transaction'
 import { JWTPaylaod, verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { createTx } from '@/utils/queries/create-tx'
 import { faker } from '@faker-js/faker'
 import { Category } from '@prisma/client'
+import { CreateTxError } from './_errors'
+import { createTxAction } from './create-transaction'
 
 vi.mock('@/lib/session', () => ({
   verifySession: vi.fn(),
