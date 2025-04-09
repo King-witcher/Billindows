@@ -21,13 +21,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useActionState, useCallback, useState } from 'react'
 import { createTxAction } from '../actions/create-transaction'
 import { getCategories } from '../actions/get-categories'
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 
 interface Props {
   now: Date
@@ -65,14 +66,17 @@ export function CreateTransactionModal({ onClose, now }: Props) {
   const [day, setDay] = useState(now.getDate())
   const daysInTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
 
-  const mutation = useMutation({
-    mutationFn: createTxAction,
-    mutationKey: ['create-category'],
-    onSuccess: () => {
-      handleClose()
-      router.refresh()
+  const [createTxState, createTx, isPending] = useActionState(
+    async (state: ActionState, formData: FormData) => {
+      const result = await createTxAction(state, formData)
+      if (result.state !== ActionStateEnum.Error) {
+        handleClose()
+        router.refresh()
+      }
+      return result
     },
-  })
+    ActionState.idle()
+  )
 
   const categoriesQuery = useQuery({
     queryKey: ['get-categories'],
@@ -130,7 +134,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
 
       {!categoriesQuery.isFetching && Boolean(categoriesQuery.data?.length) && (
         <form
-          action={mutation.mutate}
+          action={createTx}
           className="flex flex-col gap-[20px] items-start"
         >
           <FormControl required>
@@ -256,18 +260,10 @@ export function CreateTransactionModal({ onClose, now }: Props) {
           </FormControl>
 
           <div className="flex gap-[20px] self-end">
-            <Button
-              variant="text"
-              onClick={onClose}
-              disabled={mutation.isPending}
-            >
+            <Button variant="text" onClick={onClose} disabled={isPending}>
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={mutation.isPending}
-            >
+            <Button variant="contained" type="submit" disabled={isPending}>
               Create
             </Button>
           </div>
