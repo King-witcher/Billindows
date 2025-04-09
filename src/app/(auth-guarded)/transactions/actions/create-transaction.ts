@@ -36,8 +36,7 @@ export async function createTxAction(formData: FormData) {
     },
   })
 
-  if (!category || category.user_id !== session.id)
-    throw new Error('Invalid category')
+  if (!category || category.user_id !== session.id) return
 
   await createTx(body.category, {
     year: body.year,
