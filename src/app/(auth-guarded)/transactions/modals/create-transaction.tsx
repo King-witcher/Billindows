@@ -62,6 +62,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
   const router = useRouter()
 
   const year = now.getFullYear()
+  const [fixed, setFixed] = useState(false)
   const [month, setMonth] = useState(now.getMonth())
   const [day, setDay] = useState(now.getDate())
   const daysInTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
@@ -104,7 +105,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
         Create transaction
       </Typography>
 
-      {categoriesQuery.isFetching && (
+      {categoriesQuery.isPending && (
         <div className="w-full h-[200px] flex items-center justify-center">
           <CircularProgress size="60px" />
         </div>
@@ -132,7 +133,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
         </>
       )}
 
-      {!categoriesQuery.isFetching && Boolean(categoriesQuery.data?.length) && (
+      {!categoriesQuery.isPending && (
         <form
           action={createTx}
           className="flex flex-col gap-[20px] items-start"
@@ -245,7 +246,14 @@ export function CreateTransactionModal({ onClose, now }: Props) {
               <FormControlLabel
                 name="fixed"
                 label="Fixed transaction"
-                control={<Checkbox />}
+                control={
+                  <Checkbox
+                    value={fixed}
+                    onChange={(e) => {
+                      setFixed(e.target.checked)
+                    }}
+                  />
+                }
               />
             </FormGroup>
             <FormGroup>
@@ -253,7 +261,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                 <FormControlLabel
                   name="forecast"
                   label="Should forecast (new!)"
-                  control={<Checkbox defaultChecked />}
+                  control={<Checkbox disabled={fixed} defaultChecked />}
                 />
               </Tooltip>
             </FormGroup>
