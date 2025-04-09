@@ -1,10 +1,12 @@
 'use server'
 
+import { ActionError, withActionState } from '@/lib/action-state-management'
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { createTx } from '@/utils/queries/create-tx'
 import { parseFormData } from '@/utils/utils'
 import { z } from 'zod'
+import { CreateTxError } from './_errors'
 
 const createTxSchema = z.object({
   name: z.string().nonempty().max(50),
@@ -17,18 +19,16 @@ const createTxSchema = z.object({
   fixed: z.literal('on').optional(),
 })
 
-export async function createTxAction(formData: FormData) {
+export const createTxAction = withActionState(async (formData: FormData) => {
   const session = await verifySession()
-  if (!session) return
+  if (!session) throw new ActionError(CreateTxError.Unauthorized)
 
-  const parseResult = createTxSchema.safeParse(parseFormData(formData))
-
-  if (parseResult.error) {
-    console.error(parseResult.error)
-    return
-  }
-
-  const body = parseResult.data
+  const body = await createTxSchema
+    .parseAsync(parseFormData(formData))
+    .catch((e) => {
+      console.error(e)
+      throw new ActionError(CreateTxError.InvalidFormData)
+    })
 
   const category = await prisma.category.findUnique({
     where: {
@@ -36,7 +36,8 @@ export async function createTxAction(formData: FormData) {
     },
   })
 
-  if (!category || category.user_id !== session.id) return
+  if (!category || category.user_id !== session.id)
+    throw new ActionError(CreateTxError.CategoryNotFound)
 
   await createTx(body.category, {
     year: body.year,
@@ -46,4 +47,4 @@ export async function createTxAction(formData: FormData) {
     type: body.fixed === 'on' ? 'fixed' : 'one-time',
     value: body.type === 'expense' ? -body.value : body.value,
   })
-}
+})

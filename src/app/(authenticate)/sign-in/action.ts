@@ -1,48 +1,43 @@
 'use server'
 
+import {
+  ActionError,
+  ActionState,
+  withActionState,
+} from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import { FormState } from '@/types/form-state'
 import bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { zfd } from 'zod-form-data'
+import { SignInError } from './_error'
 
-const schema = z.object({
-  email: z.string().email(),
+const schema = zfd.formData({
+  email: z.string().email().max(320),
   password: z.string().max(50),
   referrer: z.string(),
 })
 
-export async function signIn(
-  state: FormState,
-  formData: FormData
-): Promise<FormState> {
-  const validatedFields = schema.safeParse({
-    email: formData.get('email'),
-    referrer: formData.get('referrer'),
-    password: formData.get('password'),
+export const signIn = withActionState(async (formData: FormData) => {
+  const body = await schema.parseAsync(formData).catch(() => {
+    throw new ActionError(SignInError.InvalidFormData)
   })
-
-  if (!validatedFields.success) {
-    return FormState.error(validatedFields.error.message)
-  }
 
   const user = await prisma.user.findUnique({
     where: {
-      email: validatedFields.data.email,
+      email: body.email,
     },
   })
 
   if (!user) {
-    // Fake some validation time
-    await bcrypt.compare(validatedFields.data.password, '')
-    return FormState.error('invalid credentials')
+    // Pretend some validation time
+    await bcrypt.compare(body.password, `$2b$10$${'0'.repeat(60)}`)
+    throw new ActionError(SignInError.InvalidCredentials)
   }
 
-  if (
-    !(await bcrypt.compare(validatedFields.data.password, user.password_digest))
-  )
-    return FormState.error('invalid credentials')
+  if (!(await bcrypt.compare(body.password, user.password_digest)))
+    throw new ActionError(SignInError.InvalidCredentials)
 
   await createSession({
     email: user.email,
@@ -51,5 +46,5 @@ export async function signIn(
     role: 'user',
   })
 
-  redirect(validatedFields.data.referrer)
-}
+  redirect(body.referrer)
+})

@@ -1,74 +1,53 @@
 'use server'
 
+import {
+  ActionError,
+  ActionState,
+  withActionState,
+} from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import { FormState, FormStateEnum } from '@/types/form-state'
 import bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { zfd } from 'zod-form-data'
+import { SignUpError } from './_error'
 
-const schema = z.object({
-  email: z.string().email(),
+const schema = zfd.formData({
+  email: z.string().email().max(320),
   name: z.string().min(4).max(50),
   password: z.string().min(8).max(50),
   passwordConfirmation: z.string().min(8).max(50),
   referrer: z.string(),
 })
 
-export async function signUp(
-  state: FormState,
-  formData: FormData
-): Promise<FormState> {
-  const validatedFields = schema.safeParse({
-    email: formData.get('email'),
-    name: formData.get('name'),
-    password: formData.get('password'),
-    passwordConfirmation: formData.get('passwordConfirmation'),
-    referrer: formData.get('referrer'),
+export const signUp = withActionState(async (formData: FormData) => {
+  const body = await schema.parseAsync(formData).catch((e) => {
+    console.error(e)
+    throw new ActionError(SignUpError.InvalidFormData, e.message)
   })
 
-  if (!validatedFields.success) {
-    return {
-      state: FormStateEnum.Error,
-      message: validatedFields.error.message,
-    }
-  }
-
   // Check if the password and password confirmation match
-  if (
-    validatedFields.data.password !== validatedFields.data.passwordConfirmation
-  ) {
-    return {
-      state: FormStateEnum.Error,
-      message: 'Password and password confirmation do not match',
-    }
+  if (body.password !== body.passwordConfirmation) {
+    throw new ActionError(SignUpError.PasswordsDoNotMatch)
   }
 
   // Check if a user with this email already exists
   {
     const user = await prisma.user.findUnique({
-      where: {
-        email: validatedFields.data.email,
-      },
-      select: {
-        id: true,
-      },
+      where: { email: body.email },
+      select: { id: true },
     })
 
-    if (user) {
-      return {
-        state: FormStateEnum.Error,
-        message: 'A user with this email already exists.',
-      }
-    }
+    if (user) throw new ActionError(SignUpError.EmailAlreadyInUse)
   }
 
   // Create the user
   const user = await prisma.user.create({
     data: {
-      email: validatedFields.data.email,
-      name: validatedFields.data.name,
-      password_digest: bcrypt.hashSync(validatedFields.data.password, 10),
+      email: body.email,
+      name: body.name,
+      password_digest: bcrypt.hashSync(body.password, 10),
     },
   })
 
@@ -79,5 +58,5 @@ export async function signUp(
     role: 'user',
   })
 
-  redirect(validatedFields.data.referrer)
-}
+  redirect(body.referrer)
+})

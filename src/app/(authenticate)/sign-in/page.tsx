@@ -1,14 +1,14 @@
 'use client'
 
-import { FormState, FormStateEnum } from '@/types/form-state'
 import { Button, TextField, Typography } from '@mui/material'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { signIn } from './action'
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 
 export default function Page() {
-  const [state, action, pending] = useActionState(signIn, FormState.idle())
+  const [state, action, pending] = useActionState(signIn, ActionState.idle())
   const search = useSearchParams()
   const referrer = search.get('referrer') ?? '/'
 
@@ -27,7 +27,7 @@ export default function Page() {
           type="email"
           name="email"
           fullWidth
-          error={state.state === FormStateEnum.Error}
+          error={state.state === ActionStateEnum.Error}
           disabled={pending}
           required
         />
@@ -36,9 +36,9 @@ export default function Page() {
           type="password"
           name="password"
           disabled={pending}
-          error={state.state === FormStateEnum.Error}
+          error={state.state === ActionStateEnum.Error}
           helperText={
-            state.state === FormStateEnum.Error ? state.message : undefined
+            state.state === ActionStateEnum.Error ? state.message : undefined
           }
           fullWidth
           required

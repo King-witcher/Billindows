@@ -1,7 +1,10 @@
-import { createTxAction } from './create-transaction'
-import { verifySession } from '@/lib/session'
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
+import { createTxAction, CreateTxError } from './create-transaction'
+import { JWTPaylaod, verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { createTx } from '@/utils/queries/create-tx'
+import { faker } from '@faker-js/faker'
+import { Category } from '@prisma/client'
 
 vi.mock('@/lib/session', () => ({
   verifySession: vi.fn(),
@@ -19,23 +22,39 @@ vi.mock('@/utils/queries/create-tx', () => ({
   createTx: vi.fn(),
 }))
 
-function createFormData(obj: Record<string, string>): FormData {
+function getBaseFormData(): FormData {
   const formData = new FormData()
-  for (const key in obj) {
-    formData.append(key, obj[key])
-  }
+  formData.set('name', faker.lorem.words(2))
+  formData.set('category', faker.number.int().toString())
+  formData.set('type', 'expense')
+  formData.set('value', faker.number.int().toString())
+  formData.set('year', faker.number.int().toString())
+  formData.set('month', faker.number.int({ min: 0, max: 11 }).toString())
+  formData.set('day', faker.number.int({ min: 0, max: 31 }).toString())
+  formData.set('fixed', 'on')
   return formData
 }
 
-const baseFormObject = {
-  name: 'Test Transaction',
-  category: '1',
-  type: 'expense',
-  value: '100',
-  year: '2023',
-  month: '5',
-  day: '15',
+function getBaseSession(): JWTPaylaod {
+  return {
+    id: faker.number.int(),
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    role: 'user',
+  }
 }
+
+function getBaseCategory(): Category {
+  return {
+    id: faker.number.int(),
+    user_id: faker.number.int(),
+    name: faker.lorem.words(2),
+    color: faker.color.rgb(),
+    goal: faker.number.int(),
+  }
+}
+
+const idleState = ActionState.idle()
 
 describe(createTxAction, () => {
   beforeEach(() => {
@@ -44,77 +63,87 @@ describe(createTxAction, () => {
 
   it('should fail if session is not verified', async () => {
     vi.mocked(verifySession).mockResolvedValue(null)
-    const formData = createFormData(baseFormObject)
-    await createTxAction(formData)
+
+    const formData = getBaseFormData()
+    const state = await createTxAction(idleState, formData)
 
     expect(verifySession).toHaveBeenCalled()
     expect(createTx).not.toHaveBeenCalled()
+    expect(state.state).toBe(ActionStateEnum.Error)
+    expect(state.code).toBe(CreateTxError.Unauthorized)
+  })
+
+  it('should fail if form data is invalid', async () => {
+    vi.mocked(verifySession).mockResolvedValue({
+      ...getBaseSession(),
+      id: 1,
+    })
+
+    const formData = getBaseFormData()
+    formData.set('category', 'invalid')
+    const state = await createTxAction(idleState, formData)
+
+    expect(createTx).not.toHaveBeenCalled()
+    expect(state.state).toBe(ActionStateEnum.Error)
+    expect(state.code).toBe(CreateTxError.InvalidFormData)
+  })
+
+  it('should fail if category does not exist', async () => {
+    vi.mocked(verifySession).mockResolvedValue(getBaseSession())
+    vi.mocked(prisma.category.findUnique).mockResolvedValue(null)
+
+    const formData = getBaseFormData()
+    const result = await createTxAction(idleState, formData)
+
+    expect(createTx).not.toHaveBeenCalled()
+    expect(result.state).toBe(ActionStateEnum.Error)
+    expect(result.code).toBe(CreateTxError.CategoryNotFound)
   })
 
   it('should fail if category does not belong to user', async () => {
     vi.mocked(verifySession).mockResolvedValue({
+      ...getBaseSession(),
       id: 1,
-      name: 'User 1',
-      email: 'a@a.c',
-      role: 'user',
     })
     vi.mocked(prisma.category.findUnique).mockResolvedValue({
-      id: 1,
+      ...getBaseCategory(),
       user_id: 2,
-      name: 'Test Category',
-      color: '#000000',
-      goal: 0,
     })
 
-    const formData = createFormData({ ...baseFormObject, id: '2' })
-    await createTxAction(formData)
+    const formData = getBaseFormData()
+    const result = await createTxAction(idleState, formData)
 
-    expect(prisma.category.findUnique).toHaveBeenCalledWith({
-      where: {
-        id: 1,
-      },
-    })
     expect(createTx).not.toHaveBeenCalled()
+    expect(result.state).toBe(ActionStateEnum.Error)
+    expect(result.code).toBe(CreateTxError.CategoryNotFound)
   })
 
-  it('should fail if category does not exist', async () => {
+  it('should create the transaction', async () => {
     vi.mocked(verifySession).mockResolvedValue({
+      ...getBaseSession(),
       id: 1,
-      name: 'User 1',
-      email: 'a@a.c',
-      role: 'user',
-    })
-    vi.mocked(prisma.category.findUnique).mockResolvedValue(null)
-
-    const formData = createFormData(baseFormObject)
-    await createTxAction(formData)
-    expect(createTx).not.toHaveBeenCalled()
-  })
-
-  it('should create the transaction if everything is fine', async () => {
-    vi.mocked(verifySession).mockResolvedValue({
-      id: 1,
-      name: 'User 1',
-      email: 'a@a.c',
-      role: 'user',
     })
     vi.mocked(prisma.category.findUnique).mockResolvedValue({
-      id: 1,
+      ...getBaseCategory(),
       user_id: 1,
-      name: 'Test Category',
-      color: '#000000',
-      goal: 0,
     })
 
-    await createTxAction(createFormData(baseFormObject))
+    const catId = faker.number.int()
+    const formData = getBaseFormData()
+    formData.set('category', catId.toString())
+    const result = await createTxAction(idleState, formData)
 
-    expect(createTx).toHaveBeenCalledWith(1, {
-      year: Number(baseFormObject.year),
-      month: Number(baseFormObject.month),
-      day: Number(baseFormObject.day),
-      name: baseFormObject.name,
-      type: 'one-time',
-      value: -Number(baseFormObject.value),
+    expect(result.state).toBe(ActionStateEnum.Success)
+    expect(createTx).toHaveBeenCalledWith(catId, {
+      year: Number(formData.get('year')),
+      month: Number(formData.get('month')),
+      day: Number(formData.get('day')),
+      name: formData.get('name'),
+      type: formData.get('fixed') === 'on' ? 'fixed' : 'one-time',
+      value:
+        formData.get('type') === 'expense'
+          ? -Number(formData.get('value'))
+          : Number(formData.get('value')),
     })
   })
 })
