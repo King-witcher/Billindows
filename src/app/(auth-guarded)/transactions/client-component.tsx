@@ -77,7 +77,7 @@ export function ClientComponent({ transactions, now }: Props) {
             <Table stickyHeader className="absolute inset-0">
               <TableHead>
                 <TableRow>
-                  <TableCell className="!hidden sm:!table-cell">Date</TableCell>
+                  <TableCell>Date</TableCell>
                   <TableCell align="center">Transaction</TableCell>
                   <TableCell align="center">Category</TableCell>
                   <TableCell align="center">Value</TableCell>

@@ -27,9 +27,7 @@ export function TransactionRow({
   return (
     <TableRow hover={!blur} className={blur ? 'opacity-50' : ''}>
       {/* Date */}
-      <TableCell className="!hidden sm:!table-cell">
-        {transaction.day}
-      </TableCell>
+      <TableCell>{transaction.day}</TableCell>
 
       {/* Name */}
       <TableCell align="center" className="truncate max-w-[150px]">
