@@ -20,7 +20,7 @@ type GroupAnalysis = {
 /**
  * Analyzes the transactions to calculate the fixed, one-time, and forecasted balances.
  * @param transactions
- * @param priodProgress The progress of the current period, represented as a decimal value between 0 and 1.
+ * @param periodProgress The progress of the current period, represented as a decimal value between 0 and 1.
  * @param goal
  * @returns
  */
@@ -41,8 +41,8 @@ export function analyze(
     .filter((tx) => tx.forecast)
     .reduce((prev, current) => prev + current.value, 0)
 
-  const rate = forecastable / priodProgress
-  const forecast = fixed + oneTime + rate * (1 - priodProgress)
+  const rate = forecastable / periodProgress
+  const forecast = fixed + oneTime + rate * (1 - periodProgress)
 
   return {
     balance: fixed + oneTime,
