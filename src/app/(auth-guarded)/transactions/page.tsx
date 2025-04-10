@@ -15,7 +15,12 @@ export default async function Page() {
     session.id,
     now.getFullYear(),
     now.getMonth()
-  )
+  ).then((results) => {
+    return results.sort((a, b) => {
+      if (a.day === b.day) return b.id - a.id
+      return a.day - b.day
+    })
+  })
 
   return <ClientComponent now={now} transactions={transactions} />
 }
