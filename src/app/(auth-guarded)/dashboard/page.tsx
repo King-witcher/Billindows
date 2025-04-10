@@ -38,11 +38,13 @@ export default async function Page() {
   const [fixed, oneTime, categories] = await Promise.all([
     getFixedTxs(session.id, now.getFullYear(), now.getMonth()),
     getOneTimeTxs(session.id, now.getFullYear(), now.getMonth()),
-    prisma.category.findMany({
-      where: {
-        user_id: session.id,
-      },
-    }),
+    prisma.category
+      .findMany({
+        where: {
+          user_id: session.id,
+        },
+      })
+      .then((results) => results.sort((a, b) => a.name.localeCompare(b.name))),
   ])
 
   const categoryRows: DashboardCategory[] = categories.map((category) => {
