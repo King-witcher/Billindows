@@ -1,15 +1,14 @@
 'use client'
 
 import { TxDto } from '@/utils/queries/get-one-time-txs'
+import { EventRepeat } from '@mui/icons-material'
 import Delete from '@mui/icons-material/Delete'
 import Edit from '@mui/icons-material/Edit'
-import {
-  IconButton,
-  TableCell,
-  TableRow,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 interface Props {
   transaction: TxDto
@@ -59,9 +58,10 @@ export function TransactionRow({
       <TableCell align="center">
         <Typography
           fontWeight={500}
-          className="truncate"
+          className="truncate flex items-center justify-center gap-1"
           color={transaction.value < 0 ? 'error' : 'success'}
         >
+          {transaction.type === 'fixed' && <EventRepeat fontSize="small" />}
           {`R$ ${Math.abs(transaction.value / 100).toFixed(2)}`}
         </Typography>
       </TableCell>
