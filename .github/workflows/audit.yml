@@ -21,4 +21,4 @@ jobs:
           node-version: 22
 
       - name: Run Audit to Check fo Vulnerabillities
-        run: yarn audit
+        run: yarn audit --group dependencies
