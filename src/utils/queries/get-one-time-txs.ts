@@ -30,7 +30,7 @@ export async function getOneTimeTxs(
   year: number,
   month: number
 ): Promise<TxDto[]> {
-  const dbMonthNow = DBTime.getMonthByYearAndMonth(year, month)
+  const dbMonthNow = DBTime.fromYMToDB(year, month)
 
   const now = Date.now()
   const queryResults: {

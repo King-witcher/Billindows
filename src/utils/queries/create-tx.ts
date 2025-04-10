@@ -6,7 +6,7 @@ export async function createTx(
   categoryId: number,
   tx: Omit<TxDto, 'category' | 'id'>
 ): Promise<void> {
-  const month = DBTime.getMonthByYearAndMonth(tx.year, tx.month)
+  const month = DBTime.fromYMToDB(tx.year, tx.month)
 
   if (tx.type === 'one-time') {
     await prisma.oneTimeTx.create({

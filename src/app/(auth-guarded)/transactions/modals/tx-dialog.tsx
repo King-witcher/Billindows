@@ -1,7 +1,12 @@
 'use client'
 
 import { MoneyField } from '@/components/atoms/inputs/money-input'
-import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
+import {
+  Action,
+  ActionState,
+  ActionStateEnum,
+} from '@/lib/action-state-management'
+import { TxDto } from '@/utils/queries/get-one-time-txs'
 import {
   Button,
   Checkbox,
@@ -26,12 +31,13 @@ import { useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useActionState, useCallback, useState } from 'react'
-import { createTxAction } from '../actions/create-transaction'
+import { useActionState, useState } from 'react'
 import { getCategories } from '../actions/get-categories'
 
 interface Props {
   now: Date
+  tx?: TxDto
+  action: Action
   onClose: () => void
 }
 
@@ -58,20 +64,20 @@ const menuProps: Partial<MenuProps> = {
   },
 }
 
-export function CreateTransactionModal({ onClose, now }: Props) {
+export function TxDialog({ onClose, now, action, tx }: Props) {
   const router = useRouter()
 
   const year = now.getFullYear()
-  const [fixed, setFixed] = useState(false)
-  const [month, setMonth] = useState(now.getMonth())
-  const [day, setDay] = useState(now.getDate())
+  const [fixed, setFixed] = useState(tx ? tx.type === 'fixed' : false)
+  const [month, setMonth] = useState(tx ? tx.month : now.getMonth())
+  const [day, setDay] = useState(tx ? tx.day : now.getDate())
   const daysInTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
 
-  const [createTxState, createTx, isPending] = useActionState(
+  const [actionState, actionDispatch, isPending] = useActionState(
     async (state: ActionState, formData: FormData) => {
-      const result = await createTxAction(state, formData)
+      const result = await action(state, formData)
       if (result.state !== ActionStateEnum.Error) {
-        handleClose()
+        onClose()
         router.refresh()
       }
       return result
@@ -92,17 +98,14 @@ export function CreateTransactionModal({ onClose, now }: Props) {
     if (daysInNewMonth < day) setDay(daysInNewMonth)
   }
 
-  const handleClose = useCallback(() => {
-    onClose()
-  }, [onClose])
-
   return (
     <Paper
       elevation={10}
       className="absolute top-1/2 left-1/2 w-[520px] max-w-[calc(100%_-_40px)] translate-x-[-50%] translate-y-[-50%] p-[20px] flex flex-col gap-[20px]"
     >
       <Typography variant="h5" color="primary">
-        Create transaction
+        {tx ? 'Edit transaction' : 'Create transaction'}
+        <b>{tx && ` ${tx.name}`}</b>
       </Typography>
 
       {categoriesQuery.isPending && (
@@ -135,11 +138,18 @@ export function CreateTransactionModal({ onClose, now }: Props) {
 
       {!categoriesQuery.isPending && (
         <form
-          action={createTx}
+          action={actionDispatch}
           className="flex flex-col gap-[20px] items-start"
         >
+          {tx && <input type="hidden" name="id" value={tx.id} />}
           <FormControl required>
-            <RadioGroup defaultValue="expense" name="type" row>
+            <RadioGroup
+              defaultValue={
+                tx ? (tx.value > 0 ? 'income' : 'expense') : 'income'
+              }
+              name="type"
+              row
+            >
               <FormControlLabel
                 label="Income"
                 value="income"
@@ -156,6 +166,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
             variant="outlined"
             label="Name"
             name="name"
+            defaultValue={tx?.name}
             required
             fullWidth
           />
@@ -166,6 +177,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                 id="category"
                 name="category"
                 label="Category"
+                defaultValue={tx?.category.id}
                 disabled={categoriesQuery.isLoading}
               >
                 {categoriesQuery.data?.map((category) => (
@@ -181,6 +193,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
               variant="outlined"
               label="Value"
               name="value"
+              defaultValue={tx ? Math.abs(tx.value) : undefined}
               required
               fullWidth
             />
@@ -243,12 +256,16 @@ export function CreateTransactionModal({ onClose, now }: Props) {
           <FormControl>
             <FormLabel>Behavior</FormLabel>
             <FormGroup>
+              {tx?.type === 'fixed' && (
+                <input type="hidden" name="fixed" value="on" />
+              )}
               <FormControlLabel
                 name="fixed"
                 label="Fixed transaction"
                 control={
                   <Checkbox
                     checked={fixed}
+                    disabled={Boolean(tx)}
                     onChange={(e) => {
                       setFixed(e.target.checked)
                     }}
@@ -261,7 +278,12 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                 <FormControlLabel
                   name="forecast"
                   label="Should forecast (new!)"
-                  control={<Checkbox disabled={fixed} defaultChecked />}
+                  control={
+                    <Checkbox
+                      disabled={fixed}
+                      defaultChecked={tx ? tx.forecast : true}
+                    />
+                  }
                 />
               </Tooltip>
             </FormGroup>
@@ -272,7 +294,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
               Cancel
             </Button>
             <Button variant="contained" type="submit" disabled={isPending}>
-              Create
+              {tx ? 'Save' : 'Create'}
             </Button>
           </div>
         </form>

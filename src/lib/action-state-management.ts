@@ -4,6 +4,11 @@ export enum ActionStateEnum {
   Error = 'error',
 }
 
+export type Action = (
+  _: ActionState,
+  formData: FormData
+) => Promise<ActionState>
+
 export type ActionState =
   | {
       state: ActionStateEnum.Idle | ActionStateEnum.Success

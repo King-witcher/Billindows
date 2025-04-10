@@ -16,10 +16,11 @@ import {
   Typography,
 } from '@mui/material'
 import { ChangeEvent, useMemo, useState } from 'react'
-import { CreateTransactionModal } from './modals/create-transaction'
+import { createTxAction } from './actions/create-transaction'
+import { udpateTxAction } from './actions/update-tx'
 import { DeleteTransactionDialog } from './modals/delete-transaction'
-import { EditTransactionDialog } from './modals/edit-transaction'
-import { TransactionRow } from './transaction-row'
+import { TxDialog } from './modals/tx-dialog'
+import { TxRow } from './tx-row'
 
 interface Props {
   transactions: TxDto[]
@@ -27,12 +28,9 @@ interface Props {
 }
 
 export function ClientComponent({ transactions, now }: Props) {
-  const [createTransactionModalOpen, setCreateTransactionModalOpen] =
-    useState(false)
-  const [transactionToDelete, setTransactionToDelete] = useState<TxDto | null>(
-    null
-  )
-  const [transactionToEdit, setTransactionToEdit] = useState<TxDto | null>(null)
+  const [txModalOpen, setTxModalOpen] = useState(false)
+  const [txToDelete, setTxToDelete] = useState<TxDto | undefined>()
+  const [txToEdit, setTxToEdit] = useState<TxDto | undefined>()
 
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(() => {
@@ -55,6 +53,19 @@ export function ClientComponent({ transactions, now }: Props) {
     setPage(0)
   }
 
+  function handleClose() {
+    setTxModalOpen(false)
+    setTxToDelete(undefined)
+    setTxToEdit(undefined)
+  }
+
+  function handleClickEdit(tx: TxDto) {
+    setTxToEdit(tx)
+    setTxModalOpen(true)
+  }
+
+  const txAction = txToEdit ? udpateTxAction : createTxAction
+
   return (
     <div className="p-[20px] flex flex-col gap-[20px] h-full">
       <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[20px] w-full ml-auto">
@@ -65,7 +76,7 @@ export function ClientComponent({ transactions, now }: Props) {
           variant="contained"
           color="primary"
           startIcon={<Add />}
-          onClick={() => setCreateTransactionModalOpen(true)}
+          onClick={() => setTxModalOpen(true)}
         >
           New transaction
         </Button>
@@ -86,9 +97,9 @@ export function ClientComponent({ transactions, now }: Props) {
               </TableHead>
               <TableBody>
                 {visibleTransactions.map((transaction) => (
-                  <TransactionRow
-                    onClickDelete={() => setTransactionToDelete(transaction)}
-                    onClickEdit={() => setTransactionToEdit(transaction)}
+                  <TxRow
+                    onDelete={setTxToDelete}
+                    onEdit={handleClickEdit}
                     key={`${transaction.type}-${transaction.id}`}
                     transaction={transaction}
                   />
@@ -108,37 +119,25 @@ export function ClientComponent({ transactions, now }: Props) {
         />
       </Paper>
 
-      <Modal
-        open={createTransactionModalOpen}
-        onClose={() => setCreateTransactionModalOpen(false)}
-        className="max-w-full"
-      >
-        <CreateTransactionModal
+      <Modal open={txModalOpen} onClose={handleClose} className="max-w-full">
+        <TxDialog
           now={now}
-          onClose={() => setCreateTransactionModalOpen(false)}
+          action={txAction}
+          onClose={handleClose}
+          tx={txToEdit}
         />
       </Modal>
       <Modal
-        open={Boolean(transactionToDelete)}
-        onClose={() => setTransactionToDelete(null)}
+        open={Boolean(txToDelete)}
+        onClose={handleClose}
         className="max-w-full"
       >
-        {transactionToDelete ? (
+        {txToDelete ? (
           <DeleteTransactionDialog
-            transaction={transactionToDelete}
-            onSuccess={() => setTransactionToDelete(null)}
-            onCancel={() => setTransactionToDelete(null)}
+            transaction={txToDelete}
+            onSuccess={handleClose}
+            onCancel={handleClose}
           />
-        ) : (
-          <></>
-        )}
-      </Modal>
-      <Modal
-        open={Boolean(transactionToEdit)}
-        onClose={() => setTransactionToEdit(null)}
-      >
-        {transactionToEdit ? (
-          <EditTransactionDialog onClose={() => setTransactionToEdit(null)} />
         ) : (
           <></>
         )}

@@ -12,15 +12,11 @@ import Typography from '@mui/material/Typography'
 
 interface Props {
   transaction: TxDto
-  onClickEdit: () => void
-  onClickDelete: () => void
+  onEdit: (tx: TxDto) => void
+  onDelete: (tx: TxDto) => void
 }
 
-export function TransactionRow({
-  transaction,
-  onClickDelete,
-  onClickEdit,
-}: Props) {
+export function TxRow({ transaction, onDelete, onEdit }: Props) {
   const blur = transaction.day > new Date().getDate()
 
   return (
@@ -69,12 +65,12 @@ export function TransactionRow({
       {/* Actions */}
       <TableCell align="right" className="truncate">
         <Tooltip title="Edit">
-          <IconButton onClick={onClickEdit}>
+          <IconButton onClick={() => onEdit(transaction)}>
             <Edit />
           </IconButton>
         </Tooltip>
         <Tooltip title="Delete">
-          <IconButton onClick={onClickDelete}>
+          <IconButton onClick={() => onDelete(transaction)}>
             <Delete />
           </IconButton>
         </Tooltip>

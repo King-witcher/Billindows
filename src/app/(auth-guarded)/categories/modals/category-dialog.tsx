@@ -54,14 +54,10 @@ export function CategoryDialog({ onClose, action, category }: Props) {
     mutationFn: action,
     mutationKey: ['create-category'],
     onSuccess: () => {
-      handleClose()
+      onClose()
       router.refresh()
     },
   })
-
-  function handleClose() {
-    onClose()
-  }
 
   function handleChangeGoalType(e: ChangeEvent<HTMLInputElement>) {
     setGoalType(e.target.value)

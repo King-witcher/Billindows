@@ -1,6 +1,6 @@
 # Billindows
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 [![Audit](https://github.com/King-witcher/Billindows/actions/workflows/audit.yml/badge.svg)](https://github.com/King-witcher/Billindows/actions/workflows/audit.yml)

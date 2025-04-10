@@ -13,7 +13,7 @@ export async function addFixedTxs(categoryId: number, count: number) {
         days: 360,
       })
 
-      const end_month = DBTime.getMonthByDate(
+      const end_month = DBTime.fromDateToDB(
         faker.date.between({
           from: start_date,
           to: new Date(),
@@ -23,7 +23,7 @@ export async function addFixedTxs(categoryId: number, count: number) {
       const isEnded = Math.random() < ENDED_ODDS
 
       return {
-        start_month: DBTime.getMonthByDate(start_date),
+        start_month: DBTime.fromDateToDB(start_date),
         end_month: isEnded ? end_month : null,
         day: start_date.getDate(),
         name: `FIXED ${faker.commerce.product()}`,
@@ -49,7 +49,7 @@ export async function addOneTimeTxs(categoryId: number, count: number) {
       })
 
       return {
-        month: DBTime.getMonthByDate(date),
+        month: DBTime.fromDateToDB(date),
         day: date.getDate(),
         name: faker.commerce.product(),
         value: faker.number.int({
