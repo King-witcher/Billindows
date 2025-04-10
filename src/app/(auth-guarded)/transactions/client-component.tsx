@@ -35,7 +35,12 @@ export function ClientComponent({ transactions, now }: Props) {
   const [transactionToEdit, setTransactionToEdit] = useState<TxDto | null>(null)
 
   const [pageSize, setPageSize] = useState(10)
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useState(() => {
+    const blurredTransactions = transactions.filter(
+      (transaction) => transaction.day > now.getDate()
+    ).length
+    return Math.floor(blurredTransactions / pageSize)
+  })
 
   const visibleTransactions = useMemo(
     () =>

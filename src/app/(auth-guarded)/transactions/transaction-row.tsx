@@ -11,17 +11,6 @@ import {
   Typography,
 } from '@mui/material'
 
-export interface ListedTransaction {
-  id: number
-  name: string
-  category: {
-    name: string
-    color: string
-  }
-  value: number
-  date: Date
-}
-
 interface Props {
   transaction: TxDto
   onClickEdit: () => void
@@ -33,8 +22,10 @@ export function TransactionRow({
   onClickDelete,
   onClickEdit,
 }: Props) {
+  const blur = transaction.day > new Date().getDate()
+
   return (
-    <TableRow hover>
+    <TableRow hover={!blur} className={blur ? 'opacity-50' : ''}>
       {/* Date */}
       <TableCell className="!hidden sm:!table-cell">
         {transaction.day}
