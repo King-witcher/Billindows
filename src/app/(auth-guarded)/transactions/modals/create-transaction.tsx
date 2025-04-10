@@ -1,6 +1,7 @@
 'use client'
 
 import { MoneyField } from '@/components/atoms/inputs/money-input'
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 import {
   Button,
   Checkbox,
@@ -28,7 +29,6 @@ import { useRouter } from 'next/navigation'
 import { useActionState, useCallback, useState } from 'react'
 import { createTxAction } from '../actions/create-transaction'
 import { getCategories } from '../actions/get-categories'
-import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 
 interface Props {
   now: Date

@@ -1,8 +1,8 @@
+import { CurrencyText } from '@/components/atoms/currency-text'
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
 import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
-import { formatMoney } from '@/utils/utils'
 import {
   Card,
   CardContent,
@@ -83,22 +83,11 @@ export default async function Page() {
                 <Typography variant="h4" gutterBottom component="div">
                   Current Balance
                 </Typography>
-                <Typography
-                  color={overallAnalysis.balance < 0 ? 'error' : 'success'}
+                <CurrencyText
+                  value={overallAnalysis.balance}
                   variant="h5"
                   gutterBottom
-                  component="div"
-                >
-                  {formatMoney(overallAnalysis.balance)}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="textSecondary"
-                  gutterBottom
-                  component="div"
-                >
-                  Expected: -
-                </Typography>
+                />
               </CardContent>
             </Card>
             <Card className="flex-1" variant="outlined">
@@ -106,22 +95,11 @@ export default async function Page() {
                 <Typography variant="h4" gutterBottom component="div">
                   Balance Forecast
                 </Typography>
-                <Typography
-                  color={overallAnalysis.forecast < 0 ? 'error' : 'success'}
+                <CurrencyText
+                  value={overallAnalysis.forecast}
                   variant="h5"
                   gutterBottom
-                  component="div"
-                >
-                  {formatMoney(overallAnalysis.forecast)}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="textSecondary"
-                  gutterBottom
-                  component="div"
-                >
-                  Goal: -
-                </Typography>
+                />
               </CardContent>
             </Card>
           </div>
@@ -131,44 +109,25 @@ export default async function Page() {
                 <Typography variant="h4" gutterBottom component="div">
                   Fixed Balance
                 </Typography>
-                <Typography
-                  color="success"
+
+                <CurrencyText
+                  value={overallAnalysis.fixed}
                   variant="h5"
                   gutterBottom
-                  component="div"
-                >
-                  {formatMoney(overallAnalysis.fixed)}
-                </Typography>
+                />
               </CardContent>
             </Card>
-            {/* <Card className="flex-1" variant="outlined">
-              <CardContent>
-                <Typography variant="h4" gutterBottom component="div">
-                  Fixed Expenses
-                </Typography>
-                <Typography
-                  color="error"
-                  variant="h5"
-                  gutterBottom
-                  component="div"
-                >
-                  {formatMoney(fixedExpenses)}
-                </Typography>
-              </CardContent>
-            </Card> */}
             <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
                   One Time Balance
                 </Typography>
-                <Typography
-                  color="error"
+
+                <CurrencyText
+                  value={overallAnalysis.oneTime}
                   variant="h5"
                   gutterBottom
-                  component="div"
-                >
-                  {formatMoney(overallAnalysis.oneTime)}
-                </Typography>
+                />
               </CardContent>
             </Card>
           </div>
