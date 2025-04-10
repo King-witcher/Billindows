@@ -1,7 +1,7 @@
 'use client'
 
-import { formatMoney } from '@/utils/utils'
-import { TableCell, TableRow, Tooltip, Typography } from '@mui/material'
+import { CurrencyText } from '@/components/atoms/currency-text'
+import { TableCell, TableRow, Tooltip } from '@mui/material'
 
 export type DashboardCategory = {
   id: number
@@ -37,40 +37,28 @@ export function CategoryRow({ category }: Props) {
         </div>
       </TableCell>
       <TableCell align="center">
-        <Typography
-          fontWeight={500}
-          className="truncate"
-          color={category.balance < 0 ? 'error' : 'success'}
+        <CurrencyText
+          value={category.balance}
           variant="body2"
-        >
-          {formatMoney(category.balance)}
-        </Typography>
+          className="truncate"
+          fontWeight={500}
+        />
       </TableCell>
       <TableCell align="center">
-        <Typography
-          fontWeight={500}
-          className="truncate"
-          color={
-            category.goal
-              ? category.goal < 0
-                ? 'error'
-                : 'success'
-              : 'textPrimary'
-          }
+        <CurrencyText
+          value={category.goal}
           variant="body2"
-        >
-          {category.goal ? formatMoney(category.goal) : '-'}
-        </Typography>
+          className="truncate"
+          fontWeight={500}
+        />
       </TableCell>
       <TableCell align="right">
-        <Typography
-          fontWeight={500}
-          color={category.forecast < 0 ? 'error' : 'success'}
-          className="truncate"
+        <CurrencyText
+          value={category.forecast}
           variant="body2"
-        >
-          {formatMoney(category.forecast)}
-        </Typography>
+          className="truncate"
+          fontWeight={500}
+        />
       </TableCell>
     </TableRow>
   )

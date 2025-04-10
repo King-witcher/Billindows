@@ -1,6 +1,7 @@
 'use client'
 
 import { MoneyField } from '@/components/atoms/inputs/money-input'
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 import {
   Button,
   Checkbox,
@@ -18,13 +19,14 @@ import {
   Select,
   SelectChangeEvent,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useActionState, useCallback, useState } from 'react'
 import { createTxAction } from '../actions/create-transaction'
 import { getCategories } from '../actions/get-categories'
 
@@ -60,18 +62,22 @@ export function CreateTransactionModal({ onClose, now }: Props) {
   const router = useRouter()
 
   const year = now.getFullYear()
+  const [fixed, setFixed] = useState(false)
   const [month, setMonth] = useState(now.getMonth())
   const [day, setDay] = useState(now.getDate())
   const daysInTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
 
-  const mutation = useMutation({
-    mutationFn: createTxAction,
-    mutationKey: ['create-category'],
-    onSuccess: () => {
-      handleClose()
-      router.refresh()
+  const [createTxState, createTx, isPending] = useActionState(
+    async (state: ActionState, formData: FormData) => {
+      const result = await createTxAction(state, formData)
+      if (result.state !== ActionStateEnum.Error) {
+        handleClose()
+        router.refresh()
+      }
+      return result
     },
-  })
+    ActionState.idle()
+  )
 
   const categoriesQuery = useQuery({
     queryKey: ['get-categories'],
@@ -99,7 +105,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
         Create transaction
       </Typography>
 
-      {categoriesQuery.isFetching && (
+      {categoriesQuery.isPending && (
         <div className="w-full h-[200px] flex items-center justify-center">
           <CircularProgress size="60px" />
         </div>
@@ -127,9 +133,9 @@ export function CreateTransactionModal({ onClose, now }: Props) {
         </>
       )}
 
-      {!categoriesQuery.isFetching && Boolean(categoriesQuery.data?.length) && (
+      {!categoriesQuery.isPending && (
         <form
-          action={mutation.mutate}
+          action={createTx}
           className="flex flex-col gap-[20px] items-start"
         >
           <FormControl required>
@@ -240,24 +246,32 @@ export function CreateTransactionModal({ onClose, now }: Props) {
               <FormControlLabel
                 name="fixed"
                 label="Fixed transaction"
-                control={<Checkbox />}
+                control={
+                  <Checkbox
+                    checked={fixed}
+                    onChange={(e) => {
+                      setFixed(e.target.checked)
+                    }}
+                  />
+                }
               />
+            </FormGroup>
+            <FormGroup>
+              <Tooltip title="Whether this transaction should be forecasted or not">
+                <FormControlLabel
+                  name="forecast"
+                  label="Should forecast (new!)"
+                  control={<Checkbox disabled={fixed} defaultChecked />}
+                />
+              </Tooltip>
             </FormGroup>
           </FormControl>
 
           <div className="flex gap-[20px] self-end">
-            <Button
-              variant="text"
-              onClick={onClose}
-              disabled={mutation.isPending}
-            >
+            <Button variant="text" onClick={onClose} disabled={isPending}>
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={mutation.isPending}
-            >
+            <Button variant="contained" type="submit" disabled={isPending}>
               Create
             </Button>
           </div>

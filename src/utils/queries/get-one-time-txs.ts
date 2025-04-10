@@ -16,6 +16,7 @@ export type TxDto = {
   month: number
   day: number
   type: 'fixed' | 'one-time'
+  forecast: boolean
   category: CategoryDto
 }
 
@@ -38,6 +39,7 @@ export async function getOneTimeTxs(
     value: number
     day: number
     category_color: string
+    forecast: boolean
     category_id: number
     category_name: string
   }[] = await prisma.$queryRaw`
@@ -49,6 +51,7 @@ export async function getOneTimeTxs(
       t.id,
       t.name,
       t.value,
+      t.forecast,
       t.day,
       c.id AS category_id,
       c.color AS category_color,
@@ -74,6 +77,7 @@ export async function getOneTimeTxs(
       month,
       day: result.day,
       id: result.id,
+      forecast: result.forecast,
       name: result.name,
       type: 'one-time',
       value: result.value,

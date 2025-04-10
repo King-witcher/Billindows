@@ -61,6 +61,7 @@ export async function getFixedTxs(
       month,
       day: result.day,
       type: 'fixed',
+      forecast: false,
       id: result.id,
       name: result.name,
       value: result.value,

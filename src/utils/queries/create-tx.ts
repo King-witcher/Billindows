@@ -15,6 +15,7 @@ export async function createTx(
         day: tx.day,
         name: tx.name,
         value: tx.value,
+        forecast: tx.forecast,
         category_id: categoryId,
       },
     })

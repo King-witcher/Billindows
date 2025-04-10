@@ -34,11 +34,12 @@ model Category {
 }
 
 model OneTimeTx {
-  id          Int    @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   value       Int // Cents
-  month       Int    @db.SmallInt // Months since January/1970
-  day         Int    @db.SmallInt
+  month       Int     @db.SmallInt // Months since January/1970
+  day         Int     @db.SmallInt
+  forecast    Boolean @default(true)
   category_id Int
 
   category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)

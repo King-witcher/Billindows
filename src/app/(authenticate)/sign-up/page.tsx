@@ -1,6 +1,6 @@
 'use client'
 
-import { FormState, FormStateEnum } from '@/types/form-state'
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 import { Button, TextField, Typography } from '@mui/material'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -8,7 +8,7 @@ import { useActionState } from 'react'
 import { signUp } from './action'
 
 export default function Page() {
-  const [state, action, pending] = useActionState(signUp, FormState.idle())
+  const [state, action, pending] = useActionState(signUp, ActionState.idle())
   const search = useSearchParams()
   const referrer = search.get('referrer') ?? '/'
 
@@ -27,7 +27,7 @@ export default function Page() {
           type="email"
           name="email"
           fullWidth
-          error={state.state === FormStateEnum.Error}
+          error={state.state === ActionStateEnum.Error}
           disabled={pending}
           required
         />
@@ -36,7 +36,7 @@ export default function Page() {
           type="name"
           name="name"
           fullWidth
-          error={state.state === FormStateEnum.Error}
+          error={state.state === ActionStateEnum.Error}
           disabled={pending}
           required
         />
@@ -45,7 +45,7 @@ export default function Page() {
           type="password"
           name="password"
           fullWidth
-          error={state.state === FormStateEnum.Error}
+          error={state.state === ActionStateEnum.Error}
           disabled={pending}
           required
         />
@@ -54,9 +54,9 @@ export default function Page() {
           type="password"
           name="passwordConfirmation"
           fullWidth
-          error={state.state === FormStateEnum.Error}
+          error={state.state === ActionStateEnum.Error}
           helperText={
-            state.state === FormStateEnum.Error ? state.message : undefined
+            state.state === ActionStateEnum.Error ? state.message : undefined
           }
           disabled={pending}
           required
