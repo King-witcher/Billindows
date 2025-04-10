@@ -12,11 +12,7 @@ interface Props {
   onCancel: () => void
 }
 
-export function DeleteTransactionDialog({
-  transaction,
-  onSuccess,
-  onCancel,
-}: Props) {
+export function DeleteTxDialog({ transaction, onSuccess, onCancel }: Props) {
   const router = useRouter()
 
   const value = Math.abs(transaction.value / 100).toFixed(2)

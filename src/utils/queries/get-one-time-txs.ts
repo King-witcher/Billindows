@@ -1,12 +1,12 @@
 import { prisma } from '@/services/prisma'
 import { DBTime } from '../time'
 
-export type CategoryDto = {
-  id: number
-  color: string
-  name: string
-  goal: number | null
-}
+// export type CategoryDto = {
+//   id: number
+//   color: string
+//   name: string
+//   goal: number | null
+// }
 
 export type TxDto = {
   id: number
@@ -17,7 +17,7 @@ export type TxDto = {
   day: number
   type: 'fixed' | 'one-time'
   forecast: boolean
-  category: CategoryDto
+  category_id: number
 }
 
 /**
@@ -53,9 +53,7 @@ export async function getOneTimeTxs(
       t.value,
       t.forecast,
       t.day,
-      c.id AS category_id,
-      c.color AS category_color,
-      c.name AS category_name
+      t.category_id
     FROM c INNER JOIN one_time_txs t
         ON c.id = t.category_id
     WHERE
@@ -67,12 +65,7 @@ export async function getOneTimeTxs(
 
   return queryResults.map(
     (result): TxDto => ({
-      category: {
-        id: result.category_id,
-        color: result.category_color,
-        name: result.category_name,
-        goal: null,
-      },
+      category_id: result.category_id,
       year,
       month,
       day: result.day,

@@ -18,16 +18,18 @@ import {
 import { ChangeEvent, useMemo, useState } from 'react'
 import { createTxAction } from './actions/create-transaction'
 import { udpateTxAction } from './actions/update-tx'
-import { DeleteTransactionDialog } from './modals/delete-transaction'
+import { DeleteTxDialog } from './modals/delete-tx'
 import { TxDialog } from './modals/tx-dialog'
 import { TxRow } from './tx-row'
+import { Category } from '@prisma/client'
 
 interface Props {
   transactions: TxDto[]
+  categories: Category[]
   now: Date
 }
 
-export function ClientComponent({ transactions, now }: Props) {
+export function ClientComponent({ transactions, categories, now }: Props) {
   const [txModalOpen, setTxModalOpen] = useState(false)
   const [txToDelete, setTxToDelete] = useState<TxDto | undefined>()
   const [txToEdit, setTxToEdit] = useState<TxDto | undefined>()
@@ -39,6 +41,11 @@ export function ClientComponent({ transactions, now }: Props) {
     ).length
     return Math.floor(blurredTransactions / pageSize)
   })
+
+  const categoryMap = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories]
+  )
 
   const visibleTransactions = useMemo(
     () =>
@@ -98,6 +105,7 @@ export function ClientComponent({ transactions, now }: Props) {
               <TableBody>
                 {visibleTransactions.map((transaction) => (
                   <TxRow
+                    category={categoryMap.get(transaction.category_id)!}
                     onDelete={setTxToDelete}
                     onEdit={handleClickEdit}
                     key={`${transaction.type}-${transaction.id}`}
@@ -110,7 +118,7 @@ export function ClientComponent({ transactions, now }: Props) {
         </TableContainer>
         <TablePagination
           rowsPerPage={pageSize}
-          rowsPerPageOptions={[10, 20, 50]}
+          rowsPerPageOptions={[10, 32, 100]}
           component="div"
           count={transactions.length}
           onPageChange={(_, page: number) => setPage(page)}
@@ -122,6 +130,7 @@ export function ClientComponent({ transactions, now }: Props) {
       <Modal open={txModalOpen} onClose={handleClose} className="max-w-full">
         <TxDialog
           now={now}
+          categories={categories}
           action={txAction}
           onClose={handleClose}
           tx={txToEdit}
@@ -133,7 +142,7 @@ export function ClientComponent({ transactions, now }: Props) {
         className="max-w-full"
       >
         {txToDelete ? (
-          <DeleteTransactionDialog
+          <DeleteTxDialog
             transaction={txToDelete}
             onSuccess={handleClose}
             onCancel={handleClose}

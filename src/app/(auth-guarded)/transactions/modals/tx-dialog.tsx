@@ -7,36 +7,32 @@ import {
   ActionStateEnum,
 } from '@/lib/action-state-management'
 import { TxDto } from '@/utils/queries/get-one-time-txs'
-import {
-  Button,
-  Checkbox,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
-  InputLabel,
-  MenuItem,
-  MenuProps,
-  Paper,
-  Radio,
-  RadioGroup,
-  Select,
-  SelectChangeEvent,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material'
-import { useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState, useState } from 'react'
-import { getCategories } from '../actions/get-categories'
+import { Category } from '@prisma/client'
+import { MenuProps } from '@mui/material/Menu'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import FormControl from '@mui/material/FormControl'
+import RadioGroup from '@mui/material/RadioGroup'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import TextField from '@mui/material/TextField'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import FormLabel from '@mui/material/FormLabel'
+import FormGroup from '@mui/material/FormGroup'
+import Tooltip from '@mui/material/Tooltip'
+import Checkbox from '@mui/material/Checkbox'
+import Radio from '@mui/material/Radio'
 
-interface Props {
+type Props = {
   now: Date
   tx?: TxDto
+  categories: Category[]
   action: Action
   onClose: () => void
 }
@@ -64,7 +60,7 @@ const menuProps: Partial<MenuProps> = {
   },
 }
 
-export function TxDialog({ onClose, now, action, tx }: Props) {
+export function TxDialog({ onClose, now, action, tx, categories }: Props) {
   const router = useRouter()
 
   const year = now.getFullYear()
@@ -85,11 +81,6 @@ export function TxDialog({ onClose, now, action, tx }: Props) {
     ActionState.idle()
   )
 
-  const categoriesQuery = useQuery({
-    queryKey: ['get-categories'],
-    queryFn: getCategories,
-  })
-
   function handleChangeMonth(e: SelectChangeEvent<number>) {
     const newMonth = Number(e.target.value)
     setMonth(newMonth)
@@ -108,13 +99,7 @@ export function TxDialog({ onClose, now, action, tx }: Props) {
         <b>{tx && ` ${tx.name}`}</b>
       </Typography>
 
-      {categoriesQuery.isPending && (
-        <div className="w-full h-[200px] flex items-center justify-center">
-          <CircularProgress size="60px" />
-        </div>
-      )}
-
-      {!categoriesQuery.isFetching && !categoriesQuery.data?.length && (
+      {!categories.length && (
         <>
           <Typography variant="body1">
             You haven&apos;t created a category yet. You must create at least
@@ -136,7 +121,7 @@ export function TxDialog({ onClose, now, action, tx }: Props) {
         </>
       )}
 
-      {!categoriesQuery.isPending && (
+      {Boolean(categories.length) && (
         <form
           action={actionDispatch}
           className="flex flex-col gap-[20px] items-start"
@@ -177,10 +162,9 @@ export function TxDialog({ onClose, now, action, tx }: Props) {
                 id="category"
                 name="category"
                 label="Category"
-                defaultValue={tx?.category.id}
-                disabled={categoriesQuery.isLoading}
+                defaultValue={tx?.category_id}
               >
-                {categoriesQuery.data?.map((category) => (
+                {categories.map((category) => (
                   <MenuItem key={category.id} value={category.id}>
                     {category.name}
                   </MenuItem>

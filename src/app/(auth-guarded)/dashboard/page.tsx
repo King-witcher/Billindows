@@ -48,8 +48,8 @@ export default async function Page() {
   ])
 
   const categoryRows: DashboardCategory[] = categories.map((category) => {
-    const categoryFixed = fixed.filter((tx) => tx.category.id === category.id)
-    const categoryOt = oneTime.filter((tx) => tx.category.id === category.id)
+    const categoryFixed = fixed.filter((tx) => tx.category_id === category.id)
+    const categoryOt = oneTime.filter((tx) => tx.category_id === category.id)
 
     const analyzed = analyze(
       [...categoryFixed, ...categoryOt],

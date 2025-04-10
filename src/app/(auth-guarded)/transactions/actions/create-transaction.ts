@@ -42,11 +42,12 @@ export const createTxAction = withActionState(async (formData: FormData) => {
   if (!category || category.user_id !== session.id)
     throw new ActionError(CreateTxError.CategoryNotFound)
 
-  await createTx(body.category, {
+  await createTx({
     year: body.year,
     month: body.month,
     day: body.day,
     name: body.name,
+    category_id: body.category,
     forecast: body.forecast,
     type: body.fixed ? 'fixed' : 'one-time',
     value: body.type === 'expense' ? -body.value : body.value,

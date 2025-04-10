@@ -37,9 +37,7 @@ export async function getFixedTxs(
       t.value,
       t.start_month,
       t.day,
-      c.id AS category_id,
-      c.color AS category_color,
-      c.name AS category_name
+      t.category_id
     FROM c INNER JOIN fixed_txs t
         ON c.id = t.category_id
     WHERE
@@ -56,12 +54,7 @@ export async function getFixedTxs(
   return queryResults.map((result): TxDto => {
     const [year, month] = DBTime.fromDBToYM(result.start_month)
     return {
-      category: {
-        id: result.category_id,
-        color: result.category_color,
-        name: result.category_name,
-        goal: null,
-      },
+      category_id: result.category_id,
       year,
       month,
       day: result.day,

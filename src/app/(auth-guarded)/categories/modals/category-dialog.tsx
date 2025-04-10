@@ -1,7 +1,6 @@
 'use client'
 
 import { MoneyField } from '@/components/atoms/inputs/money-input'
-import { CategoryDto } from '@/utils/queries/get-one-time-txs'
 import {
   Button,
   FormControl,
@@ -13,13 +12,14 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { Category } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import _ from 'lodash'
 import { useRouter } from 'next/navigation'
 import { ChangeEvent, useMemo, useState } from 'react'
 
 interface Props {
-  category?: CategoryDto
+  category?: Category
   action: (formData: FormData) => Promise<void>
   onClose: () => void
 }

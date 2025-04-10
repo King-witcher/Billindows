@@ -3,7 +3,6 @@ import { DBTime } from '../time'
 import { TxDto } from './get-one-time-txs'
 
 export async function createTx(
-  categoryId: number,
   tx: Omit<TxDto, 'category' | 'id'>
 ): Promise<void> {
   const month = DBTime.fromYMToDB(tx.year, tx.month)
@@ -16,7 +15,7 @@ export async function createTx(
         name: tx.name,
         value: tx.value,
         forecast: tx.forecast,
-        category_id: categoryId,
+        category_id: tx.category_id,
       },
     })
   } else if (tx.type === 'fixed') {
@@ -27,7 +26,7 @@ export async function createTx(
         day: tx.day,
         name: tx.name,
         value: tx.value,
-        category_id: categoryId,
+        category_id: tx.category_id,
       },
     })
   }

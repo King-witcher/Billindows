@@ -3,24 +3,29 @@
 import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { EventRepeat } from '@mui/icons-material'
 import Delete from '@mui/icons-material/Delete'
-import Edit from '@mui/icons-material/Edit'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { Category } from '@prisma/client'
 
 interface Props {
   transaction: TxDto
+  category: Category
   onEdit: (tx: TxDto) => void
   onDelete: (tx: TxDto) => void
 }
 
-export function TxRow({ transaction, onDelete, onEdit }: Props) {
+export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
   const blur = transaction.day > new Date().getDate()
 
   return (
-    <TableRow hover={!blur} className={blur ? 'opacity-50' : ''}>
+    <TableRow
+      hover={!blur}
+      data-blur={blur}
+      className="data-[blur=true]:opacity-50 relative"
+    >
       {/* Date */}
       <TableCell>{transaction.day}</TableCell>
 
@@ -40,12 +45,12 @@ export function TxRow({ transaction, onDelete, onEdit }: Props) {
             flex-shrink: 0;
             height: 14px;
             border-radius: 999px;
-            background: ${transaction.category.color};
+            background: ${category.color};
           }
         `}</style>
           <div className="color-badge" />
-          <Tooltip title={transaction.category.name}>
-            <span className="truncate">{transaction.category.name}</span>
+          <Tooltip title={category.name}>
+            <span className="truncate">{category.name}</span>
           </Tooltip>
         </div>
       </TableCell>
@@ -64,11 +69,12 @@ export function TxRow({ transaction, onDelete, onEdit }: Props) {
 
       {/* Actions */}
       <TableCell align="right" className="truncate">
-        <Tooltip title="Edit">
-          <IconButton onClick={() => onEdit(transaction)}>
-            <Edit />
-          </IconButton>
-        </Tooltip>
+        <button
+          type="button"
+          aria-label="Edit"
+          className="absolute inset-0 cursor-pointer"
+          onClick={() => onEdit(transaction)}
+        />
         <Tooltip title="Delete">
           <IconButton onClick={() => onDelete(transaction)}>
             <Delete />
