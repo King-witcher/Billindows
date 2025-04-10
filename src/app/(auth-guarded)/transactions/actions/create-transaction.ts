@@ -24,8 +24,12 @@ export const createTxAction = withActionState(async (formData: FormData) => {
   const session = await verifySession()
   if (!session) throw new ActionError(CreateTxError.Unauthorized)
 
+  console.log(formData)
+
   const body = await createTxSchema.parseAsync(formData).catch((e) => {
-    console.error(e)
+    console.error('Failed to validate form data')
+    console.error('formData', formData)
+    console.error('error', e)
     throw new ActionError(CreateTxError.InvalidFormData)
   })
 

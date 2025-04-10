@@ -16,6 +16,7 @@ import {
 } from '@mui/material'
 import Paper from '@mui/material/Paper'
 import { CategoryRow, DashboardCategory } from './category-row'
+import { analyze } from './helpers'
 
 export const metadata = {
   title: 'Billindows - Dashboard',
@@ -45,60 +46,26 @@ export default async function Page() {
   ])
 
   const categoryRows: DashboardCategory[] = categories.map((category) => {
-    const categoryFixed = fixed
-      .filter((tx) => tx.category.id === category.id)
-      .reduce((prev, current) => prev + current.value, 0)
+    const categoryFixed = fixed.filter((tx) => tx.category.id === category.id)
+    const categoryOt = oneTime.filter((tx) => tx.category.id === category.id)
 
-    const categoryOt = oneTime
-      .filter((tx) => tx.category.id === category.id)
-      .reduce((prev, current) => prev + current.value, 0)
+    const analyzed = analyze(
+      [...categoryFixed, ...categoryOt],
+      monthProgress,
+      category.goal
+    )
 
     return {
       id: category.id,
       name: category.name,
-      balance: categoryFixed + categoryOt,
+      balance: analyzed.balance,
       color: category.color,
       goal: category.goal,
-      forecast: categoryFixed + categoryOt / monthProgress,
+      forecast: analyzed.forecast,
     }
   })
 
-  const currentOt = oneTime.filter(
-    (tx) =>
-      tx.month < now.getMonth() ||
-      (tx.month === now.getMonth() && tx.day <= now.getDate())
-  )
-
-  const fixedIncomes = fixed
-    .filter((income) => income.value > 0)
-    .reduce((prev, current) => prev + current.value, 0)
-
-  const fixedExpenses = fixed
-    .filter((income) => income.value < 0)
-    .reduce((prev, current) => prev + current.value, 0)
-
-  const otIncomes = oneTime
-    .filter((income) => income.value > 0)
-    .reduce((prev, current) => prev + current.value, 0)
-
-  const otExpenses = oneTime
-    .filter((income) => income.value < 0)
-    .reduce((prev, current) => prev + current.value, 0)
-
-  const fixedBalance = fixed.reduce((prev, current) => prev + current.value, 0)
-
-  const currentOtBalance = currentOt.reduce(
-    (prev, current) => prev + current.value,
-    0
-  )
-
-  const totalOtBalance = oneTime.reduce(
-    (prev, current) => prev + current.value,
-    0
-  )
-
-  const currentBalance = fixedBalance + currentOtBalance
-  const totalBalance = fixedBalance + totalOtBalance
+  const overallAnalysis = analyze([...fixed, ...oneTime], monthProgress, null)
 
   return (
     <div className="w-full min-h-full p-[20px]">
@@ -117,12 +84,12 @@ export default async function Page() {
                   Current Balance
                 </Typography>
                 <Typography
-                  color={currentBalance < 0 ? 'error' : 'success'}
+                  color={overallAnalysis.balance < 0 ? 'error' : 'success'}
                   variant="h5"
                   gutterBottom
                   component="div"
                 >
-                  {formatMoney(currentBalance)}
+                  {formatMoney(overallAnalysis.balance)}
                 </Typography>
                 <Typography
                   variant="body1"
@@ -140,12 +107,12 @@ export default async function Page() {
                   Balance Forecast
                 </Typography>
                 <Typography
-                  color={totalBalance < 0 ? 'error' : 'success'}
+                  color={overallAnalysis.forecast < 0 ? 'error' : 'success'}
                   variant="h5"
                   gutterBottom
                   component="div"
                 >
-                  {formatMoney(currentOtBalance / monthProgress + fixedBalance)}
+                  {formatMoney(overallAnalysis.forecast)}
                 </Typography>
                 <Typography
                   variant="body1"
@@ -162,7 +129,7 @@ export default async function Page() {
             <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
-                  Fixed Incomes
+                  Fixed Balance
                 </Typography>
                 <Typography
                   color="success"
@@ -170,11 +137,11 @@ export default async function Page() {
                   gutterBottom
                   component="div"
                 >
-                  {formatMoney(fixedIncomes)}
+                  {formatMoney(overallAnalysis.fixed)}
                 </Typography>
               </CardContent>
             </Card>
-            <Card className="flex-1" variant="outlined">
+            {/* <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
                   Fixed Expenses
@@ -188,11 +155,11 @@ export default async function Page() {
                   {formatMoney(fixedExpenses)}
                 </Typography>
               </CardContent>
-            </Card>
+            </Card> */}
             <Card className="flex-1" variant="outlined">
               <CardContent>
                 <Typography variant="h4" gutterBottom component="div">
-                  One Time Expenses
+                  One Time Balance
                 </Typography>
                 <Typography
                   color="error"
@@ -200,7 +167,7 @@ export default async function Page() {
                   gutterBottom
                   component="div"
                 >
-                  {formatMoney(otExpenses)}
+                  {formatMoney(overallAnalysis.oneTime)}
                 </Typography>
               </CardContent>
             </Card>

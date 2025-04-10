@@ -248,7 +248,7 @@ export function CreateTransactionModal({ onClose, now }: Props) {
                 label="Fixed transaction"
                 control={
                   <Checkbox
-                    value={fixed}
+                    checked={fixed}
                     onChange={(e) => {
                       setFixed(e.target.checked)
                     }}

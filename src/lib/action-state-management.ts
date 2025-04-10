@@ -62,7 +62,7 @@ export function withActionState<T extends Array<unknown>>(
       return ActionState.success()
     } catch (e) {
       if (e instanceof ActionError) return ActionState.error(e.code, e.message)
-      console.log('peguei um erro aqui')
+      console.error('Uncaught error on action state management:')
       console.error((e as Error).message)
       throw e
     }
