@@ -140,6 +140,7 @@ describe(createTxAction, () => {
       year: Number(formData.get('year')),
       month: Number(formData.get('month')),
       day: Number(formData.get('day')),
+      forecast: formData.get('forecast') === 'on',
       name: formData.get('name'),
       type: formData.get('fixed') === 'on' ? 'fixed' : 'one-time',
       value:
