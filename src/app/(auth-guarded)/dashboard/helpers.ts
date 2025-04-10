@@ -26,7 +26,7 @@ type GroupAnalysis = {
  */
 export function analyze(
   transactions: TxDto[],
-  priodProgress: number,
+  periodProgress: number,
   goal: number | null
 ): GroupAnalysis {
   const fixed = transactions
