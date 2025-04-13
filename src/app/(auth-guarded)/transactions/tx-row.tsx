@@ -3,6 +3,7 @@
 import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { EventRepeat } from '@mui/icons-material'
 import Delete from '@mui/icons-material/Delete'
+import Edit from '@mui/icons-material/Edit'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
@@ -72,9 +73,14 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
         <button
           type="button"
           aria-label="Edit"
-          className="absolute inset-0 cursor-pointer"
+          className="absolute inset-0 cursor-pointer hidden sm:block"
           onClick={() => onEdit(transaction)}
         />
+        <Tooltip title="Delete" className="sm:!hidden">
+          <IconButton onClick={() => onEdit(transaction)}>
+            <Edit />
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Delete">
           <IconButton onClick={() => onDelete(transaction)}>
             <Delete />

@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 import { Category } from '@prisma/client'
 import { ChangeEvent, useMemo, useState } from 'react'
-import { createTxAction } from './actions/create-transaction'
+import { createTxAction } from './actions/create-tx'
 import { udpateTxAction } from './actions/update-tx'
 import { DeleteTxDialog } from './modals/delete-tx'
 import { TxDialog } from './modals/tx-dialog'

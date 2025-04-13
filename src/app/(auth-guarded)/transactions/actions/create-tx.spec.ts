@@ -5,7 +5,7 @@ import { createTx } from '@/utils/queries/create-tx'
 import { faker } from '@faker-js/faker'
 import { Category } from '@prisma/client'
 import { CreateTxError } from './_errors'
-import { createTxAction } from './create-transaction'
+import { createTxAction } from './create-tx'
 
 vi.mock('@/lib/session', () => ({
   verifySession: vi.fn(),
@@ -136,7 +136,8 @@ describe(createTxAction, () => {
     const result = await createTxAction(idleState, formData)
 
     expect(result.state).toBe(ActionStateEnum.Success)
-    expect(createTx).toHaveBeenCalledWith(catId, {
+    expect(createTx).toHaveBeenCalledWith({
+      category_id: catId,
       year: Number(formData.get('year')),
       month: Number(formData.get('month')),
       day: Number(formData.get('day')),
