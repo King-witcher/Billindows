@@ -1,7 +1,7 @@
 import { verifySession } from '@/lib/session'
+import { prisma } from '@/services/prisma'
 import { getAllTxs } from '@/utils/queries/get-all-txs'
 import { ClientComponent } from './client-component'
-import { prisma } from '@/services/prisma'
 
 export const metadata = {
   title: 'Billindows - Transactions',
