@@ -1,20 +1,20 @@
 'use client'
 
 import { TxDto } from '@/utils/queries/get-one-time-txs'
-import { Add } from '@mui/icons-material'
-import {
-  Button,
-  Modal,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Typography,
-} from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import Button from '@mui/material/Button'
+import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TablePagination from '@mui/material/TablePagination'
+import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import { Category } from '@prisma/client'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { createTxAction } from './actions/create-tx'
@@ -33,10 +33,18 @@ export function ClientComponent({ transactions, categories, now }: Props) {
   const [txModalOpen, setTxModalOpen] = useState(false)
   const [txToDelete, setTxToDelete] = useState<TxDto | undefined>()
   const [txToEdit, setTxToEdit] = useState<TxDto | undefined>()
-
+  const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
   const [pageSize, setPageSize] = useState(10)
+
+  const filteredTransactions = useMemo(() => {
+    if (categoriesFilter.length === 0) return transactions
+    return transactions.filter((transaction) =>
+      categoriesFilter.includes(transaction.category_id)
+    )
+  }, [transactions, categoriesFilter])
+
   const [page, setPage] = useState(() => {
-    const blurredTransactions = transactions.filter(
+    const blurredTransactions = filteredTransactions.filter(
       (transaction) => transaction.day > now.getDate()
     ).length
     return Math.floor(blurredTransactions / pageSize)
@@ -49,10 +57,10 @@ export function ClientComponent({ transactions, categories, now }: Props) {
 
   const visibleTransactions = useMemo(
     () =>
-      transactions
+      filteredTransactions
         .sort((a, b) => b.day - a.day)
         .slice(page * pageSize, page * pageSize + pageSize),
-    [transactions, page, pageSize]
+    [filteredTransactions, page, pageSize]
   )
 
   function handleChangeRowsPerPage(e: ChangeEvent<HTMLInputElement>) {
@@ -79,14 +87,43 @@ export function ClientComponent({ transactions, categories, now }: Props) {
         <Typography className="self-start" variant="h3" color="primary">
           Transactions
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={() => setTxModalOpen(true)}
-        >
-          New transaction
-        </Button>
+        <div className="flex items-center gap-[20px]">
+          <Select
+            size="small"
+            value={categoriesFilter}
+            displayEmpty
+            onChange={(e) => {
+              console.log('setting', e.target.value)
+              setCategoriesFilter(e.target.value as number[])
+            }}
+            multiple
+            renderValue={(selected) => {
+              console.log('rendering this')
+              if (selected.length === 0) return 'All categories'
+              if (selected.length === 1) {
+                const category = categories.find(
+                  (category) => category.id === selected[0]
+                )
+                return category ? category.name : ''
+              }
+              return `${selected.length} categories`
+            }}
+          >
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </Select>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => setTxModalOpen(true)}
+          >
+            New transaction
+          </Button>
+        </div>
       </div>
 
       <Paper className="flex-1 flex flex-col overflow-hidden">
