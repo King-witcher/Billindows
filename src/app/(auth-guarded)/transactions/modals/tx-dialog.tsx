@@ -27,7 +27,7 @@ import { Category } from '@prisma/client'
 import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useActionState, useState } from 'react'
+import { useActionState, useMemo, useState } from 'react'
 
 type Props = {
   now: Date
@@ -68,6 +68,11 @@ export function TxDialog({ onClose, now, action, tx, categories }: Props) {
   const [month, setMonth] = useState(tx ? tx.month : now.getMonth())
   const [day, setDay] = useState(tx ? tx.day : now.getDate())
   const daysInTheMonth = _.range(1, new Date(year, month + 1, 0).getDate() + 1)
+
+  const sortedCategories = useMemo(
+    () => categories.sort((a, b) => a.name.localeCompare(b.name)),
+    [categories]
+  )
 
   const [actionState, actionDispatch, isPending] = useActionState(
     async (state: ActionState, formData: FormData) => {

@@ -6,7 +6,7 @@ import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
 import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -43,12 +43,14 @@ export function ClientComponent({ transactions, categories, now }: Props) {
     )
   }, [transactions, categoriesFilter])
 
-  const [page, setPage] = useState(() => {
+  function computeInitialPage() {
     const blurredTransactions = filteredTransactions.filter(
       (transaction) => transaction.day > now.getDate()
     ).length
     return Math.floor(blurredTransactions / pageSize)
-  })
+  }
+
+  const [page, setPage] = useState(computeInitialPage)
 
   const categoryMap = useMemo(
     () => new Map(categories.map((category) => [category.id, category])),
@@ -66,6 +68,12 @@ export function ClientComponent({ transactions, categories, now }: Props) {
   function handleChangeRowsPerPage(e: ChangeEvent<HTMLInputElement>) {
     setPageSize(+e.target.value)
     setPage(0)
+  }
+
+  function handleChangeCategoriesFilter(e: SelectChangeEvent<number[]>) {
+    const value = e.target.value as number[]
+    setCategoriesFilter(value)
+    setPage(computeInitialPage())
   }
 
   function handleClose() {
@@ -92,10 +100,7 @@ export function ClientComponent({ transactions, categories, now }: Props) {
             size="small"
             value={categoriesFilter}
             displayEmpty
-            onChange={(e) => {
-              console.log('setting', e.target.value)
-              setCategoriesFilter(e.target.value as number[])
-            }}
+            onChange={handleChangeCategoriesFilter}
             multiple
             renderValue={(selected) => {
               console.log('rendering this')
