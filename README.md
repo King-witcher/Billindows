@@ -20,7 +20,7 @@ My personal expense management app.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/Billindows.git
+git clone https://github.com/King-witcher/Billindows.git
 
 # Navigate to the project directory
 cd Billindows
