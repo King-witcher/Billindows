@@ -266,7 +266,7 @@ export function TxDialog({ onClose, now, action, tx, categories }: Props) {
               <Tooltip title="Whether this transaction should be forecasted or not">
                 <FormControlLabel
                   name="forecast"
-                  label="Should forecast (new!)"
+                  label="Should forecast"
                   control={
                     <Checkbox
                       disabled={fixed}
