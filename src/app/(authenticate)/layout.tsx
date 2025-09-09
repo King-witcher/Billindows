@@ -5,15 +5,11 @@ import { ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
-  params: Promise<{ referrer: string }>
 }
 
 export default async function Layout(props: Props) {
   const session = await verifySession()
-  const seacrhParams = await props.params
-  const referrer = seacrhParams.referrer ?? '/'
-
-  if (session) redirect(referrer)
+  if (session) redirect('/')
 
   return (
     <div className="w-dvw h-dvh flex items-center justify-center p-[20px]">
