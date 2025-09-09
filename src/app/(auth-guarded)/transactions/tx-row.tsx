@@ -18,8 +18,15 @@ interface Props {
   onDelete: (tx: TxDto) => void
 }
 
+const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
 export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
   const blur = transaction.day > new Date().getDate()
+  const weekDay = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    transaction.day
+  ).getDay()
 
   return (
     <TableRow
@@ -28,7 +35,10 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
       className="data-[blur=true]:opacity-50 relative"
     >
       {/* Date */}
-      <TableCell>{transaction.day}</TableCell>
+      <TableCell className="flex gap-2 items-center">
+        {transaction.day}{' '}
+        <span className="opacity-60">{weekDays[weekDay]}</span>
+      </TableCell>
 
       {/* Name */}
       <TableCell align="center" className="truncate max-w-[150px]">

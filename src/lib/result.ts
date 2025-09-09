@@ -4,7 +4,7 @@
 export type Result<T, E> = Ok<T, E> | Err<T, E>
 
 export namespace Result {
-  export function fromPromise<T, E>(
+  export function fromPromise<T>(
     promise: Promise<T>
   ): Promise<Result<T, unknown>> {
     return promise
