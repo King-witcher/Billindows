@@ -17,6 +17,7 @@ import {
 import Paper from '@mui/material/Paper'
 import { CategoryRow, DashboardCategory } from './category-row'
 import { analyze } from './helpers'
+import { CreateTxButton } from './components/create-tx-button'
 
 export const metadata = {
   title: 'Billindows - Dashboard',
@@ -76,9 +77,12 @@ export default async function Page() {
   return (
     <div className="w-full min-h-full p-[20px]">
       <Paper className="p-[40px] h-full">
-        <Typography variant="h3" gutterBottom color="primary">
-          Welcome, {session.name}!
-        </Typography>
+        <div className="flex items-center justify-between">
+          <Typography variant="h3" gutterBottom color="primary" margin={0}>
+            Welcome, {session.name}!
+          </Typography>
+          <CreateTxButton categories={categories} now={now} />
+        </div>
         <div className="flex flex-col gap-[20px] mt-[40px]">
           <Typography variant="h5" color="textSecondary">
             Monthly performance
