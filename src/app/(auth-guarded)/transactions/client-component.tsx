@@ -5,23 +5,15 @@ import AddIcon from '@mui/icons-material/Add'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
-import Paper from '@mui/material/Paper'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
-import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { Category } from '@prisma/client'
-import { ChangeEvent, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { createTxAction } from './actions/create-tx'
 import { udpateTxAction } from './actions/update-tx'
 import { DeleteTxDialog } from './modals/delete-tx'
 import { TxDialog } from './modals/tx-dialog'
-import { TxRow } from './tx-row'
+import { TxTable } from './tx-table'
 
 interface Props {
   transactions: TxDto[]
@@ -34,7 +26,6 @@ export function ClientComponent({ transactions, categories, now }: Props) {
   const [txToDelete, setTxToDelete] = useState<TxDto | undefined>()
   const [txToEdit, setTxToEdit] = useState<TxDto | undefined>()
   const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
-  const [pageSize, setPageSize] = useState(10)
 
   const filteredTransactions = useMemo(() => {
     if (categoriesFilter.length === 0) return transactions
@@ -43,37 +34,9 @@ export function ClientComponent({ transactions, categories, now }: Props) {
     )
   }, [transactions, categoriesFilter])
 
-  function computeInitialPage() {
-    const blurredTransactions = filteredTransactions.filter(
-      (transaction) => transaction.day > now.getDate()
-    ).length
-    return Math.floor(blurredTransactions / pageSize)
-  }
-
-  const [page, setPage] = useState(computeInitialPage)
-
-  const categoryMap = useMemo(
-    () => new Map(categories.map((category) => [category.id, category])),
-    [categories]
-  )
-
-  const visibleTransactions = useMemo(
-    () =>
-      filteredTransactions
-        .sort((a, b) => b.day - a.day)
-        .slice(page * pageSize, page * pageSize + pageSize),
-    [filteredTransactions, page, pageSize]
-  )
-
-  function handleChangeRowsPerPage(e: ChangeEvent<HTMLInputElement>) {
-    setPageSize(+e.target.value)
-    setPage(0)
-  }
-
   function handleChangeCategoriesFilter(e: SelectChangeEvent<number[]>) {
     const value = e.target.value as number[]
     setCategoriesFilter(value)
-    setPage(computeInitialPage())
   }
 
   function handleClose() {
@@ -131,43 +94,12 @@ export function ClientComponent({ transactions, categories, now }: Props) {
         </div>
       </div>
 
-      <Paper className="flex-1 flex flex-col overflow-hidden">
-        <TableContainer className="flex flex-col flex-1">
-          <div className="flex-1 relative">
-            <Table stickyHeader className="absolute inset-0">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell align="center">Transaction</TableCell>
-                  <TableCell align="center">Category</TableCell>
-                  <TableCell align="center">Value</TableCell>
-                  <TableCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {visibleTransactions.map((transaction) => (
-                  <TxRow
-                    category={categoryMap.get(transaction.category_id)!}
-                    onDelete={setTxToDelete}
-                    onEdit={handleClickEdit}
-                    key={`${transaction.type}-${transaction.id}`}
-                    transaction={transaction}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TableContainer>
-        <TablePagination
-          rowsPerPage={pageSize}
-          rowsPerPageOptions={[10, 32, 100]}
-          component="div"
-          count={transactions.length}
-          onPageChange={(_, page: number) => setPage(page)}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          page={page}
-        />
-      </Paper>
+      <TxTable
+        transactions={filteredTransactions}
+        categories={categories}
+        onDelete={setTxToDelete}
+        onEdit={handleClickEdit}
+      />
 
       <Modal open={txModalOpen} onClose={handleClose} className="max-w-full">
         <TxDialog
