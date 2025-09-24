@@ -67,6 +67,10 @@ export default async function Page() {
     }
   })
 
+  const categoryMax = Math.max(
+    ...categoryRows.map((c) => Math.abs(c.balance)),
+    0
+  )
   const overallAnalysis = analyze([...fixed, ...oneTime], monthProgress, null)
 
   return (
@@ -148,7 +152,11 @@ export default async function Page() {
               </TableHead>
               <TableBody>
                 {categoryRows.map((category) => (
-                  <CategoryRow key={category.id} category={category} />
+                  <CategoryRow
+                    key={category.id}
+                    category={category}
+                    max={categoryMax}
+                  />
                 ))}
               </TableBody>
             </Table>
