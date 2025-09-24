@@ -28,7 +28,7 @@ export function CategoryRow({ category, max }: Props) {
     <TableRow hover className="relative">
       <TableCell>
         <div
-          className="absolute h-full top-0 left-0 opacity-10"
+          className="absolute h-full top-0 left-0 opacity-10 hidden sm:visible"
           style={{
             backgroundColor: category.balance >= 0 ? 'green' : 'red',
             width: `${progress}%`,
