@@ -68,7 +68,7 @@ export default async function Page() {
   })
 
   const categoryMax = Math.max(
-    ...categoryRows.map((c) => Math.abs(c.balance)),
+    ...categoryRows.map((c) => Math.abs(c.forecast)),
     0
   )
   const overallAnalysis = analyze([...fixed, ...oneTime], monthProgress, null)
