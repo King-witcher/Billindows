@@ -14,6 +14,7 @@ import { udpateTxAction } from './actions/update-tx'
 import { DeleteTxDialog } from './modals/delete-tx'
 import { TxDialog } from './modals/tx-dialog'
 import { TxTable } from './tx-table'
+import { Checkbox, ListItemText } from '@mui/material'
 
 interface Props {
   transactions: TxDto[]
@@ -26,17 +27,41 @@ export function ClientComponent({ transactions, categories, now }: Props) {
   const [txToDelete, setTxToDelete] = useState<TxDto | undefined>()
   const [txToEdit, setTxToEdit] = useState<TxDto | undefined>()
   const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
+  const [includeFilter, setIncludeFilter] = useState<string[]>([])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const filteredTransactions = useMemo(() => {
-    if (categoriesFilter.length === 0) return transactions
-    return transactions.filter((transaction) =>
-      categoriesFilter.includes(transaction.category_id)
-    )
-  }, [transactions, categoriesFilter])
+    let result = transactions
+    // Filter by category
+    if (categoriesFilter.length !== 0) {
+      result = result.filter((transaction) =>
+        categoriesFilter.includes(transaction.category_id)
+      )
+    }
+
+    // Filter by future
+    if (!includeFilter.includes('show-future')) {
+      result = result.filter((transaction) => {
+        return transaction.day <= now.getDate()
+      })
+    }
+
+    // Filter by fixed
+    if (!includeFilter.includes('show-fixed')) {
+      result = result.filter((transaction) => transaction.type !== 'fixed')
+    }
+
+    return result
+  }, [transactions, categoriesFilter, includeFilter.join(',')])
 
   function handleChangeCategoriesFilter(e: SelectChangeEvent<number[]>) {
     const value = e.target.value as number[]
     setCategoriesFilter(value)
+  }
+
+  function handleChnageIncludeFilter(e: SelectChangeEvent<string[]>) {
+    const value = e.target.value as string[]
+    setIncludeFilter(value)
   }
 
   function handleClose() {
@@ -61,12 +86,34 @@ export function ClientComponent({ transactions, categories, now }: Props) {
         <div className="flex items-center gap-[20px]">
           <Select
             size="small"
+            value={includeFilter}
+            displayEmpty
+            multiple
+            onChange={handleChnageIncludeFilter}
+            renderValue={() => 'Include'}
+          >
+            <MenuItem value="show-future">
+              <Checkbox
+                size="small"
+                checked={includeFilter.includes('show-future')}
+              />
+              <ListItemText primary="Future" />
+            </MenuItem>
+            <MenuItem value="show-fixed">
+              <Checkbox
+                size="small"
+                checked={includeFilter.includes('show-fixed')}
+              />
+              <ListItemText primary="Fixed" />
+            </MenuItem>
+          </Select>
+          <Select
+            size="small"
             value={categoriesFilter}
             displayEmpty
             onChange={handleChangeCategoriesFilter}
             multiple
             renderValue={(selected) => {
-              console.log('rendering this')
               if (selected.length === 0) return 'All categories'
               if (selected.length === 1) {
                 const category = categories.find(
