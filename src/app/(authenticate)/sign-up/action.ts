@@ -4,7 +4,6 @@ import { ActionError, withActionState } from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import bcrypt from 'bcrypt'
-import { redirect } from 'next/navigation'
 import { ZodError } from 'zod'
 import { SignUpError } from './_error'
 import { schema } from './schema'
@@ -45,6 +44,4 @@ export const signUp = withActionState(async (data: unknown) => {
     name: user.name,
     role: 'user',
   })
-
-  redirect(body.referrer)
 })

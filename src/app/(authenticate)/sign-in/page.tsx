@@ -6,11 +6,25 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { signIn } from './action'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { schema } from './schema'
+import { getErrorMessage } from './_error'
 
 export default function Page() {
   const [state, action, pending] = useActionState(signIn, ActionState.idle())
   const search = useSearchParams()
   const referrer = search.get('referrer') ?? '/'
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+  })
 
   return (
     <>
@@ -19,29 +33,27 @@ export default function Page() {
       </Typography>
       <form
         className="w-full flex flex-col items-center gap-[20px] mt-[20px]"
-        action={action}
+        onSubmit={handleSubmit(action)}
       >
         <input type="hidden" name="referrer" value={referrer} />
         <TextField
           label="Email"
           type="email"
-          name="email"
           fullWidth
-          error={state.state === ActionStateEnum.Error}
+          error={!!errors.email}
+          helperText={errors.email?.message}
           disabled={pending}
+          {...register('email')}
           required
         />
         <TextField
           label="Password"
           type="password"
-          name="password"
           disabled={pending}
-          error={state.state === ActionStateEnum.Error}
-          helperText={
-            state.state === ActionStateEnum.Error ? state.message : undefined
-          }
+          error={!!errors.password}
+          helperText={errors.password?.message}
+          {...register('password')}
           fullWidth
-          required
         />
         <Button
           className="!mt-[20px]"
@@ -53,6 +65,16 @@ export default function Page() {
         >
           Continue
         </Button>
+        {state.state === ActionStateEnum.Error && (
+          <Typography
+            color="error"
+            fontSize="0.875rem"
+            align="center"
+            margin={0}
+          >
+            {getErrorMessage(state.code)}
+          </Typography>
+        )}
       </form>
       <Typography variant="subtitle1" align="center">
         Dont have an account yet?

@@ -4,19 +4,11 @@ import { ActionError, withActionState } from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import bcrypt from 'bcrypt'
-import { redirect } from 'next/navigation'
-import { z } from 'zod'
-import { zfd } from 'zod-form-data'
 import { SignInError } from './_error'
+import { schema, SignInPayload } from './schema'
 
-const schema = zfd.formData({
-  email: z.string().email().max(320),
-  password: z.string().max(50),
-  referrer: z.string(),
-})
-
-export const signIn = withActionState(async (formData: FormData) => {
-  const body = await schema.parseAsync(formData).catch(() => {
+export const signIn = withActionState(async (data: SignInPayload) => {
+  const body = await schema.parseAsync(data).catch(() => {
     throw new ActionError(SignInError.InvalidFormData)
   })
 
@@ -27,7 +19,7 @@ export const signIn = withActionState(async (formData: FormData) => {
   })
 
   if (!user) {
-    // Pretend some validation time
+    // Pretend to validate something to avoid user enumeration
     await bcrypt.compare(body.password, `$2b$10$${'0'.repeat(60)}`)
     throw new ActionError(SignInError.InvalidCredentials)
   }
@@ -41,6 +33,4 @@ export const signIn = withActionState(async (formData: FormData) => {
     name: user.name,
     role: 'user',
   })
-
-  redirect(body.referrer)
 })
