@@ -33,7 +33,7 @@ export default function Page() {
   ])
 
   const passwordsMatch =
-    password === passwordConfirmation && dirtyFields.passwordConfirmation
+    password === passwordConfirmation || !dirtyFields.passwordConfirmation
 
   return (
     <>
