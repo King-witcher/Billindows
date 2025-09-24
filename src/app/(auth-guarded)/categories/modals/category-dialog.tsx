@@ -1,6 +1,7 @@
 'use client'
 
 import { MoneyField } from '@/components/atoms/inputs/money-input'
+import { LocalMall } from '@mui/icons-material'
 import {
   Button,
   FormControl,
@@ -77,6 +78,14 @@ export function CategoryDialog({ onClose, action, category }: Props) {
           {category ? 'Edit category' : 'Create category'}{' '}
           <b>{category?.name}</b>
         </Typography>
+        <div className="w-full flex justify-center">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center text-white"
+            style={{ backgroundColor: '#4000ff' }}
+          >
+            <LocalMall className="text-3xl!" />
+          </div>
+        </div>
         <TextField
           variant="outlined"
           label="Name"

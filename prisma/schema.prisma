@@ -23,6 +23,7 @@ model Category {
   id      Int    @id @default(autoincrement())
   name    String
   color   String
+  icon    Int    @default(0)
   goal    Int?
   user_id Int
 
