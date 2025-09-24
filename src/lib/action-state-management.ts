@@ -1,4 +1,5 @@
-export enum ActionStateEnum {
+// biome-ignore lint/suspicious/noConstEnum: <explanation>
+export const enum ActionStateEnum {
   Idle = 'idle',
   Success = 'success',
   Error = 'error',

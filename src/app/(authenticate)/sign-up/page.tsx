@@ -6,11 +6,34 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { signUp } from './action'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { schema } from './schema'
+import { getErrorMessage } from './_error'
 
 export default function Page() {
   const [state, action, pending] = useActionState(signUp, ActionState.idle())
   const search = useSearchParams()
   const referrer = search.get('referrer') ?? '/'
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, dirtyFields },
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+  })
+
+  const [password, passwordConfirmation] = watch([
+    'password',
+    'passwordConfirmation',
+  ])
+
+  const passwordsMatch =
+    password === passwordConfirmation && dirtyFields.passwordConfirmation
 
   return (
     <>
@@ -19,47 +42,52 @@ export default function Page() {
       </Typography>
       <form
         className="w-full flex flex-col items-center gap-[20px] mt-[20px]"
-        action={action}
+        onSubmit={handleSubmit(action)}
       >
         <input type="hidden" name="referrer" value={referrer} />
         <TextField
           label="Email"
           type="email"
-          name="email"
           fullWidth
-          error={state.state === ActionStateEnum.Error}
+          error={!!errors.email}
+          helperText={errors.email?.message}
           disabled={pending}
           required
+          {...register('email')}
         />
         <TextField
           label="Name"
           type="name"
-          name="name"
           fullWidth
-          error={state.state === ActionStateEnum.Error}
+          error={!!errors.name}
+          helperText={errors.name?.message}
           disabled={pending}
+          sx={{
+            minLength: 4,
+            maxLength: 20,
+          }}
           required
+          {...register('name')}
         />
         <TextField
           label="Password"
           type="password"
-          name="password"
           fullWidth
-          error={state.state === ActionStateEnum.Error}
           disabled={pending}
+          error={!!errors.password}
+          helperText={errors.password?.message}
+          {...register('password')}
           required
         />
         <TextField
-          label="Password confirmation"
+          label="Confirm Password"
           type="password"
-          name="passwordConfirmation"
           fullWidth
-          error={state.state === ActionStateEnum.Error}
-          helperText={
-            state.state === ActionStateEnum.Error ? state.message : undefined
-          }
+          error={!passwordsMatch}
+          helperText={!passwordsMatch ? 'Passwords do not match' : undefined}
           disabled={pending}
           required
+          {...register('passwordConfirmation')}
         />
         <Button
           className="!mt-[20px]"
@@ -71,6 +99,16 @@ export default function Page() {
         >
           Continue
         </Button>
+        {state.state === ActionStateEnum.Error && (
+          <Typography
+            color="error"
+            fontSize="0.875rem"
+            align="center"
+            margin={0}
+          >
+            {getErrorMessage(state.code)}
+          </Typography>
+        )}
       </form>
       <Typography variant="subtitle1" align="center">
         Already have an account?

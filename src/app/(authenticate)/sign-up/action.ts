@@ -5,21 +5,14 @@ import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
-import { z, ZodError } from 'zod'
-import { zfd } from 'zod-form-data'
+import { ZodError } from 'zod'
 import { SignUpError } from './_error'
+import { schema } from './schema'
 
-const schema = zfd.formData({
-  email: z.string().email().max(320),
-  name: z.string().min(4).max(50),
-  password: z.string().min(8).max(50),
-  passwordConfirmation: z.string().min(8).max(50),
-  referrer: zfd.text().default('/'),
-})
-
-export const signUp = withActionState(async (formData: FormData) => {
-  const body = await schema.parseAsync(formData).catch((e: ZodError) => {
-    throw new ActionError(SignUpError.InvalidFormData, e.message)
+export const signUp = withActionState(async (data: unknown) => {
+  const body = await schema.parseAsync(data).catch((e: ZodError) => {
+    console.error(e)
+    throw new ActionError(SignUpError.InvalidFormData)
   })
 
   // Check if the password and password confirmation match
