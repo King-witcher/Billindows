@@ -5,7 +5,7 @@ import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 import { zfd } from 'zod-form-data'
 import { SignUpError } from './_error'
 
@@ -14,12 +14,11 @@ const schema = zfd.formData({
   name: z.string().min(4).max(50),
   password: z.string().min(8).max(50),
   passwordConfirmation: z.string().min(8).max(50),
-  referrer: z.string(),
+  referrer: zfd.text().default('/'),
 })
 
 export const signUp = withActionState(async (formData: FormData) => {
-  const body = await schema.parseAsync(formData).catch((e) => {
-    console.error(e)
+  const body = await schema.parseAsync(formData).catch((e: ZodError) => {
     throw new ActionError(SignUpError.InvalidFormData, e.message)
   })
 

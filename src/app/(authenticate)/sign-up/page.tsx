@@ -61,7 +61,6 @@ export default function Page() {
           disabled={pending}
           required
         />
-        <input type="hidden" name="referrer" value={referrer} />
         <Button
           className="!mt-[20px]"
           type="submit"
