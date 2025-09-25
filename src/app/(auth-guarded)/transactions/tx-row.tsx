@@ -19,15 +19,8 @@ interface Props {
   onDelete: (tx: TxDto) => void
 }
 
-const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
 export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
   const blur = transaction.day > new Date().getDate()
-  const weekDay = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    transaction.day
-  ).getDay()
 
   function handleClickDelete(event: MouseEvent<HTMLButtonElement>) {
     event.stopPropagation()

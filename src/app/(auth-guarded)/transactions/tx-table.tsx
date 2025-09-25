@@ -21,6 +21,15 @@ interface Props {
   onDelete: (tx: TxDto) => void
   onEdit: (tx: TxDto) => void
 }
+const weekDays = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
 
 export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
   const [intendedPage, setIntendedPage] = useState(0)
@@ -64,25 +73,28 @@ export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
               {visibleTransactions.map((transaction, index) => {
                 const prev = visibleTransactions[index - 1]
                 const newDate = !prev || prev.day !== transaction.day
+                const weekDay = new Date(
+                  new Date().getFullYear(),
+                  new Date().getMonth(),
+                  transaction.day
+                ).getDay()
                 return (
                   <Fragment key={`${transaction.type}-${transaction.id}`}>
                     {newDate && (
                       <TableRow>
                         <TableCell colSpan={5} className="py-2 bg-gray-100">
-                          <div className="flex flex-col items-center w-full">
+                          <div className="flex flex-col items-center w-full leading-5">
                             <span className="text-lg font-semibold">
-                              {transaction.day}
+                              Day {transaction.day}
                             </span>
-                            <span className="opacity-60 text-xs">
-                              {/* {weekDays[weekDay]} */}
-                              Wednesday
+                            <span className="opacity-60 text-xs leading-3">
+                              {weekDays[weekDay]}
                             </span>
                           </div>
                         </TableCell>
                       </TableRow>
                     )}
                     <TxRow
-                      hideDate={!newDate}
                       category={categoryMap.get(transaction.category_id)!}
                       onDelete={onDelete}
                       onEdit={onEdit}
