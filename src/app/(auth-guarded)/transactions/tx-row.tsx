@@ -35,9 +35,11 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
       className="data-[blur=true]:opacity-50 relative"
     >
       {/* Date */}
-      <TableCell className="flex gap-2 items-center">
-        {transaction.day}{' '}
-        <span className="opacity-60">{weekDays[weekDay]}</span>
+      <TableCell>
+        <div className="flex flex-col items-center w-fit">
+          <span>{transaction.day}</span>
+          <span className="opacity-50 text-xs">{weekDays[weekDay]}</span>
+        </div>
       </TableCell>
 
       {/* Name */}

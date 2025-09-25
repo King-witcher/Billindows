@@ -24,6 +24,7 @@ export function CreateTxButton({ categories, now }: Props) {
       <Button
         variant="contained"
         size="large"
+        className="self-start"
         startIcon={<Add />}
         onClick={() => setTxModalOpen(true)}
       >

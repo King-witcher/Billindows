@@ -80,7 +80,11 @@ export function ClientComponent({ transactions, categories, now }: Props) {
   return (
     <div className="p-[20px] flex flex-col gap-[20px] h-full">
       <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[20px] w-full ml-auto">
-        <Typography className="self-start" variant="h3" color="primary">
+        <Typography
+          className="self-start text-3xl! md:text-5xl!"
+          variant="h3"
+          color="primary"
+        >
           Transactions
         </Typography>
         <div className="flex items-center gap-[20px]">

@@ -72,7 +72,7 @@ export function CategoryRow({ category, max }: Props) {
           fontWeight={500}
         />
       </TableCell>
-      <TableCell align="center">
+      <TableCell align="center" className="hidden! md:table-cell!">
         <CurrencyText
           value={category.goal}
           variant="body2"

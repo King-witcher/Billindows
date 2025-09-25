@@ -77,7 +77,7 @@ export default async function Page() {
   return (
     <div className="w-full min-h-full p-[20px]">
       <Paper className="p-[40px] h-full">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-center justify-between">
           <Typography variant="h3" gutterBottom color="primary" margin={0}>
             Welcome, {session.name}!
           </Typography>
@@ -150,7 +150,9 @@ export default async function Page() {
                 <TableRow>
                   <TableCell>Category</TableCell>
                   <TableCell align="center">Balance</TableCell>
-                  <TableCell align="center">Goal</TableCell>
+                  <TableCell align="center" className="hidden! md:table-cell!">
+                    Goal
+                  </TableCell>
                   <TableCell align="right">Forecast</TableCell>
                 </TableRow>
               </TableHead>

@@ -37,15 +37,7 @@ type Props = {
   onClose: () => void
 }
 
-const weekDays = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-]
+const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const months = [
   'January',
@@ -230,9 +222,13 @@ export function TxDialog({ onClose, now, action, tx, categories }: Props) {
                   {daysInTheMonth.map((day) => {
                     const weekDay = new Date(year, month, day).getDay()
                     return (
-                      <MenuItem key={day} value={day} className="flex gap-2">
-                        {day}{' '}
-                        <span className="text-sm text-gray-400">{`(${weekDays[weekDay]})`}</span>
+                      <MenuItem key={day} value={day}>
+                        <div className="flex gap-1 items-baseline">
+                          {day}
+                          <span className="text-xs text-gray-400">
+                            {weekDays[weekDay]}
+                          </span>
+                        </div>
                       </MenuItem>
                     )
                   })}

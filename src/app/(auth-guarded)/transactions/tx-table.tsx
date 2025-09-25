@@ -51,10 +51,10 @@ export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
     <Paper className="flex-1 flex flex-col overflow-hidden">
       <TableContainer className="flex flex-col flex-1">
         <div className="flex-1 relative">
-          <Table stickyHeader className="absolute inset-0">
+          <Table stickyHeader className="absolute inset-0" size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Date</TableCell>
+                <TableCell className="py-4!">Date</TableCell>
                 <TableCell align="center">Transaction</TableCell>
                 <TableCell align="center">Category</TableCell>
                 <TableCell align="center">Value</TableCell>
