@@ -17,3 +17,8 @@ export function parseFormData(formData: FormData): Record<string, string> {
 export function sanitize(str: string): string {
   return str.trim().replace(/\s+/g, ' ')
 }
+
+export function sanitizeColor(hex: string) {
+  if (!hex.match(/^#([0-9A-Fa-f]{6})$/)) return '#000000'
+  return hex
+}

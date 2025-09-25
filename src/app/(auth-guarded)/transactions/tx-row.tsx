@@ -3,16 +3,16 @@
 import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { EventRepeat } from '@mui/icons-material'
 import Delete from '@mui/icons-material/Delete'
-import Edit from '@mui/icons-material/Edit'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { Category } from '@prisma/client'
+import { MouseEvent } from 'react'
+import { TransactionBadge } from './components/transaction-badge'
 
 interface Props {
-  hideDate?: boolean
   transaction: TxDto
   category: Category
   onEdit: (tx: TxDto) => void
@@ -21,13 +21,7 @@ interface Props {
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-export function TxRow({
-  transaction,
-  category,
-  hideDate,
-  onDelete,
-  onEdit,
-}: Props) {
+export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
   const blur = transaction.day > new Date().getDate()
   const weekDay = new Date(
     new Date().getFullYear(),
@@ -35,11 +29,17 @@ export function TxRow({
     transaction.day
   ).getDay()
 
+  function handleClickDelete(event: MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation()
+    onDelete(transaction)
+  }
+
   return (
     <TableRow
       hover={!blur}
       data-blur={blur}
-      className="data-[blur=true]:opacity-50 relative"
+      onClick={() => onEdit(transaction)}
+      className="data-[blur=true]:opacity-50 relative cursor-pointer"
     >
       {/* Name */}
       <TableCell className="truncate max-w-[150px]">
@@ -51,18 +51,8 @@ export function TxRow({
       {/* Category */}
       <TableCell align="center" className="max-w-[150px]">
         <div className="flex items-center justify-center gap-[10px]">
-          <style jsx>{`
-          .color-badge {
-            width: 14px;
-            flex-shrink: 0;
-            height: 14px;
-            border-radius: 999px;
-            background: ${category.color};
-          }
-        `}</style>
-          <div className="color-badge" />
           <Tooltip title={category.name}>
-            <span className="truncate">{category.name}</span>
+            <TransactionBadge name={category.name} color={category.color} />
           </Tooltip>
         </div>
       </TableCell>
@@ -81,19 +71,8 @@ export function TxRow({
 
       {/* Actions */}
       <TableCell align="right" className="truncate">
-        <button
-          type="button"
-          aria-label="Edit"
-          className="absolute inset-0 cursor-pointer hidden sm:block"
-          onClick={() => onEdit(transaction)}
-        />
-        <Tooltip title="Delete" className="sm:!hidden">
-          <IconButton onClick={() => onEdit(transaction)}>
-            <Edit />
-          </IconButton>
-        </Tooltip>
         <Tooltip title="Delete">
-          <IconButton onClick={() => onDelete(transaction)}>
+          <IconButton onClick={handleClickDelete}>
             <Delete />
           </IconButton>
         </Tooltip>
