@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography'
 import { Category } from '@prisma/client'
 
 interface Props {
+  hideDate?: boolean
   transaction: TxDto
   category: Category
   onEdit: (tx: TxDto) => void
@@ -20,7 +21,13 @@ interface Props {
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
+export function TxRow({
+  transaction,
+  category,
+  hideDate,
+  onDelete,
+  onEdit,
+}: Props) {
   const blur = transaction.day > new Date().getDate()
   const weekDay = new Date(
     new Date().getFullYear(),
@@ -34,18 +41,10 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
       data-blur={blur}
       className="data-[blur=true]:opacity-50 relative"
     >
-      {/* Date */}
-      <TableCell>
-        <div className="flex flex-col items-center w-fit">
-          <span>{transaction.day}</span>
-          <span className="opacity-50 text-xs">{weekDays[weekDay]}</span>
-        </div>
-      </TableCell>
-
       {/* Name */}
-      <TableCell align="center" className="truncate max-w-[150px]">
+      <TableCell className="truncate max-w-[150px]">
         <Tooltip title={transaction.name}>
-          <span>{transaction.name}</span>
+          <strong>{transaction.name}</strong>
         </Tooltip>
       </TableCell>
 

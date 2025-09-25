@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import { TxRow } from './tx-row'
 import { TxDto } from '@/utils/queries/get-one-time-txs'
-import { ChangeEvent, useMemo, useState } from 'react'
+import { ChangeEvent, Fragment, useMemo, useState } from 'react'
 import { Category } from '@prisma/client'
 
 interface Props {
@@ -24,7 +24,7 @@ interface Props {
 
 export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
   const [intendedPage, setIntendedPage] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(15)
 
   const maxPage = Math.floor(transactions.length / pageSize)
   const page = Math.min(intendedPage, maxPage)
@@ -38,8 +38,8 @@ export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
     () =>
       transactions
         .sort((a, b) => b.day - a.day)
-        .slice(intendedPage * pageSize, intendedPage * pageSize + pageSize),
-    [transactions, intendedPage, pageSize]
+        .slice(page * pageSize, page * pageSize + pageSize),
+    [transactions, page, pageSize]
   )
 
   function handleChangeRowsPerPage(e: ChangeEvent<HTMLInputElement>) {
@@ -54,30 +54,50 @@ export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
           <Table stickyHeader className="absolute inset-0" size="small">
             <TableHead>
               <TableRow>
-                <TableCell className="py-4!">Date</TableCell>
-                <TableCell align="center">Transaction</TableCell>
+                <TableCell className="py-3!">Transaction</TableCell>
                 <TableCell align="center">Category</TableCell>
                 <TableCell align="center">Value</TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
-              {visibleTransactions.map((transaction) => (
-                <TxRow
-                  category={categoryMap.get(transaction.category_id)!}
-                  onDelete={onDelete}
-                  onEdit={onEdit}
-                  key={`${transaction.type}-${transaction.id}`}
-                  transaction={transaction}
-                />
-              ))}
+              {visibleTransactions.map((transaction, index) => {
+                const prev = visibleTransactions[index - 1]
+                const newDate = !prev || prev.day !== transaction.day
+                return (
+                  <Fragment key={`${transaction.type}-${transaction.id}`}>
+                    {newDate && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="py-2 bg-gray-100">
+                          <div className="flex flex-col items-center w-full">
+                            <span className="text-lg font-semibold">
+                              {transaction.day}
+                            </span>
+                            <span className="opacity-60 text-xs">
+                              {/* {weekDays[weekDay]} */}
+                              Wednesday
+                            </span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    <TxRow
+                      hideDate={!newDate}
+                      category={categoryMap.get(transaction.category_id)!}
+                      onDelete={onDelete}
+                      onEdit={onEdit}
+                      transaction={transaction}
+                    />
+                  </Fragment>
+                )
+              })}
             </TableBody>
           </Table>
         </div>
       </TableContainer>
       <TablePagination
         rowsPerPage={pageSize}
-        rowsPerPageOptions={[10, 32, 100]}
+        rowsPerPageOptions={[15, 32, 100]}
         component="div"
         count={transactions.length}
         onPageChange={(_, page: number) => setIntendedPage(page)}

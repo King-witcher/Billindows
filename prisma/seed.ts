@@ -16,7 +16,7 @@ async function main() {
     },
   })
 
-  await createCategories(testUser.id, 4, true)
+  await createCategories(testUser.id, 20, true)
 }
 
 main()
