@@ -2,7 +2,7 @@
 
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import { parseFormData } from '@/utils/utils'
+import { parseFormData, sanitize } from '@/utils/utils'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -28,8 +28,8 @@ export async function editCategory(formData: FormData) {
 
   await prisma.$executeRaw`
     UPDATE categories
-    SET 
-      name = ${body.name},
+    SET
+      name = ${sanitize(body.name)},
       color = ${body.color},
       goal = ${
         body.goal !== undefined

@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt'
 import { ZodError } from 'zod'
 import { SignUpError } from './_error'
 import { schema } from './schema'
+import { sanitize } from '@/utils/utils'
 
 export const signUp = withActionState(async (data: unknown) => {
   const body = await schema.parseAsync(data).catch((e: ZodError) => {
@@ -41,7 +42,7 @@ export const signUp = withActionState(async (data: unknown) => {
   await createSession({
     email: user.email,
     id: user.id,
-    name: user.name,
+    name: sanitize(user.name),
     role: 'user',
   })
 })

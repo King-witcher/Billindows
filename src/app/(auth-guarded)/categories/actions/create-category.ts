@@ -2,7 +2,7 @@
 
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import { parseFormData } from '@/utils/utils'
+import { parseFormData, sanitize } from '@/utils/utils'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -28,7 +28,7 @@ export async function createCategory(formData: FormData) {
   await prisma.category.create({
     data: {
       color: body.color,
-      name: body.name,
+      name: sanitize(body.name),
       goal: body.goal
         ? body.goalType === 'expense'
           ? -body.goal

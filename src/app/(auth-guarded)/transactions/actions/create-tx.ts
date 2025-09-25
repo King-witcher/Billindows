@@ -7,6 +7,7 @@ import { createTx } from '@/utils/queries/create-tx'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { CreateTxError } from './_errors'
+import { sanitize } from '@/utils/utils'
 
 const createTxSchema = zfd.formData({
   name: z.string().nonempty().max(50),
@@ -46,7 +47,7 @@ export const createTxAction = withActionState(async (formData: FormData) => {
     year: body.year,
     month: body.month,
     day: body.day,
-    name: body.name,
+    name: sanitize(body.name),
     category_id: body.category,
     forecast: body.forecast,
     type: body.fixed ? 'fixed' : 'one-time',

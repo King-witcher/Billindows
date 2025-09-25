@@ -13,3 +13,7 @@ export function parseFormData(formData: FormData): Record<string, string> {
   }
   return record
 }
+
+export function sanitize(str: string): string {
+  return str.trim().replace(/\s+/g, ' ')
+}

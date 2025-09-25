@@ -7,6 +7,7 @@ import { DBTime } from '@/utils/time'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { CreateTxError } from './_errors'
+import { sanitize } from '@/utils/utils'
 
 const createTxSchema = zfd.formData({
   id: zfd.numeric(z.number().min(1)),
@@ -45,7 +46,7 @@ export const udpateTxAction = withActionState(async (formData: FormData) => {
     await prisma.$executeRaw`
       UPDATE fixed_txs ft
       SET
-        name = ${body.name},
+        name = ${sanitize(body.name)},
         value = ${body.type === 'expense' ? -body.value : body.value},
         start_month = ${DBTime.fromYMToDB(body.year, body.month)},
         day = ${body.day},
@@ -61,7 +62,7 @@ export const udpateTxAction = withActionState(async (formData: FormData) => {
     await prisma.$executeRaw`
       UPDATE one_time_txs ott
       SET
-        name = ${body.name},
+        name = ${sanitize(body.name)},
         value = ${body.type === 'expense' ? -body.value : body.value},
         month = ${DBTime.fromYMToDB(body.year, body.month)},
         day = ${body.day},
