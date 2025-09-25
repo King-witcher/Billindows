@@ -42,7 +42,7 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
       </TableCell>
 
       {/* Category */}
-      <TableCell align="center" className="max-w-[150px]">
+      <TableCell align="center" className="max-w-[150px]" width={1}>
         <div className="flex items-center justify-center gap-[10px]">
           <Tooltip title={category.name}>
             <TransactionBadge name={category.name} color={category.color} />
@@ -51,7 +51,7 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
       </TableCell>
 
       {/* Value */}
-      <TableCell align="center">
+      <TableCell align="center" width={1}>
         <Typography
           fontWeight={500}
           className="truncate flex items-center justify-center gap-1"
@@ -63,7 +63,7 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
       </TableCell>
 
       {/* Actions */}
-      <TableCell align="right" className="truncate">
+      <TableCell align="right" className="truncate" width={1}>
         <Tooltip title="Delete">
           <IconButton onClick={handleClickDelete}>
             <Delete />
