@@ -20,6 +20,7 @@ export default function Page() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm({
     resolver: zodResolver(schema),
     mode: 'onBlur',

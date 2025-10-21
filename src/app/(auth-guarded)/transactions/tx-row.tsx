@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/components/atoms/badge'
 import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { EventRepeat } from '@mui/icons-material'
 import Delete from '@mui/icons-material/Delete'
@@ -10,7 +11,6 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { Category } from '@prisma/client'
 import { MouseEvent } from 'react'
-import { TransactionBadge } from './components/transaction-badge'
 
 interface Props {
   transaction: TxDto
@@ -45,7 +45,7 @@ export function TxRow({ transaction, category, onDelete, onEdit }: Props) {
       <TableCell align="center" className="max-w-[150px]" width={1}>
         <div className="flex items-center justify-center gap-[10px]">
           <Tooltip title={category.name}>
-            <TransactionBadge name={category.name} color={category.color} />
+            <Badge color={category.color}>{category.name}</Badge>
           </Tooltip>
         </div>
       </TableCell>

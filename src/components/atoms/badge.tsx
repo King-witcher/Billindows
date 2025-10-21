@@ -1,7 +1,8 @@
 import { sanitizeColor } from '@/utils/utils'
+import { ReactNode } from 'react'
 
 interface Props {
-  name: string
+  children: ReactNode
   color: string
 }
 
@@ -19,7 +20,7 @@ function getLuma(hex: string) {
 
 let index = 0
 
-export function TransactionBadge({ name, color }: Props) {
+export function Badge({ children, color }: Props) {
   const sanitized = sanitizeColor(color)
   index++
   const luma = getLuma(sanitized)
@@ -36,7 +37,7 @@ export function TransactionBadge({ name, color }: Props) {
         color: textColor,
       }}
     >
-      {name}
+      {children}
     </div>
   )
 }

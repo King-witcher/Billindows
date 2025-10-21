@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/components/atoms/badge'
 import Delete from '@mui/icons-material/Delete'
 import Edit from '@mui/icons-material/Edit'
 import { IconButton, TableCell, TableRow, Tooltip } from '@mui/material'
@@ -16,19 +17,7 @@ export function CategoryRow({ category, onDelete, onEdit }: Props) {
     <TableRow hover>
       <TableCell>
         <div className="flex items-center min-w-0 gap-[10px] max-w-[200px] sm:max-w-[300px]">
-          <style jsx>{`
-          .color-badge {
-            width: 14px;
-            height: 14px;
-            border-radius: 999px;
-            flex-shrink: 0;
-            background: ${category.color};
-          }
-        `}</style>
-          <div className="color-badge" />
-          <Tooltip title={category.name}>
-            <span className="truncate">{category.name}</span>
-          </Tooltip>
+          <Badge color={category.color}>{category.name}</Badge>
         </div>
       </TableCell>
       <TableCell align="center" className="!hidden sm:!table-cell">
