@@ -1,5 +1,6 @@
 'use client'
 
+import { TxDto } from '@/utils/queries/get-one-time-txs'
 import {
   Paper,
   Table,
@@ -10,10 +11,9 @@ import {
   TablePagination,
   TableRow,
 } from '@mui/material'
-import { TxRow } from './tx-row'
-import { TxDto } from '@/utils/queries/get-one-time-txs'
-import { ChangeEvent, Fragment, useMemo, useState } from 'react'
 import { Category } from '@prisma/client'
+import { ChangeEvent, Fragment, useMemo, useState } from 'react'
+import { TxRow } from './tx-row'
 
 interface Props {
   transactions: TxDto[]

@@ -3,9 +3,9 @@
 import { Add } from '@mui/icons-material'
 import { Button, Modal } from '@mui/material'
 import { Category } from '@prisma/client'
-import { TxDialog } from '../../transactions/modals/tx-dialog'
 import { useState } from 'react'
 import { createTxAction } from '../../transactions/actions/create-tx'
+import { TxDialog } from '../../transactions/modals/tx-dialog'
 
 interface Props {
   categories: Category[]

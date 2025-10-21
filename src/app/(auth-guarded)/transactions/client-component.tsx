@@ -2,6 +2,7 @@
 
 import { TxDto } from '@/utils/queries/get-one-time-txs'
 import AddIcon from '@mui/icons-material/Add'
+import { Checkbox, ListItemText } from '@mui/material'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
@@ -14,7 +15,6 @@ import { udpateTxAction } from './actions/update-tx'
 import { DeleteTxDialog } from './modals/delete-tx'
 import { TxDialog } from './modals/tx-dialog'
 import { TxTable } from './tx-table'
-import { Checkbox, ListItemText } from '@mui/material'
 
 interface Props {
   transactions: TxDto[]

@@ -5,7 +5,7 @@ import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import bcrypt from 'bcrypt'
 import { SignInError } from './_error'
-import { schema, SignInPayload } from './schema'
+import { SignInPayload, schema } from './schema'
 
 export const signIn = withActionState(async (data: SignInPayload) => {
   const body = await schema.parseAsync(data).catch(() => {

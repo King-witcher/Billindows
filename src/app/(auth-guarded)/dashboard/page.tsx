@@ -16,8 +16,8 @@ import {
 } from '@mui/material'
 import Paper from '@mui/material/Paper'
 import { CategoryRow, DashboardCategory } from './category-row'
-import { analyze } from './helpers'
 import { CreateTxButton } from './components/create-tx-button'
+import { analyze } from './helpers'
 
 export const metadata = {
   title: 'Billindows - Dashboard',
