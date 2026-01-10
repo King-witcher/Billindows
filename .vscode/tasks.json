@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "database up",
+      "type": "docker-compose",
+      "icon": {
+        "id": "database",
+        "color": "terminal.ansiGreen"
+      },
+      "dockerCompose": {
+        "up": {
+          "detached": true
+        }
+      }
+    },
+    {
+      "label": "database down",
+      "type": "docker-compose",
+      "icon": {
+        "id": "database",
+        "color": "terminal.ansiRed"
+      },
+      "dockerCompose": {
+        "down": {}
+      }
+    }
+  ]
+}
