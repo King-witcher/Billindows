@@ -1,5 +1,5 @@
 import { ResponsesModel } from 'openai/resources/shared.mjs'
-import { ZodObject, ZodRawShape } from 'zod'
+import { ZodObject } from 'zod'
 import * as zod from 'zod'
 import { openai } from './openai'
 import {
@@ -8,8 +8,32 @@ import {
   ResponseInput,
 } from 'openai/resources/responses/responses.mjs'
 
+export type Tool<T extends ZodObject = ZodObject> = {
+  schema: T
+  name: string
+  description: string
+  execute: (args: zod.infer<T>) => Promise<string>
+}
+
+const schema = zod.object({
+  message: zod.string(),
+})
+
+const obj: zod.infer<typeof schema> = {
+  message: 'Hello, World!',
+}
+
+const tool: Tool = {
+  schema: schema,
+  name: 'example_tool',
+  description: 'An example tool that returns a greeting message.',
+  execute: async (args) => {
+    return `Greeting: ${args.message}`
+  },
+}
+
 export type CreateAgentParams = {
-  model: ResponsesModel
+  model?: ResponsesModel
   instructions: string
   tools: Tool[]
   history?: ResponseInput
@@ -22,7 +46,7 @@ export class Agent {
   private history: ResponseInput = []
 
   constructor({ model, instructions, tools, history = [] }: CreateAgentParams) {
-    this.model = model
+    this.model = model || process.env.OPENAI_MODEL!
     this.instructions = instructions
     this.history = history
     this.toolsMap = new Map<string, Tool>(
@@ -88,11 +112,4 @@ export class Agent {
 
     return response.output_text
   }
-}
-
-export type Tool<T extends ZodRawShape = ZodRawShape> = {
-  schema: ZodObject<T>
-  name: string
-  description: string
-  execute: (args: zod.infer<ZodObject<T>>) => Promise<string>
 }
