@@ -18,6 +18,7 @@ import { TxTable } from './tx-table'
 import { useQuery } from '@tanstack/react-query'
 import { getTransactions } from './actions'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { set } from 'lodash'
 
 interface Props {
   categories: Category[]
@@ -169,15 +170,17 @@ export function ClientComponent({ categories, now }: Props) {
         onEdit={handleClickEdit}
       />
 
-      <Modal open={txModalOpen} onClose={handleClose} className="max-w-full">
-        <TxDialog
-          now={now}
-          categories={categories}
-          action={txAction}
-          onClose={handleClose}
-          tx={txToEdit}
-        />
-      </Modal>
+      <Dialog open={txModalOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-full">
+          <TxDialog
+            now={now}
+            categories={categories}
+            action={txAction}
+            onClose={() => setTxModalOpen(false)}
+            tx={txToEdit}
+          />
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={deleteTxDialogOpen}
         onOpenChange={setDeleteTxDialogOpen}

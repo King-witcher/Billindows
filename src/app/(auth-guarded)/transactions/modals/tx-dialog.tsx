@@ -24,10 +24,12 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { Category } from '@prisma/client'
+import { useQueryClient } from '@tanstack/react-query'
 import _ from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 type Props = {
   now: Date
@@ -63,8 +65,7 @@ const menuProps: Partial<MenuProps> = {
 }
 
 export function TxDialog({ onClose, now, action, tx, categories }: Props) {
-  const router = useRouter()
-
+  const client = useQueryClient()
   const year = now.getFullYear()
   const [fixed, setFixed] = useState(tx ? tx.type === 'fixed' : false)
   const [month, setMonth] = useState(tx ? tx.month : now.getMonth())
@@ -78,10 +79,14 @@ export function TxDialog({ onClose, now, action, tx, categories }: Props) {
 
   const [actionState, actionDispatch, isPending] = useActionState(
     async (state: ActionState, formData: FormData) => {
+
       const result = await action(state, formData)
       if (result.state !== ActionStateEnum.Error) {
         onClose()
-        router.refresh()
+        toast.success('Transaction saved successfully')
+        client.refetchQueries({ queryKey: ['transactions'] })
+      } else {
+        toast.error('Error saving transaction')
       }
       return result
     },
@@ -97,10 +102,7 @@ export function TxDialog({ onClose, now, action, tx, categories }: Props) {
   }
 
   return (
-    <Paper
-      elevation={10}
-      className="absolute top-1/2 left-1/2 w-[520px] max-w-[calc(100%_-_40px)] translate-x-[-50%] translate-y-[-50%] p-[20px] flex flex-col gap-[20px]"
-    >
+    <div>
       <Typography variant="h5" color="primary">
         {tx ? 'Edit transaction' : 'Create transaction'}
         <b>{tx && ` ${tx.name}`}</b>
@@ -298,6 +300,6 @@ export function TxDialog({ onClose, now, action, tx, categories }: Props) {
           </div>
         </form>
       )}
-    </Paper>
+    </div>
   )
 }
