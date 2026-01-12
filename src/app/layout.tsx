@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Roboto } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
+import { Toaster } from '@/components/ui/sonner'
 
 const roboto = Roboto({
   variable: '--font-roboto',
@@ -26,6 +27,7 @@ export default function RootLayout({
     <html lang="en-US">
       <Analytics />
       <SpeedInsights />
+      <Toaster position="top-center" />
       <body className={`${roboto.variable} antialiased bg-gray-100`}>
         <Providers>{children}</Providers>
       </body>

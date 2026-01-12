@@ -1,5 +1,4 @@
 import { ResponsesModel } from 'openai/resources/shared.mjs'
-import { ZodObject } from 'zod'
 import * as zod from 'zod'
 import { openai } from './openai'
 import {
@@ -7,13 +6,8 @@ import {
   Response,
   ResponseInput,
 } from 'openai/resources/responses/responses.mjs'
-
-export type Tool<T extends ZodObject = ZodObject> = {
-  schema: T
-  name: string
-  description: string
-  execute: (args: zod.infer<T>) => Promise<string>
-}
+import { Tool } from './tools/tool'
+import { T } from 'vitest/dist/chunks/environment.d.cL3nLXbE.js'
 
 const schema = zod.object({
   message: zod.string(),
@@ -32,29 +26,38 @@ const tool: Tool = {
   },
 }
 
-export type CreateAgentParams = {
+export type CreateAgentParams<TToolName extends string = string> = {
   model?: ResponsesModel
   instructions: string
-  tools: Tool[]
+  tools: (Tool & { name: TToolName })[]
   history?: ResponseInput
 }
 
-export class Agent {
-  private toolsMap: Map<string, Tool>
+export type AgentResult<TToolName extends string = string> = {
+  response: string
+  tokens: number
+  toolCalls: Partial<Record<TToolName, number>>
+}
+
+export class Agent<TToolName extends string = string> {
+  private toolsMap: Map<string, Tool & { name: TToolName }>
   private model: ResponsesModel
   private instructions: string
   private history: ResponseInput = []
 
-  constructor({ model, instructions, tools, history = [] }: CreateAgentParams) {
+  constructor({
+    model,
+    instructions,
+    tools,
+    history = [],
+  }: CreateAgentParams<TToolName>) {
     this.model = model || process.env.OPENAI_MODEL!
     this.instructions = instructions
     this.history = history
-    this.toolsMap = new Map<string, Tool>(
-      tools.map((tool) => [tool.name, tool])
-    )
+    this.toolsMap = new Map(tools.map((tool) => [tool.name, tool]))
   }
 
-  async run(input: string): Promise<string> {
+  async run(input: string): Promise<AgentResult<TToolName>> {
     this.history.push({
       role: 'user',
       content: input,
@@ -71,7 +74,9 @@ export class Agent {
         parameters: zod.toJSONSchema(tool.schema),
       }))
 
+    const toolCalls: Partial<Record<TToolName, number>> = {}
     let response: Response
+    let tokens = 0
 
     while (true) {
       response = await openai.responses.create({
@@ -81,11 +86,16 @@ export class Agent {
         tools: openaiTools,
       })
 
+      tokens += response.usage?.total_tokens ?? 0
+
       let toolCalled = false
       for (const item of response.output) {
+        this.history.push(item)
+
         if (item.type === 'function_call') {
-          this.history.push(item)
           toolCalled = true
+          toolCalls[item.name as TToolName] =
+            (toolCalls[item.name as TToolName] || 0) + 1
           console.info('Calling tool:', item.name)
 
           const tool = this.toolsMap.get(item.name)!
@@ -105,11 +115,15 @@ export class Agent {
       if (!toolCalled) break
     }
 
-    this.history.push({
-      role: 'assistant',
-      content: response.output_text,
-    })
+    // this.history.push({
+    //   role: 'assistant',
+    //   content: response.output_text,
+    // })
 
-    return response.output_text
+    return {
+      response: response.output_text,
+      tokens,
+      toolCalls,
+    }
   }
 }

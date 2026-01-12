@@ -1,7 +1,8 @@
 'use client'
 
 import { ReactNode, createContext, use, useState } from 'react'
-import { handleUserMessage } from './actions'
+import { callAgent } from './actions'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export type Message = {
   role: 'user' | 'assistant' | 'internal'
@@ -23,22 +24,43 @@ const ChatContextContext = createContext<ChatContextData | null>(null)
 
 export function ChatProvider({ children }: Props) {
   const [messages, setMessages] = useState<Message[]>([])
+  const client = useQueryClient()
 
-  async function sendMessage(content: string) {
-    const newMessage: Message = {
-      role: 'user',
-      content,
-      sentAt: new Date(),
-    }
-    setMessages((prev) => [...prev, newMessage])
+  const callAgentMutation = useMutation({
+    mutationKey: ['call-agent'],
+    mutationFn: async (message: string) => {
+      return await callAgent(messages.slice(-20), message)
+    },
+    onMutate: async (message: string) => {
+      const newMessage: Message = {
+        role: 'user',
+        content: message,
+        sentAt: new Date(),
+      }
+      setMessages((prev) => [...prev, newMessage])
+    },
+    onSuccess: async (response) => {
+      if (response.success) {
+        const assistantMessage: Message = {
+          role: 'assistant',
+          content: response.text,
+          sentAt: new Date(),
+        }
+        setMessages((prev) => [...prev, assistantMessage])
+        if (response.invalidate.transactions) {
+          client.refetchQueries({ queryKey: ['transactions'] })
+        }
+      } else {
+        console.error('Error handling user message:', response.error)
+      }
+    },
+    onError: async (error) => {
+      console.error('Error calling agent:', error)
+    },
+  })
 
-    const response = await handleUserMessage(messages.slice(-20), content)
-    const assistantMessage: Message = {
-      role: 'assistant',
-      content: response,
-      sentAt: new Date(),
-    }
-    setMessages((prev) => [...prev, assistantMessage])
+  async function sendMessage(request: string) {
+    callAgentMutation.mutate(request)
   }
 
   function clear() {

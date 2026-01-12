@@ -18,7 +18,7 @@ import { TxRow } from './tx-row'
 interface Props {
   transactions: TxDto[]
   categories: Category[]
-  onDelete: (tx: TxDto) => void
+  onDeleteClick: (tx: TxDto) => void
   onEdit: (tx: TxDto) => void
 }
 const weekDays = [
@@ -31,7 +31,12 @@ const weekDays = [
   'Saturday',
 ]
 
-export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
+export function TxTable({
+  transactions,
+  categories,
+  onDeleteClick: onDelete,
+  onEdit,
+}: Props) {
   const [intendedPage, setIntendedPage] = useState(0)
   const [pageSize, setPageSize] = useState(15)
 

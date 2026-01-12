@@ -15,23 +15,35 @@ import { udpateTxAction } from './actions/update-tx'
 import { DeleteTxDialog } from './modals/delete-tx'
 import { TxDialog } from './modals/tx-dialog'
 import { TxTable } from './tx-table'
+import { useQuery } from '@tanstack/react-query'
+import { getTransactions } from './actions'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 interface Props {
-  transactions: TxDto[]
   categories: Category[]
   now: Date
 }
 
-export function ClientComponent({ transactions, categories, now }: Props) {
+export function ClientComponent({ categories, now }: Props) {
   const [txModalOpen, setTxModalOpen] = useState(false)
-  const [txToDelete, setTxToDelete] = useState<TxDto | undefined>()
+  const [deleteTxDialogOpen, setDeleteTxDialogOpen] = useState(false)
+  const [txToDelete, setTxToDelete] = useState<TxDto | null>(null)
   const [txToEdit, setTxToEdit] = useState<TxDto | undefined>()
   const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
   const [includeFilter, setIncludeFilter] = useState<string[]>([])
 
+  const txQuery = useQuery({
+    queryKey: ['transactions'],
+    queryFn: async () => {
+      return getTransactions(now)
+    },
+  })
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const filteredTransactions = useMemo(() => {
-    let result = transactions
+    let result = txQuery.data
+    if (!result) return []
+
     // Filter by category
     if (categoriesFilter.length !== 0) {
       result = result.filter((transaction) =>
@@ -52,7 +64,7 @@ export function ClientComponent({ transactions, categories, now }: Props) {
     }
 
     return result
-  }, [transactions, categoriesFilter, includeFilter.join(',')])
+  }, [txQuery.data, categoriesFilter, includeFilter.join(',')])
 
   function handleChangeCategoriesFilter(e: SelectChangeEvent<number[]>) {
     const value = e.target.value as number[]
@@ -66,13 +78,18 @@ export function ClientComponent({ transactions, categories, now }: Props) {
 
   function handleClose() {
     setTxModalOpen(false)
-    setTxToDelete(undefined)
     setTxToEdit(undefined)
+    setDeleteTxDialogOpen(false)
   }
 
   function handleClickEdit(tx: TxDto) {
     setTxToEdit(tx)
     setTxModalOpen(true)
+  }
+
+  function onClickDelete(tx: TxDto) {
+    setTxToDelete(tx)
+    setDeleteTxDialogOpen(true)
   }
 
   const txAction = txToEdit ? udpateTxAction : createTxAction
@@ -148,7 +165,7 @@ export function ClientComponent({ transactions, categories, now }: Props) {
       <TxTable
         transactions={filteredTransactions}
         categories={categories}
-        onDelete={setTxToDelete}
+        onDeleteClick={onClickDelete}
         onEdit={handleClickEdit}
       />
 
@@ -161,21 +178,21 @@ export function ClientComponent({ transactions, categories, now }: Props) {
           tx={txToEdit}
         />
       </Modal>
-      <Modal
-        open={Boolean(txToDelete)}
-        onClose={handleClose}
-        className="max-w-full"
+      <Dialog
+        open={deleteTxDialogOpen}
+        onOpenChange={setDeleteTxDialogOpen}
+        // className="max-w-full"
       >
-        {txToDelete ? (
-          <DeleteTxDialog
-            transaction={txToDelete}
-            onSuccess={handleClose}
-            onCancel={handleClose}
-          />
-        ) : (
-          <></>
-        )}
-      </Modal>
+        <DialogContent>
+          {txToDelete && (
+            <DeleteTxDialog
+              tx={txToDelete}
+              onSuccess={handleClose}
+              onClose={() => setDeleteTxDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

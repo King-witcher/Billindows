@@ -1,6 +1,5 @@
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import { getAllTxs } from '@/utils/queries/get-all-txs'
 import { ClientComponent } from './client-component'
 
 export const metadata = {
@@ -12,13 +11,7 @@ export default async function Page() {
   if (!session) return null
 
   const now = new Date()
-  const [transactions, categories] = await Promise.all([
-    getAllTxs(session.id, now.getFullYear(), now.getMonth()).then((results) => {
-      return results.sort((a, b) => {
-        if (a.day === b.day) return b.id - a.id
-        return a.day - b.day
-      })
-    }),
+  const [categories] = await Promise.all([
     prisma.category.findMany({
       where: {
         user_id: session.id,
@@ -26,11 +19,5 @@ export default async function Page() {
     }),
   ])
 
-  return (
-    <ClientComponent
-      now={now}
-      transactions={transactions}
-      categories={categories}
-    />
-  )
+  return <ClientComponent now={now} categories={categories} />
 }

@@ -22,3 +22,11 @@ export function sanitizeColor(hex: string) {
   if (!hex.match(/^#([0-9A-Fa-f]{6})$/)) return '#000000'
   return hex
 }
+
+export function slugify(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\-_]/g, '')
+}

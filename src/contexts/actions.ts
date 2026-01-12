@@ -3,11 +3,38 @@
 import { verifySession } from '@/lib/session'
 import type { Message } from './chat-context'
 import { Agent } from '@/lib/agent'
-import { createTransactionTool } from '@/lib/tools/create-transaction'
+import { CreateTransactionTool } from '@/lib/tools/create-transaction'
+import { CategoriesRepository } from '@/database/repositories/categories'
 
-export async function handleUserMessage(history: Message[], message: string) {
+type CallAgentResult =
+  | {
+      success: true
+      text: string
+      invalidate: {
+        transactions: boolean
+      }
+    }
+  | {
+      success: false
+      error: AgentError
+    }
+
+export type AgentError = 'user-not-found'
+
+export async function callAgent(
+  history: Message[],
+  message: string
+): Promise<CallAgentResult> {
   const session = await verifySession()
-  if (!session) return 'Usuário não autenticado.'
+  if (!session)
+    return {
+      success: false,
+      error: 'user-not-found',
+    }
+
+  const categoriesRepository = new CategoriesRepository(session.id)
+  const categories = await categoriesRepository.listCategories()
+  const createTransactionTool = new CreateTransactionTool({ categories })
 
   const agent = new Agent({
     history: history
@@ -21,6 +48,13 @@ export async function handleUserMessage(history: Message[], message: string) {
   })
 
   const response = await agent.run(message)
+  console.log(`Agent used a total of ${response.tokens} tokens.`)
 
-  return response
+  return {
+    success: true,
+    text: response.response,
+    invalidate: {
+      transactions: !!response.toolCalls.create_transaction,
+    },
+  }
 }
