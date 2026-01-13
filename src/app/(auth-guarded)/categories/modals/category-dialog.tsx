@@ -89,11 +89,9 @@ export function CategoryDialog({ onClose, action, category }: Props) {
         <div className="flex w-full gap-[20px]">
           <MoneyField
             className="flex-1"
-            variant="outlined"
-            label="Monthly Goal"
             disabled={goalType === 'off'}
             required={goalType !== 'off'}
-            defaultValue={category?.goal && Math.abs(category.goal)}
+            defaultValue={category?.goal ? Math.abs(category.goal) : 0}
             name="goal"
           />
           <TextField
