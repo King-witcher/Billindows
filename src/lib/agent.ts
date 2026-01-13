@@ -51,12 +51,11 @@ export class Agent<TToolName extends string = string> {
         parameters: zod.toJSONSchema(tool.schema),
       }))
 
+    // Iterate until no tool is called
     const toolCalls: Partial<Record<TToolName, number>> = {}
-    let response: Response
     let tokens = 0
-
     while (true) {
-      response = await openai.responses.create({
+      const response = await openai.responses.create({
         model: this.model,
         instructions: this.instructions,
         input: this.history,
@@ -66,35 +65,43 @@ export class Agent<TToolName extends string = string> {
       tokens += response.usage?.total_tokens ?? 0
 
       let toolCalled = false
-      for (const item of response.output) {
-        this.history.push(item)
+      this.history.push(...response.output)
 
-        if (item.type === 'function_call') {
-          toolCalled = true
-          toolCalls[item.name as TToolName] = (toolCalls[item.name as TToolName] || 0) + 1
-          console.info('Calling tool:', item.name)
+      // Execute all tool calls in the response
+      await Promise.all(
+        response.output
+          .filter((item) => item.type === 'function_call')
+          .map(async (toolCall) => {
+            toolCalled = true
+            toolCalls[toolCall.name as TToolName] = (toolCalls[toolCall.name as TToolName] || 0) + 1
+            console.info('Calling tool:', toolCall.name)
 
-          const tool = this.toolsMap.get(item.name)!
-          const args = JSON.parse(item.arguments)
-          console.info('With arguments:', item.arguments)
-          const result = await tool.execute(args)
+            // Get the tool
+            const tool = this.toolsMap.get(toolCall.name)
+            const args = JSON.parse(toolCall.arguments)
+            console.info('With arguments:', toolCall.arguments)
 
-          console.debug('Tool result:', result)
-          this.history.push({
-            type: 'function_call_output',
-            call_id: item.call_id,
-            output: result,
-          })
+            // Execute the tool
+            const result = (await tool?.execute(args)) ?? `Tool ${toolCall.name} does not exist.`
+
+            // Push the tool result to the history
+            console.debug('Tool result:', result)
+            this.history.push({
+              type: 'function_call_output',
+              call_id: toolCall.call_id,
+              output: result,
+            })
+          }),
+      )
+
+      // If no tool was called, we have our final response
+      if (!toolCalled) {
+        return {
+          response: response.output_text,
+          tokens,
+          toolCalls,
         }
       }
-
-      if (!toolCalled) break
-    }
-
-    return {
-      response: response.output_text,
-      tokens,
-      toolCalls,
     }
   }
 }
