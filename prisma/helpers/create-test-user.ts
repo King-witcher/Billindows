@@ -1,7 +1,7 @@
+import type { FixedTx, OneTimeTx } from '@prisma/client'
 import { hashSync } from 'bcrypt'
-import { prisma } from './prisma'
-import { FixedTx, OneTimeTx } from '@prisma/client'
 import { DBTime } from '@/utils/time'
+import { prisma } from './prisma'
 
 const categoryNames = [
   'Mercado',
@@ -45,8 +45,8 @@ export async function createTestUser() {
           goal: 0,
           user_id: testUser.id,
         },
-      })
-    )
+      }),
+    ),
   )
 
   createFixed(investimentos.id, {
@@ -114,10 +114,7 @@ export async function createTestUser() {
   })
 }
 
-async function createOneTime(
-  categoryId: number,
-  tx: Omit<OneTimeTx, 'id' | 'category_id'>
-) {
+async function createOneTime(categoryId: number, tx: Omit<OneTimeTx, 'id' | 'category_id'>) {
   prisma.oneTimeTx.create({
     data: {
       ...tx,
@@ -126,10 +123,7 @@ async function createOneTime(
   })
 }
 
-async function createFixed(
-  categoryId: number,
-  tx: Omit<FixedTx, 'id' | 'category_id'>
-) {
+async function createFixed(categoryId: number, tx: Omit<FixedTx, 'id' | 'category_id'>) {
   prisma.fixedTx.create({
     data: {
       ...tx,

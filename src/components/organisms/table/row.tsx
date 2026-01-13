@@ -1,7 +1,7 @@
 import TableCell from '@mui/material/TableCell'
-import TableRow, { TableRowProps } from '@mui/material/TableRow'
-import { ReactNode } from 'react'
-import { ColumnDefinition } from './table'
+import TableRow, { type TableRowProps } from '@mui/material/TableRow'
+import type { ReactNode } from 'react'
+import type { ColumnDefinition } from './table'
 
 interface Props<TData> extends TableRowProps {
   data: TData

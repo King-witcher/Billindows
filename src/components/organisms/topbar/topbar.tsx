@@ -1,6 +1,5 @@
 'use client'
 
-import { useUser } from '@/contexts/user-context'
 import { AccountCircle } from '@mui/icons-material'
 import MenuIcon from '@mui/icons-material/Menu'
 import { Drawer, Menu, MenuItem } from '@mui/material'
@@ -10,6 +9,7 @@ import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import { atom, useAtom } from 'jotai'
 import { useState } from 'react'
+import { useUser } from '@/contexts/user-context'
 import { SidebarContent } from '../sidebar'
 import { logout } from './actions'
 
@@ -51,11 +51,7 @@ export function Topbar() {
             <IconButton size="large" color="inherit" onClick={handleClick}>
               <AccountCircle />
             </IconButton>
-            <Menu
-              anchorEl={menuAnchor}
-              open={Boolean(menuAnchor)}
-              onClose={handleClose}
-            >
+            <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleClose}>
               <MenuItem onClick={logout}>Sign out</MenuItem>
             </Menu>
           </div>

@@ -1,6 +1,6 @@
+import { createTestUser } from './helpers/create-test-user'
 import { prisma } from './helpers/prisma'
 import { createUsers } from './helpers/users'
-import { createTestUser } from './helpers/create-test-user'
 
 async function main() {
   console.log('Seeding users...')

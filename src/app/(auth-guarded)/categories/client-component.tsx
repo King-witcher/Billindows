@@ -14,7 +14,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import { Category } from '@prisma/client'
+import type { Category } from '@prisma/client'
 import { useState } from 'react'
 import { createCategory } from './actions/create-category'
 import { editCategory } from './actions/edit-category'
@@ -29,9 +29,7 @@ interface Props {
 export function ClientComponent({ categories: results }: Props) {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
   const [categoryToEdit, setCategoryToEdit] = useState<Category | undefined>()
-  const [categoryToDelete, setCategoryToDelete] = useState<
-    Category | undefined
-  >()
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | undefined>()
 
   const categoryAction = categoryToEdit ? editCategory : createCategory
 
@@ -86,17 +84,10 @@ export function ClientComponent({ categories: results }: Props) {
         </Table>
       </TableContainer>
       <Modal onClose={handleClose} open={categoryDialogOpen}>
-        <CategoryDialog
-          action={categoryAction}
-          onClose={handleClose}
-          category={categoryToEdit}
-        />
+        <CategoryDialog action={categoryAction} onClose={handleClose} category={categoryToEdit} />
       </Modal>
       <Modal open={!!categoryToDelete} onClose={handleClose}>
-        <DeleteCategoryDialog
-          onClose={handleClose}
-          category={categoryToDelete}
-        />
+        <DeleteCategoryDialog onClose={handleClose} category={categoryToDelete} />
       </Modal>
     </div>
   )

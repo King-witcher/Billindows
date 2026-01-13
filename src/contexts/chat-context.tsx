@@ -1,8 +1,8 @@
 'use client'
 
-import { ReactNode, createContext, use, useState } from 'react'
-import { callAgent } from './actions'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createContext, type ReactNode, use, useState } from 'react'
+import { callAgent } from './actions'
 
 export type Message = {
   role: 'user' | 'assistant' | 'internal'

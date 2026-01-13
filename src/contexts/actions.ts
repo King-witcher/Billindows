@@ -1,10 +1,10 @@
 'use server'
 
-import { verifySession } from '@/lib/session'
-import type { Message } from './chat-context'
-import { Agent } from '@/lib/agent'
-import { CreateTransactionTool } from '@/lib/tools/create-transaction'
 import { CategoriesRepository } from '@/database/repositories/categories'
+import { Agent } from '@/lib/agent'
+import { verifySession } from '@/lib/session'
+import { CreateTransactionTool } from '@/lib/tools/create-transaction'
+import type { Message } from './chat-context'
 
 type CallAgentResult =
   | {
@@ -21,10 +21,7 @@ type CallAgentResult =
 
 export type AgentError = 'user-not-found'
 
-export async function callAgent(
-  history: Message[],
-  message: string
-): Promise<CallAgentResult> {
+export async function callAgent(history: Message[], message: string): Promise<CallAgentResult> {
   const session = await verifySession()
   if (!session)
     return {

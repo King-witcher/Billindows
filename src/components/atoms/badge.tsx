@@ -1,5 +1,5 @@
+import type { ReactNode } from 'react'
 import { sanitizeColor } from '@/utils/utils'
-import { ReactNode } from 'react'
 
 interface Props {
   children: ReactNode

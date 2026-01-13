@@ -1,13 +1,13 @@
-import { ResponsesModel } from 'openai/resources/shared.mjs'
-import * as zod from 'zod'
-import { openai } from './openai'
-import {
+import type {
   Tool as OpenAITool,
   Response,
   ResponseInput,
 } from 'openai/resources/responses/responses.mjs'
-import { Tool } from './tools/tool'
+import type { ResponsesModel } from 'openai/resources/shared.mjs'
 import { T } from 'vitest/dist/chunks/environment.d.cL3nLXbE.js'
+import * as zod from 'zod'
+import { openai } from './openai'
+import type { Tool } from './tools/tool'
 
 const schema = zod.object({
   message: zod.string(),
@@ -45,12 +45,7 @@ export class Agent<TToolName extends string = string> {
   private instructions: string
   private history: ResponseInput = []
 
-  constructor({
-    model,
-    instructions,
-    tools,
-    history = [],
-  }: CreateAgentParams<TToolName>) {
+  constructor({ model, instructions, tools, history = [] }: CreateAgentParams<TToolName>) {
     this.model = model || process.env.OPENAI_MODEL!
     this.instructions = instructions
     this.history = history
@@ -94,8 +89,7 @@ export class Agent<TToolName extends string = string> {
 
         if (item.type === 'function_call') {
           toolCalled = true
-          toolCalls[item.name as TToolName] =
-            (toolCalls[item.name as TToolName] || 0) + 1
+          toolCalls[item.name as TToolName] = (toolCalls[item.name as TToolName] || 0) + 1
           console.info('Calling tool:', item.name)
 
           const tool = this.toolsMap.get(item.name)!

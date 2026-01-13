@@ -1,10 +1,8 @@
 import { prisma } from '@/services/prisma'
 import { DBTime } from '../time'
-import { TxDto } from './get-one-time-txs'
+import type { TxDto } from './get-one-time-txs'
 
-export async function createTx(
-  tx: Omit<TxDto, 'category' | 'id'>
-): Promise<void> {
+export async function createTx(tx: Omit<TxDto, 'category' | 'id'>): Promise<void> {
   const month = DBTime.fromYMToDB(tx.year, tx.month)
 
   if (tx.type === 'one-time') {

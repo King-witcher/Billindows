@@ -1,12 +1,8 @@
 'use client'
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { ChatWindow } from './chat-window'
 import { BotIcon, Brain, BrainCircuit } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ChatWindow } from './chat-window'
 
 export function AssistantButton() {
   return (

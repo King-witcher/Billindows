@@ -1,9 +1,6 @@
 import { prisma } from '@/services/prisma'
 
-export async function getTxUserId(
-  type: 'one-time' | 'fixed',
-  id: number
-): Promise<number> {
+export async function getTxUserId(type: 'one-time' | 'fixed', id: number): Promise<number> {
   const [{ user_id }]: [{ user_id: number }] =
     type === 'fixed'
       ? await prisma.$queryRaw`

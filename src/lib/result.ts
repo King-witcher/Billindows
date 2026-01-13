@@ -4,12 +4,8 @@
 export type Result<T, E> = Ok<T, E> | Err<T, E>
 
 export namespace Result {
-  export function fromPromise<T>(
-    promise: Promise<T>
-  ): Promise<Result<T, unknown>> {
-    return promise
-      .then((value) => new Ok(value))
-      .catch((error) => new Err(error))
+  export function fromPromise<T>(promise: Promise<T>): Promise<Result<T, unknown>> {
+    return promise.then((value) => new Ok(value)).catch((error) => new Err(error))
   }
 }
 

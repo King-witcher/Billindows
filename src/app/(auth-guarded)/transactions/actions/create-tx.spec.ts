@@ -1,9 +1,9 @@
+import { faker } from '@faker-js/faker'
+import type { Category } from '@prisma/client'
 import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
-import { JWTPaylaod, verifySession } from '@/lib/session'
+import { type JWTPaylaod, verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { createTx } from '@/utils/queries/create-tx'
-import { faker } from '@faker-js/faker'
-import { Category } from '@prisma/client'
 import { CreateTxError } from './_errors'
 import { createTxAction } from './create-tx'
 

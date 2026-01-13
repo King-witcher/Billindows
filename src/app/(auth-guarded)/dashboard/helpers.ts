@@ -1,4 +1,4 @@
-import { TxDto } from '@/utils/queries/get-one-time-txs'
+import type { TxDto } from '@/utils/queries/get-one-time-txs'
 
 type GroupAnalysis = {
   /** Total balance of transactions. */
@@ -27,7 +27,7 @@ type GroupAnalysis = {
 export function analyze(
   transactions: TxDto[],
   periodProgress: number,
-  goal: number | null
+  goal: number | null,
 ): GroupAnalysis {
   const fixed = transactions
     .filter((tx) => tx.type === 'fixed')

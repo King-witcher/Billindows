@@ -4,13 +4,7 @@ import { Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useChat } from '@/contexts/chat-context'
 import { cn } from '@/lib/utils'
@@ -21,6 +15,7 @@ export function ChatWindow() {
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrolling
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -57,14 +52,12 @@ export function ChatWindow() {
             </div>
           )}
 
-          {messages.map((message, index) => (
+          {messages.map((message) => (
             <div
-              key={index}
+              key={message.sentAt.toISOString()}
               className={cn(
                 'flex w-max max-w-[80%] flex-col gap-2 rounded-lg px-3 py-2 text-sm',
-                message.role === 'user'
-                  ? 'ml-auto bg-primary text-primary-foreground'
-                  : 'bg-muted'
+                message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'bg-muted',
               )}
             >
               {message.content}
@@ -72,18 +65,13 @@ export function ChatWindow() {
           ))}
 
           {isLoading && (
-            <div className="bg-muted w-max rounded-lg px-3 py-2 text-sm">
-              Digitando...
-            </div>
+            <div className="bg-muted w-max rounded-lg px-3 py-2 text-sm">Digitando...</div>
           )}
         </div>
       </CardContent>
 
       <CardFooter className="p-3 border-t">
-        <form
-          onSubmit={handleSendMessage}
-          className="flex w-full items-center gap-2"
-        >
+        <form onSubmit={handleSendMessage} className="flex w-full items-center gap-2">
           <Input
             id="message"
             placeholder="Digite sua mensagem..."
@@ -93,11 +81,7 @@ export function ChatWindow() {
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading}
           />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={isLoading || !inputValue.trim()}
-          >
+          <Button type="submit" size="icon" disabled={isLoading || !inputValue.trim()}>
             <Send className="h-4 w-4" />
             <span className="sr-only">Enviar</span>
           </Button>

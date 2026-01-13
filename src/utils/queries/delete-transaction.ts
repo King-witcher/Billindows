@@ -1,9 +1,6 @@
 import { prisma } from '@/services/prisma'
 
-export async function deleteTransaction(
-  type: 'fixed' | 'one-time',
-  id: number
-) {
+export async function deleteTransaction(type: 'fixed' | 'one-time', id: number) {
   if (type === 'fixed') {
     await prisma.fixedTx.delete({
       where: {

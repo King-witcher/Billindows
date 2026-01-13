@@ -2,7 +2,7 @@
 
 import { Typography } from '@mui/material'
 import Link from 'next/link'
-import { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 interface Props extends Omit<ComponentProps<typeof Link>, 'href'> {
   icon: ReactNode
@@ -11,13 +11,7 @@ interface Props extends Omit<ComponentProps<typeof Link>, 'href'> {
   url?: string
 }
 
-export function SidebarButton({
-  icon,
-  children,
-  disabled,
-  url,
-  ...rest
-}: Props) {
+export function SidebarButton({ icon, children, disabled, url, ...rest }: Props) {
   return (
     <Link
       href={url || ''}

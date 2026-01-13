@@ -5,10 +5,7 @@ export const enum ActionStateEnum {
   Error = 'error',
 }
 
-export type Action = (
-  _: ActionState,
-  formData: FormData
-) => Promise<ActionState>
+export type Action = (_: ActionState, formData: FormData) => Promise<ActionState>
 
 export type ActionState =
   | {
@@ -47,7 +44,7 @@ export namespace ActionState {
 export class ActionError extends Error {
   constructor(
     public code: string,
-    message?: string
+    message?: string,
   ) {
     super(message)
 
@@ -60,7 +57,7 @@ export class ActionError extends Error {
  * @returns
  */
 export function withActionState<T extends Array<unknown>>(
-  fn: (...params: T) => Promise<void>
+  fn: (...params: T) => Promise<void>,
 ): (previousState: ActionState, ...params: T) => Promise<ActionState> {
   return async (_previousState: ActionState, ...params: T) => {
     try {

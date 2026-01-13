@@ -14,11 +14,7 @@ interface Props {
 export function SidebarContent(props: Props) {
   return (
     <>
-      <SidebarButton
-        url="/dashboard"
-        onClick={props.onClose}
-        icon={<DashboardOutlinedIcon />}
-      >
+      <SidebarButton url="/dashboard" onClick={props.onClose} icon={<DashboardOutlinedIcon />}>
         Dashboard
       </SidebarButton>
       <Divider />
@@ -30,11 +26,7 @@ export function SidebarContent(props: Props) {
         Transactions
       </SidebarButton>
       <Divider />
-      <SidebarButton
-        url="/categories"
-        onClick={props.onClose}
-        icon={<CategoryOutlinedIcon />}
-      >
+      <SidebarButton url="/categories" onClick={props.onClose} icon={<CategoryOutlinedIcon />}>
         Categories
       </SidebarButton>
       <Divider />

@@ -1,11 +1,11 @@
+import Paper from '@mui/material/Paper'
+import type { ReactNode } from 'react'
 import { SidebarContent } from '@/components/organisms'
 import { AssistantButton } from '@/components/organisms/assistant-button/assistant-button'
 import { Topbar } from '@/components/organisms/topbar/topbar'
 import { ChatProvider } from '@/contexts/chat-context'
 import { UserProvider } from '@/contexts/user-context'
 import { verifySession } from '@/lib/session'
-import Paper from '@mui/material/Paper'
-import { ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
