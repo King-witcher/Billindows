@@ -2,7 +2,7 @@
 
 import { Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-
+import Markdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -60,7 +60,7 @@ export function ChatWindow() {
                 message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'bg-muted',
               )}
             >
-              {message.content}
+              <Markdown>{message.content}</Markdown>
             </div>
           ))}
 
