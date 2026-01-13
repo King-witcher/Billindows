@@ -12,7 +12,7 @@ export function AssistantButton() {
           <BotIcon size={28} />
         </div>
       </PopoverTrigger>
-      <PopoverContent side="top" align="end" className="w-100 h-130 p-0">
+      <PopoverContent side="top" align="end" className="w-120 max-w-full h-140 max-h-full p-0">
         <ChatWindow />
       </PopoverContent>
     </Popover>
