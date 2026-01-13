@@ -13,9 +13,7 @@
       "name": "Next.js: Client-side",
       "type": "msedge",
       "request": "launch",
-      "url": "http://localhost:3000",
-      "preLaunchTask": "database up",
-      "postDebugTask": "database down"
+      "url": "http://localhost"
     },
     {
       "name": "Next.js: debug full stack",

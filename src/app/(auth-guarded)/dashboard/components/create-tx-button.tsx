@@ -1,23 +1,12 @@
 'use client'
 
 import { Add } from '@mui/icons-material'
-import { Button, Modal } from '@mui/material'
-import { Category } from '@prisma/client'
+import { Button } from '@mui/material'
 import { useState } from 'react'
-import { createTxAction } from '../../transactions/actions/create-tx'
 import { TxDialog } from '../../transactions/modals/tx-dialog'
 
-interface Props {
-  categories: Category[]
-  now: Date
-}
-
-export function CreateTxButton({ categories, now }: Props) {
+export function CreateTxButton() {
   const [txModalOpen, setTxModalOpen] = useState(false)
-
-  function handleClose() {
-    setTxModalOpen(false)
-  }
 
   return (
     <>
@@ -30,14 +19,8 @@ export function CreateTxButton({ categories, now }: Props) {
       >
         New transaction
       </Button>
-      <Modal open={txModalOpen} onClose={handleClose} className="max-w-full">
-        <TxDialog
-          now={now}
-          categories={categories}
-          action={createTxAction}
-          onClose={handleClose}
-        />
-      </Modal>
+
+      <TxDialog open={txModalOpen} onOpenChange={setTxModalOpen} />
     </>
   )
 }

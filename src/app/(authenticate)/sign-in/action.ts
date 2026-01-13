@@ -1,11 +1,11 @@
 'use server'
 
+import bcrypt from 'bcrypt'
 import { ActionError, withActionState } from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import bcrypt from 'bcrypt'
 import { SignInError } from './_error'
-import { SignInPayload, schema } from './schema'
+import { type SignInPayload, schema } from './schema'
 
 export const signIn = withActionState(async (data: SignInPayload) => {
   const body = await schema.parseAsync(data).catch(() => {

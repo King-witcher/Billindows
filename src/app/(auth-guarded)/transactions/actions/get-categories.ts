@@ -1,8 +1,8 @@
 'use server'
 
+import type { Category } from '@prisma/client'
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
-import { Category } from '@prisma/client'
 
 export async function getCategories(): Promise<Category[]> {
   const session = await verifySession()

@@ -1,17 +1,13 @@
 import { prisma } from '@/services/prisma'
 import { DBTime } from '../time'
-import { TxDto } from './get-one-time-txs'
+import type { TxDto } from './get-one-time-txs'
 
 /**
  * Gets all fixed transactions in a month.
  * This function also consider transactions from 24h after and before the
  * specified month because of different time zones.
  */
-export async function getFixedTxs(
-  userId: number,
-  year: number,
-  month: number
-): Promise<TxDto[]> {
+export async function getFixedTxs(userId: number, year: number, month: number): Promise<TxDto[]> {
   const dbMonthNow = DBTime.fromYMToDB(year, month)
 
   const now = Date.now()
@@ -47,9 +43,7 @@ export async function getFixedTxs(
         OR t.end_month > ${dbMonthNow}
       )
   `
-  console.log(
-    `Got ${queryResults.length} fixed transactions in ${Date.now() - now}ms.`
-  )
+  console.log(`Got ${queryResults.length} fixed transactions in ${Date.now() - now}ms.`)
 
   return queryResults.map((result): TxDto => {
     const [year, month] = DBTime.fromDBToYM(result.start_month)

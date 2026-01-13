@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { Category } from '@prisma/client'
+import type { Category } from '@prisma/client'
 import { getByText, render } from '@testing-library/react'
 import { CategoryRow } from './category-row'
 
@@ -17,9 +17,7 @@ describe('category row', () => {
 
     vi.mock('next/navigation', () => require('next-router-mock'))
 
-    const { container } = render(
-      <CategoryRow onDelete={noop} onEdit={noop} category={category} />
-    )
+    const { container } = render(<CategoryRow onDelete={noop} onEdit={noop} category={category} />)
 
     getByText(container, 'R$ 123.45')
   })

@@ -1,6 +1,5 @@
 'use client'
 
-import { TxDto } from '@/utils/queries/get-one-time-txs'
 import {
   Paper,
   Table,
@@ -11,27 +10,20 @@ import {
   TablePagination,
   TableRow,
 } from '@mui/material'
-import { Category } from '@prisma/client'
-import { ChangeEvent, Fragment, useMemo, useState } from 'react'
+import type { Category } from '@prisma/client'
+import { type ChangeEvent, Fragment, useMemo, useState } from 'react'
+import type { TxDto } from '@/utils/queries/get-one-time-txs'
 import { TxRow } from './tx-row'
 
 interface Props {
   transactions: TxDto[]
   categories: Category[]
-  onDelete: (tx: TxDto) => void
+  onDeleteClick: (tx: TxDto) => void
   onEdit: (tx: TxDto) => void
 }
-const weekDays = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-]
+const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
+export function TxTable({ transactions, categories, onDeleteClick: onDelete, onEdit }: Props) {
   const [intendedPage, setIntendedPage] = useState(0)
   const [pageSize, setPageSize] = useState(15)
 
@@ -40,15 +32,13 @@ export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
 
   const categoryMap = useMemo(
     () => new Map(categories.map((category) => [category.id, category])),
-    [categories]
+    [categories],
   )
 
   const visibleTransactions = useMemo(
     () =>
-      transactions
-        .sort((a, b) => b.day - a.day)
-        .slice(page * pageSize, page * pageSize + pageSize),
-    [transactions, page, pageSize]
+      transactions.sort((a, b) => b.day - a.day).slice(page * pageSize, page * pageSize + pageSize),
+    [transactions, page, pageSize],
   )
 
   function handleChangeRowsPerPage(e: ChangeEvent<HTMLInputElement>) {
@@ -76,7 +66,7 @@ export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
                 const weekDay = new Date(
                   new Date().getFullYear(),
                   new Date().getMonth(),
-                  transaction.day
+                  transaction.day,
                 ).getDay()
                 return (
                   <Fragment key={`${transaction.type}-${transaction.id}`}>
@@ -84,9 +74,7 @@ export function TxTable({ transactions, categories, onDelete, onEdit }: Props) {
                       <TableRow>
                         <TableCell colSpan={5} className="py-2 bg-gray-100">
                           <div className="flex flex-col items-center w-full leading-5">
-                            <span className="text-lg font-semibold">
-                              Day {transaction.day}
-                            </span>
+                            <span className="text-lg font-semibold">Day {transaction.day}</span>
                             <span className="opacity-60 text-xs leading-3">
                               {weekDays[weekDay]}
                             </span>

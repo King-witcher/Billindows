@@ -1,8 +1,8 @@
 'use client'
 
+import { TableCell, TableRow, Tooltip } from '@mui/material'
 import { Badge } from '@/components/atoms/badge'
 import { CurrencyText } from '@/components/atoms/currency-text'
-import { TableCell, TableRow, Tooltip } from '@mui/material'
 
 export type DashboardCategory = {
   id: number
@@ -64,12 +64,7 @@ export function CategoryRow({ category, max }: Props) {
         />
       </TableCell>
       <TableCell align="center" className="hidden! md:table-cell!">
-        <CurrencyText
-          value={category.goal}
-          variant="body2"
-          className="truncate"
-          fontWeight={500}
-        />
+        <CurrencyText value={category.goal} variant="body2" className="truncate" fontWeight={500} />
       </TableCell>
       <TableCell align="right">
         <CurrencyText

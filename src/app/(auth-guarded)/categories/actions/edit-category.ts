@@ -1,9 +1,9 @@
 'use server'
 
+import { z } from 'zod'
 import { verifySession } from '@/lib/session'
 import { prisma } from '@/services/prisma'
 import { parseFormData, sanitize } from '@/utils/utils'
-import { z } from 'zod'
 
 const schema = z.object({
   id: z.coerce.number().gt(0),
@@ -32,11 +32,7 @@ export async function editCategory(formData: FormData) {
       name = ${sanitize(body.name)},
       color = ${body.color},
       goal = ${
-        body.goal !== undefined
-          ? body.goalType === 'expense'
-            ? -body.goal
-            : body.goal
-          : null
+        body.goal !== undefined ? (body.goalType === 'expense' ? -body.goal : body.goal) : null
       }
     WHERE id = ${body.id}
     AND user_id = ${session.id}

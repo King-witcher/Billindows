@@ -1,13 +1,13 @@
 'use client'
 
-import Paper, { PaperProps } from '@mui/material/Paper'
-import MUITable, { TableProps as MUITableProps } from '@mui/material/Table'
+import Paper, { type PaperProps } from '@mui/material/Paper'
+import MUITable, { type TableProps as MUITableProps } from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
-import TableCell, { TableCellProps } from '@mui/material/TableCell'
+import TableCell, { type TableCellProps } from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
-import TableRow, { TableRowProps } from '@mui/material/TableRow'
-import { FC, Key, ReactNode, Ref } from 'react'
+import TableRow, { type TableRowProps } from '@mui/material/TableRow'
+import type { FC, Key, ReactNode, Ref } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Row } from './row'
 

@@ -1,7 +1,7 @@
-import { verifySession } from '@/lib/session'
 import { Paper } from '@mui/material'
 import { redirect } from 'next/navigation'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { verifySession } from '@/lib/session'
 
 interface Props {
   children: ReactNode

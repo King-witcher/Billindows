@@ -1,7 +1,5 @@
 'use client'
 
-import { Badge } from '@/components/atoms/badge'
-import { TxDto } from '@/utils/queries/get-one-time-txs'
 import { EventRepeat } from '@mui/icons-material'
 import Delete from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
@@ -9,8 +7,10 @@ import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import { Category } from '@prisma/client'
-import { MouseEvent } from 'react'
+import type { Category } from '@prisma/client'
+import type { MouseEvent } from 'react'
+import { Badge } from '@/components/atoms/badge'
+import type { TxDto } from '@/utils/queries/get-one-time-txs'
 
 interface Props {
   transaction: TxDto

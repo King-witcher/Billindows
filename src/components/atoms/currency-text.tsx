@@ -1,5 +1,5 @@
+import Typography, { type TypographyProps } from '@mui/material/Typography'
 import { formatMoney } from '@/utils/utils'
-import Typography, { TypographyProps } from '@mui/material/Typography'
 
 interface Props extends TypographyProps {
   value: number | null

@@ -1,6 +1,5 @@
 'use client'
 
-import { MoneyField } from '@/components/atoms/inputs/money-input'
 import {
   Button,
   FormControl,
@@ -12,11 +11,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { Category } from '@prisma/client'
+import type { Category } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import _ from 'lodash'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useMemo, useState } from 'react'
+import { type ChangeEvent, useMemo, useState } from 'react'
+import { MoneyField } from '@/components/atoms/inputs/money-input'
 
 interface Props {
   category?: Category
@@ -45,7 +45,7 @@ function getRandomColor(): string {
 export function CategoryDialog({ onClose, action, category }: Props) {
   const router = useRouter()
   const [goalType, setGoalType] = useState<string>(
-    category?.goal ? (category.goal > 0 ? 'income' : 'expense') : 'off'
+    category?.goal ? (category.goal > 0 ? 'income' : 'expense') : 'off',
   )
 
   const initialColor = useMemo(getRandomColor, [])
@@ -68,14 +68,10 @@ export function CategoryDialog({ onClose, action, category }: Props) {
       elevation={10}
       className="absolute top-1/2 left-1/2 w-[450px] translate-x-[-50%] translate-y-[-50%] p-[20px] max-w-[calc(100%_-_40px)]"
     >
-      <form
-        className="flex flex-col gap-[20px] items-start"
-        action={mutation.mutate}
-      >
+      <form className="flex flex-col gap-[20px] items-start" action={mutation.mutate}>
         {category && <input type="hidden" name="id" value={category.id} />}
         <Typography variant="h5" color="primary">
-          {category ? 'Edit category' : 'Create category'}{' '}
-          <b>{category?.name}</b>
+          {category ? 'Edit category' : 'Create category'} <b>{category?.name}</b>
         </Typography>
         <TextField
           variant="outlined"
@@ -118,33 +114,17 @@ export function CategoryDialog({ onClose, action, category }: Props) {
             onChange={handleChangeGoalType}
           >
             <div className="flex">
-              <FormControlLabel
-                label="Income"
-                value="income"
-                control={<Radio />}
-              />
-              <FormControlLabel
-                label="Expense"
-                value="expense"
-                control={<Radio />}
-              />
+              <FormControlLabel label="Income" value="income" control={<Radio />} />
+              <FormControlLabel label="Expense" value="expense" control={<Radio />} />
               <FormControlLabel label="Off" value="off" control={<Radio />} />
             </div>
           </RadioGroup>
         </FormControl>
         <div className="flex gap-[20px] self-end">
-          <Button
-            variant="text"
-            onClick={onClose}
-            disabled={mutation.isPending}
-          >
+          <Button variant="text" onClick={onClose} disabled={mutation.isPending}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            type="submit"
-            disabled={mutation.isPending}
-          >
+          <Button variant="contained" type="submit" disabled={mutation.isPending}>
             {category ? 'Save' : 'Create'}
           </Button>
         </div>

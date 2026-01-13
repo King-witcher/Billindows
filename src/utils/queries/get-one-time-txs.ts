@@ -25,11 +25,7 @@ export type TxDto = {
  * This function also consider transactions from 24h after and before the
  * specified month because of different time zones.
  */
-export async function getOneTimeTxs(
-  userId: number,
-  year: number,
-  month: number
-): Promise<TxDto[]> {
+export async function getOneTimeTxs(userId: number, year: number, month: number): Promise<TxDto[]> {
   const dbMonthNow = DBTime.fromYMToDB(year, month)
 
   const now = Date.now()
@@ -59,9 +55,7 @@ export async function getOneTimeTxs(
     WHERE
       t.month = ${dbMonthNow}
   `
-  console.log(
-    `Got ${queryResults.length} one-time transactions in ${Date.now() - now}ms.`
-  )
+  console.log(`Got ${queryResults.length} one-time transactions in ${Date.now() - now}ms.`)
 
   return queryResults.map(
     (result): TxDto => ({
@@ -74,6 +68,6 @@ export async function getOneTimeTxs(
       name: result.name,
       type: 'one-time',
       value: result.value,
-    })
+    }),
   )
 }

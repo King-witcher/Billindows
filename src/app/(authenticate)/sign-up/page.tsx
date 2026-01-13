@@ -1,12 +1,12 @@
 'use client'
 
-import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, TextField, Typography } from '@mui/material'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
+import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 import { getErrorMessage } from './_error'
 import { signUp } from './action'
 import { schema } from './schema'
@@ -27,13 +27,9 @@ export default function Page() {
     reValidateMode: 'onChange',
   })
 
-  const [password, passwordConfirmation] = watch([
-    'password',
-    'passwordConfirmation',
-  ])
+  const [password, passwordConfirmation] = watch(['password', 'passwordConfirmation'])
 
-  const passwordsMatch =
-    password === passwordConfirmation || !dirtyFields.passwordConfirmation
+  const passwordsMatch = password === passwordConfirmation || !dirtyFields.passwordConfirmation
 
   return (
     <>
@@ -100,12 +96,7 @@ export default function Page() {
           Continue
         </Button>
         {state.state === ActionStateEnum.Error && (
-          <Typography
-            color="error"
-            fontSize="0.875rem"
-            align="center"
-            margin={0}
-          >
+          <Typography color="error" fontSize="0.875rem" align="center" margin={0}>
             {getErrorMessage(state.code)}
           </Typography>
         )}

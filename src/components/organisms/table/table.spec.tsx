@@ -2,8 +2,9 @@ import { render } from '@testing-library/react'
 import { type ColumnDefinition, Table } from './table'
 import '@testing-library/jest-dom/vitest'
 import { faker } from '@faker-js/faker'
-import { Mock } from 'vitest'
+import type { Mock } from 'vitest'
 import { Row } from './row'
+
 const RowMock = Row as unknown as Mock
 
 vi.mock('./row', () => ({
@@ -38,9 +39,7 @@ const stubColumns: ColumnDefinition<TestData>[] = [
   {
     key: 'custom',
     header: 'Custom',
-    content: ({ data }) => (
-      <span data-testid={`custom-${data.id}`}>Custom {data.name}</span>
-    ),
+    content: ({ data }) => <span data-testid={`custom-${data.id}`}>Custom {data.name}</span>,
   },
 ]
 
@@ -52,9 +51,7 @@ describe(Table, () => {
   const getKey = (row: TestData) => row.id
 
   it('should render the header names', () => {
-    const { getByText } = render(
-      <Table data={stubData} columns={stubColumns} getKey={getKey} />
-    )
+    const { getByText } = render(<Table data={stubData} columns={stubColumns} getKey={getKey} />)
 
     expect(getByText('Name')).toBeInTheDocument()
     expect(getByText('Age')).toBeInTheDocument()
@@ -63,7 +60,7 @@ describe(Table, () => {
 
   it('should render the data', () => {
     const { getAllByTestId } = render(
-      <Table data={stubData} columns={stubColumns} getKey={getKey} />
+      <Table data={stubData} columns={stubColumns} getKey={getKey} />,
     )
 
     const rows = getAllByTestId('table-row')
@@ -76,12 +73,7 @@ describe(Table, () => {
     }
 
     render(
-      <Table
-        data={stubData}
-        columns={stubColumns}
-        getKey={getKey}
-        rowProps={customRowProps}
-      />
+      <Table data={stubData} columns={stubColumns} getKey={getKey} rowProps={customRowProps} />,
     )
 
     expect(RowMock).toHaveBeenCalled()
@@ -92,7 +84,7 @@ describe(Table, () => {
     const { getByTestId } = render(
       <Table data={stubData} columns={stubColumns} getKey={getKey}>
         <div data-testid="child-element" />
-      </Table>
+      </Table>,
     )
 
     expect(getByTestId('child-element')).toBeInTheDocument()
@@ -102,12 +94,7 @@ describe(Table, () => {
     const lastRowRef = { current: null }
 
     const { getAllByTestId } = render(
-      <Table
-        data={stubData}
-        columns={stubColumns}
-        getKey={getKey}
-        lastRowRef={lastRowRef}
-      />
+      <Table data={stubData} columns={stubColumns} getKey={getKey} lastRowRef={lastRowRef} />,
     )
 
     const rows = getAllByTestId('table-row')

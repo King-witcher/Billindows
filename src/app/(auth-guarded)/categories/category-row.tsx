@@ -1,10 +1,10 @@
 'use client'
 
-import { Badge } from '@/components/atoms/badge'
 import Delete from '@mui/icons-material/Delete'
 import Edit from '@mui/icons-material/Edit'
 import { IconButton, TableCell, TableRow, Tooltip } from '@mui/material'
-import { Category } from '@prisma/client'
+import type { Category } from '@prisma/client'
+import { Badge } from '@/components/atoms/badge'
 
 interface Props {
   category: Category
@@ -21,9 +21,7 @@ export function CategoryRow({ category, onDelete, onEdit }: Props) {
         </div>
       </TableCell>
       <TableCell align="center" className="!hidden sm:!table-cell">
-        {category.goal !== null
-          ? `R$ ${(category.goal / 100).toFixed(2)}`
-          : '-'}
+        {category.goal !== null ? `R$ ${(category.goal / 100).toFixed(2)}` : '-'}
       </TableCell>
       <TableCell align="right" className="whitespace-nowrap">
         <Tooltip title="Edit">

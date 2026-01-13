@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Paper, Typography } from '@mui/material'
-import { Category } from '@prisma/client'
+import type { Category } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { deleteCategory } from '../actions/delete-category'
@@ -39,11 +39,7 @@ export function DeleteCategoryDialog({ onClose, category }: Props) {
           Every transaction related to this category will be deleted as well.
         </Typography>
         <div className="flex self-end gap-[20px]">
-          <Button
-            variant="text"
-            onClick={onClose}
-            disabled={mutation.isPending}
-          >
+          <Button variant="text" onClick={onClose} disabled={mutation.isPending}>
             Cancel
           </Button>
 

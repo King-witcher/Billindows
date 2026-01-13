@@ -4,10 +4,7 @@ import { verifySession } from '@/lib/session'
 import { deleteTransaction } from '@/utils/queries/delete-transaction'
 import { getTxUserId } from '@/utils/queries/get-tx-user-id'
 
-export async function deleteTransactionAction(
-  type: 'one-time' | 'fixed',
-  id: number
-) {
+export async function deleteTransactionAction(type: 'one-time' | 'fixed', id: number) {
   const session = await verifySession()
   if (!session) {
     console.error('unauthenticated')

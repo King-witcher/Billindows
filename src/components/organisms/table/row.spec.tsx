@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { faker } from '@faker-js/faker'
 import { useState } from 'react'
 import { Row } from './row'
-import { ColumnDefinition } from './table'
+import type { ColumnDefinition } from './table'
 
 vi.mock('@mui/material/TableCell', () => ({
   default: vi.fn((props) => <td data-testid="table-cell" {...props} />),
@@ -101,9 +101,7 @@ describe(Row, () => {
       className: faker.string.alpha(5),
     }
 
-    const { getByTestId } = render(
-      <Row data={stubData} columns={[]} {...rowProps} />
-    )
+    const { getByTestId } = render(<Row data={stubData} columns={[]} {...rowProps} />)
 
     const row = getByTestId('table-row')
     expect(row).toHaveAttribute('class', rowProps.className)
