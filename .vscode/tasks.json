@@ -24,6 +24,26 @@
       "dockerCompose": {
         "down": {}
       }
+    },
+    {
+      "label": "start laddle",
+      "type": "shell",
+      "command": "npm run stories",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "laddle",
+        "pattern": {
+          "regexp": ".+",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Laddle is running at.*",
+          "endsPattern": ".*Laddle process started.*"
+        }
+      }
     }
   ]
 }

@@ -36,7 +36,7 @@ export function ClientComponent({ categories, now }: Props) {
     },
   })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: explained
   const filteredTransactions = useMemo(() => {
     let result = txQuery.data
     if (!result) return []
@@ -69,11 +69,6 @@ export function ClientComponent({ categories, now }: Props) {
   function handleChnageIncludeFilter(e: SelectChangeEvent<string[]>) {
     const value = e.target.value as string[]
     setIncludeFilter(value)
-  }
-
-  function handleClose() {
-    setTxModalOpen(false)
-    setDeleteTxDialogOpen(false)
   }
 
   function handleOpenCreateModal() {
@@ -158,11 +153,7 @@ export function ClientComponent({ categories, now }: Props) {
       <Dialog open={deleteTxDialogOpen} onOpenChange={setDeleteTxDialogOpen}>
         <DialogContent>
           {txToDelete && (
-            <DeleteTxDialog
-              tx={txToDelete}
-              onSuccess={handleClose}
-              onClose={() => setDeleteTxDialogOpen(false)}
-            />
+            <DeleteTxDialog tx={txToDelete} onClose={() => setDeleteTxDialogOpen(false)} />
           )}
         </DialogContent>
       </Dialog>

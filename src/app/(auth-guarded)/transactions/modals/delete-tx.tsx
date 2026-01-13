@@ -8,11 +8,10 @@ import { deleteTransactionAction } from '../actions/delete-transaction'
 
 interface Props {
   tx: TxDto
-  onSuccess: () => void
   onClose: () => void
 }
 
-export function DeleteTxDialog({ tx, onSuccess, onClose }: Props) {
+export function DeleteTxDialog({ tx, onClose }: Props) {
   const client = useQueryClient()
 
   const value = Math.abs(tx.value / 100).toFixed(2)
@@ -29,7 +28,6 @@ export function DeleteTxDialog({ tx, onSuccess, onClose }: Props) {
       })
     },
     onSuccess() {
-      onSuccess()
       toast.success('Transaction deleted successfully')
     },
     onError() {

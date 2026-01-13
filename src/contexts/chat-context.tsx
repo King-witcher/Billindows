@@ -12,6 +12,7 @@ export type Message = {
 
 type ChatContextData = {
   messages: Message[]
+  writting: boolean
   sendMessage(content: string): Promise<void>
   clear(): void
 }
@@ -71,6 +72,7 @@ export function ChatProvider({ children }: Props) {
     <ChatContextContext
       value={{
         messages,
+        writting: callAgentMutation.isPending,
         sendMessage,
         clear,
       }}

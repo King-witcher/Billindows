@@ -1,18 +1,20 @@
 'use client'
 
-import { Send } from 'lucide-react'
+import { BotIcon, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Markdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
+import { Textarea } from '@/components/ui/textarea'
 import { useChat } from '@/contexts/chat-context'
 import { cn } from '@/lib/utils'
+import { ChatMessage } from './chat-message'
 
 export function ChatWindow() {
-  const { messages, sendMessage } = useChat()
+  const { messages, writting, sendMessage } = useChat()
   const [inputValue, setInputValue] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scrolling
@@ -25,65 +27,51 @@ export function ChatWindow() {
   async function handleSendMessage(e?: React.FormEvent) {
     e?.preventDefault()
 
-    if (!inputValue.trim() || isLoading) return
+    if (!inputValue.trim()) return
 
     const message = inputValue
     setInputValue('')
-    setIsLoading(true)
 
-    try {
-      await sendMessage(message)
-    } finally {
-      setIsLoading(false)
-    }
+    await sendMessage(message)
   }
 
   return (
     <div className="w-full h-full flex flex-col">
-      <CardHeader className="p-4 border-b">
-        <CardTitle className="text-lg">Assistente</CardTitle>
+      <CardHeader className="p-4 border-b flex items-center flex-row gap-2 text-primary">
+        <BotIcon className="" />
+        <CardTitle className="text-lg">Assistant</CardTitle>
       </CardHeader>
 
       <CardContent className="flex-1 p-0 overflow-hidden">
         <div ref={scrollRef} className="h-full overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="flex items-center justify-center h-full text-muted-foreground text-sm text-center">
-              Como posso ajudar você com suas finanças hoje?
+              How can I help you with your finances today?
             </div>
           )}
 
           {messages.map((message) => (
-            <div
-              key={message.sentAt.toISOString()}
-              className={cn(
-                'flex w-max max-w-[80%] flex-col gap-2 rounded-lg px-3 py-2 text-sm',
-                message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'bg-muted',
-              )}
-            >
-              <Markdown>{message.content}</Markdown>
-            </div>
+            <ChatMessage key={message.sentAt.toISOString()} message={message} />
           ))}
-
-          {isLoading && (
-            <div className="bg-muted w-max rounded-lg px-3 py-2 text-sm">Digitando...</div>
-          )}
+          {writting && <Spinner />}
         </div>
       </CardContent>
 
-      <CardFooter className="p-3 border-t">
+      <CardFooter className="p-2 sm:p-3 border-t">
         <form onSubmit={handleSendMessage} className="flex w-full items-center gap-2">
           <Input
             id="message"
-            placeholder="Digite sua mensagem..."
+            placeholder="Type your message..."
             className="flex-1"
             autoComplete="off"
             value={inputValue}
+            multiple
             onChange={(e) => setInputValue(e.target.value)}
-            disabled={isLoading}
+            disabled={writting}
           />
-          <Button type="submit" size="icon" disabled={isLoading || !inputValue.trim()}>
+          <Button type="submit" size="icon" disabled={writting || !inputValue.trim()}>
             <Send className="h-4 w-4" />
-            <span className="sr-only">Enviar</span>
+            <span className="sr-only">Send</span>
           </Button>
         </form>
       </CardFooter>

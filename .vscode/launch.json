@@ -31,6 +31,13 @@
       },
       "preLaunchTask": "database up",
       "postDebugTask": "database down"
+    },
+    {
+      "name": "Launch Laddle",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:61000",
+      "preLaunchTask": "start laddle"
     }
   ]
 }
