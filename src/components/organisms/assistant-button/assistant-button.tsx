@@ -1,6 +1,6 @@
 'use client'
 
-import { BotIcon, Brain, BrainCircuit } from 'lucide-react'
+import { BotIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ChatWindow } from './chat-window'
 

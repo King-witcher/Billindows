@@ -40,7 +40,7 @@ export async function callAgent(history: Message[], message: string): Promise<Ca
         role: msg.role as 'user' | 'assistant',
         content: msg.content,
       })),
-    instructions: `You are responsible for handling user requests. The userId is ${session.id}. Today is ${new Date().toISOString().split('T')[0]}.`,
+    instructions: `You are an assistant responsible for creating transactions in a financial application. The current user name is ${session.name}, and today is ${new Date().toISOString().split('T')[0]}.`,
     tools: [createTransactionTool],
   })
 

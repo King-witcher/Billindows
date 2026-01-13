@@ -4,27 +4,9 @@ import type {
   ResponseInput,
 } from 'openai/resources/responses/responses.mjs'
 import type { ResponsesModel } from 'openai/resources/shared.mjs'
-import { T } from 'vitest/dist/chunks/environment.d.cL3nLXbE.js'
 import * as zod from 'zod'
 import { openai } from './openai'
 import type { Tool } from './tools/tool'
-
-const schema = zod.object({
-  message: zod.string(),
-})
-
-const obj: zod.infer<typeof schema> = {
-  message: 'Hello, World!',
-}
-
-const tool: Tool = {
-  schema: schema,
-  name: 'example_tool',
-  description: 'An example tool that returns a greeting message.',
-  execute: async (args) => {
-    return `Greeting: ${args.message}`
-  },
-}
 
 export type CreateAgentParams<TToolName extends string = string> = {
   model?: ResponsesModel
@@ -108,11 +90,6 @@ export class Agent<TToolName extends string = string> {
 
       if (!toolCalled) break
     }
-
-    // this.history.push({
-    //   role: 'assistant',
-    //   content: response.output_text,
-    // })
 
     return {
       response: response.output_text,

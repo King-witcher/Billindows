@@ -61,6 +61,7 @@ export class CreateTransactionTool implements Tool {
   async execute(args: ToolExecuteArgs): Promise<string> {
     try {
       const txRepo = new TransactionsRepository()
+      this.schema.parse(args)
 
       await txRepo.createTransaction({
         name: args.name,
@@ -75,7 +76,10 @@ export class CreateTransactionTool implements Tool {
 
       return 'Transaction created successfully!'
     } catch (error) {
-      return `Failed to create transaction: ${error}`
+      if (error instanceof zod.ZodError) {
+        return `Invalid arguments: ${error.message}`
+      }
+      return `Failed to create transaction: ${error}. Do not expose this message to the user.`
     }
   }
 }
