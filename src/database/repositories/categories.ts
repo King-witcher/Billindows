@@ -1,8 +1,17 @@
+import type { Category } from '@prisma/client'
 import { prisma } from '@/services/prisma'
-import { Category } from '@prisma/client'
 
 export class CategoriesRepository {
   constructor(private userId: number) {}
+
+  async getById(id: number): Promise<Category | null> {
+    return prisma.category.findFirst({
+      where: {
+        id,
+        user_id: this.userId,
+      },
+    })
+  }
 
   async listCategories(): Promise<Category[]> {
     return prisma.category.findMany({

@@ -1,35 +1,30 @@
 import {
-  InputAdornment,
-  TextField,
-  TextFieldProps,
-  TextFieldVariants,
-} from '@mui/material'
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group'
 import { ChangeEvent, useCallback, useState } from 'react'
 
-export function MoneyField<Variant extends TextFieldVariants>(
-  props: {
-    /**
-     * The variant to use.
-     * @default 'outlined'
-     */
-    variant?: Variant
+type Props = React.ComponentProps<'div'> & {
+  /** The value in cents. */
+  value?: number
+  name?: string
 
-    /** The value in cents. */
-    value?: number
+  defaultValue?: number | null
+  disabled?: boolean
+  required?: boolean
+  onChange?: (valueCents: number) => void
+}
 
-    defaultValue?: number | null
-    onChange?: (valueCents: number) => void
-  } & Omit<
-    TextFieldProps,
-    'variant' | 'value' | 'onChange' | 'slotProps' | 'defaultValue'
-  >
-) {
+export function MoneyField(props: Props) {
   const {
     value: controlledValue,
     defaultValue,
-    onChange,
+    disabled,
     name,
-    ...textFieldProps
+    required,
+    onChange,
+    ...rest
   } = props
   const [internalValue, setInternalValue] = useState(defaultValue ?? 0)
   const value = controlledValue ?? internalValue
@@ -46,30 +41,18 @@ export function MoneyField<Variant extends TextFieldVariants>(
   )
 
   return (
-    <>
-      <input
-        type="hidden"
-        disabled={textFieldProps.disabled}
-        name={name}
-        value={value}
-      />
-      <TextField
-        {...textFieldProps}
+    <InputGroup {...rest}>
+      <input type="hidden" disabled={disabled} name={name} value={value} />
+      <InputGroupInput
         onChange={handleChange}
+        className="focus:outline-0"
         value={displayValue}
         type="number"
-        slotProps={{
-          htmlInput: {
-            min: 0.01,
-            step: 0.01,
-          },
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">R$</InputAdornment>
-            ),
-          },
-        }}
+        min={0.01}
+        step={0.01}
+        required={required}
       />
-    </>
+      <InputGroupAddon>R$</InputGroupAddon>
+    </InputGroup>
   )
 }

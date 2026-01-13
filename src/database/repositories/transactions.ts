@@ -1,8 +1,8 @@
 import { DBTime } from '@/utils/time'
 import { prisma } from '@/services/prisma'
+import type { WithId } from '@/types/with-id'
 
 export type Transaction = {
-  id: number
   name: string
   value: number
   year: number
@@ -14,7 +14,7 @@ export type Transaction = {
 }
 
 export class TransactionsRepository {
-  async createTransaction(tx: Omit<Transaction, 'id'>) {
+  async createTransaction(tx: Transaction) {
     const month = DBTime.fromYMToDB(tx.year, tx.month)
 
     if (tx.type === 'one-time') {
@@ -58,11 +58,7 @@ export class TransactionsRepository {
     }
   }
 
-  async getFixedTxs(
-    userId: number,
-    year: number,
-    month: number
-  ): Promise<Transaction[]> {
+  async getFixedTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
     const dbMonthNow = DBTime.fromYMToDB(year, month)
 
     const now = Date.now()
@@ -98,11 +94,9 @@ export class TransactionsRepository {
           OR t.end_month > ${dbMonthNow}
         )
     `
-    console.log(
-      `Got ${queryResults.length} fixed transactions in ${Date.now() - now}ms.`
-    )
+    console.log(`Got ${queryResults.length} fixed transactions in ${Date.now() - now}ms.`)
 
-    return queryResults.map((result): Transaction => {
+    return queryResults.map((result): WithId<Transaction> => {
       const [year, month] = DBTime.fromDBToYM(result.start_month)
       return {
         category_id: result.category_id,

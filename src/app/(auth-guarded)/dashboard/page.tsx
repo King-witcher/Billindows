@@ -1,8 +1,3 @@
-import { CurrencyText } from '@/components/atoms/currency-text'
-import { verifySession } from '@/lib/session'
-import { prisma } from '@/services/prisma'
-import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
-import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
 import {
   Card,
   CardContent,
@@ -15,7 +10,12 @@ import {
   Typography,
 } from '@mui/material'
 import Paper from '@mui/material/Paper'
-import { CategoryRow, DashboardCategory } from './category-row'
+import { CurrencyText } from '@/components/atoms/currency-text'
+import { verifySession } from '@/lib/session'
+import { prisma } from '@/services/prisma'
+import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
+import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
+import { CategoryRow, type DashboardCategory } from './category-row'
 import { CreateTxButton } from './components/create-tx-button'
 import { analyze } from './helpers'
 
@@ -28,11 +28,7 @@ export default async function Page() {
   if (!session) return null
 
   const now = new Date()
-  const daysInTheMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0
-  ).getDate()
+  const daysInTheMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
   const currentDay = now.getDate()
   const monthProgress = currentDay / daysInTheMonth
 
@@ -52,11 +48,7 @@ export default async function Page() {
     const categoryFixed = fixed.filter((tx) => tx.category_id === category.id)
     const categoryOt = oneTime.filter((tx) => tx.category_id === category.id)
 
-    const analyzed = analyze(
-      [...categoryFixed, ...categoryOt],
-      monthProgress,
-      category.goal
-    )
+    const analyzed = analyze([...categoryFixed, ...categoryOt], monthProgress, category.goal)
 
     return {
       id: category.id,
@@ -68,10 +60,7 @@ export default async function Page() {
     }
   })
 
-  const categoryMax = Math.max(
-    ...categoryRows.map((c) => Math.abs(c.forecast)),
-    0
-  )
+  const categoryMax = Math.max(...categoryRows.map((c) => Math.abs(c.forecast)), 0)
   const overallAnalysis = analyze([...fixed, ...oneTime], monthProgress, null)
 
   return (
@@ -81,7 +70,7 @@ export default async function Page() {
           <Typography variant="h3" gutterBottom color="primary" margin={0}>
             Welcome, {session.name}!
           </Typography>
-          <CreateTxButton categories={categories} now={now} />
+          <CreateTxButton />
         </div>
         <div className="flex flex-col gap-[20px] mt-[40px]">
           <Typography variant="h5" color="textSecondary">
@@ -93,11 +82,7 @@ export default async function Page() {
                 <Typography variant="h4" gutterBottom component="div">
                   Current Balance
                 </Typography>
-                <CurrencyText
-                  value={overallAnalysis.balance}
-                  variant="h5"
-                  gutterBottom
-                />
+                <CurrencyText value={overallAnalysis.balance} variant="h5" gutterBottom />
               </CardContent>
             </Card>
             <Card className="flex-1" variant="outlined">
@@ -105,11 +90,7 @@ export default async function Page() {
                 <Typography variant="h4" gutterBottom component="div">
                   Balance Forecast
                 </Typography>
-                <CurrencyText
-                  value={overallAnalysis.forecast}
-                  variant="h5"
-                  gutterBottom
-                />
+                <CurrencyText value={overallAnalysis.forecast} variant="h5" gutterBottom />
               </CardContent>
             </Card>
           </div>
@@ -120,11 +101,7 @@ export default async function Page() {
                   Fixed Balance
                 </Typography>
 
-                <CurrencyText
-                  value={overallAnalysis.fixed}
-                  variant="h5"
-                  gutterBottom
-                />
+                <CurrencyText value={overallAnalysis.fixed} variant="h5" gutterBottom />
               </CardContent>
             </Card>
             <Card className="flex-1" variant="outlined">
@@ -133,11 +110,7 @@ export default async function Page() {
                   One Time Balance
                 </Typography>
 
-                <CurrencyText
-                  value={overallAnalysis.oneTime}
-                  variant="h5"
-                  gutterBottom
-                />
+                <CurrencyText value={overallAnalysis.oneTime} variant="h5" gutterBottom />
               </CardContent>
             </Card>
           </div>
@@ -158,11 +131,7 @@ export default async function Page() {
               </TableHead>
               <TableBody>
                 {categoryRows.map((category) => (
-                  <CategoryRow
-                    key={category.id}
-                    category={category}
-                    max={categoryMax}
-                  />
+                  <CategoryRow key={category.id} category={category} max={categoryMax} />
                 ))}
               </TableBody>
             </Table>
