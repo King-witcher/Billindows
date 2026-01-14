@@ -1,14 +1,7 @@
 'use client'
 
 import { Divider } from '@mui/material'
-import {
-  AlarmClock,
-  ArrowLeftRight,
-  BellIcon,
-  Grid2X2,
-  Grid2X2Plus,
-  LayoutDashboard,
-} from 'lucide-react'
+import { AlarmClock, ArrowLeftRight, Grid2X2Plus, LayoutDashboard } from 'lucide-react'
 import { SidebarButton } from './button'
 
 interface Props {

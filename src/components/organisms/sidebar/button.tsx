@@ -3,6 +3,7 @@
 import { Typography } from '@mui/material'
 import Link from 'next/link'
 import type { ComponentProps, ReactNode } from 'react'
+import { Label } from '@/components/ui/label'
 
 interface Props extends Omit<ComponentProps<typeof Link>, 'href'> {
   icon: ReactNode
@@ -20,7 +21,7 @@ export function SidebarButton({ icon, children, disabled, url, ...rest }: Props)
       {...rest}
     >
       {icon}
-      <Typography variant="overline">{children}</Typography>
+      <p className="font-medium text-sm">{children}</p>
     </Link>
   )
 }
