@@ -1,10 +1,14 @@
 'use client'
 
-import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import { Divider } from '@mui/material'
+import {
+  AlarmClock,
+  ArrowLeftRight,
+  BellIcon,
+  Grid2X2,
+  Grid2X2Plus,
+  LayoutDashboard,
+} from 'lucide-react'
 import { SidebarButton } from './button'
 
 interface Props {
@@ -14,23 +18,19 @@ interface Props {
 export function SidebarContent(props: Props) {
   return (
     <>
-      <SidebarButton url="/dashboard" onClick={props.onClose} icon={<DashboardOutlinedIcon />}>
+      <SidebarButton url="/dashboard" onClick={props.onClose} icon={<LayoutDashboard />}>
         Dashboard
       </SidebarButton>
       <Divider />
-      <SidebarButton
-        url="/transactions"
-        onClick={props.onClose}
-        icon={<ShoppingCartOutlinedIcon />}
-      >
+      <SidebarButton url="/transactions" onClick={props.onClose} icon={<ArrowLeftRight />}>
         Transactions
       </SidebarButton>
       <Divider />
-      <SidebarButton url="/categories" onClick={props.onClose} icon={<CategoryOutlinedIcon />}>
+      <SidebarButton url="/categories" onClick={props.onClose} icon={<Grid2X2Plus />}>
         Categories
       </SidebarButton>
       <Divider />
-      <SidebarButton icon={<NotificationsActiveOutlinedIcon />} disabled>
+      <SidebarButton icon={<AlarmClock />} disabled>
         Reminders
       </SidebarButton>
     </>
