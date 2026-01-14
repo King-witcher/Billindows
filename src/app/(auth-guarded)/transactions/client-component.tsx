@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import type { TxDto } from '@/utils/queries/get-one-time-txs'
 import { getTransactions } from './actions'
-import { DeleteTxDialog } from './modals/delete-tx'
+import { DeleteTxForm } from './modals/delete-tx-form'
 import { TxDialog } from './modals/tx-dialog'
 import { TxTable } from './tx-table'
 
@@ -153,7 +153,7 @@ export function ClientComponent({ categories, now }: Props) {
       <Dialog open={deleteTxDialogOpen} onOpenChange={setDeleteTxDialogOpen}>
         <DialogContent>
           {txToDelete && (
-            <DeleteTxDialog tx={txToDelete} onClose={() => setDeleteTxDialogOpen(false)} />
+            <DeleteTxForm tx={txToDelete} onClose={() => setDeleteTxDialogOpen(false)} />
           )}
         </DialogContent>
       </Dialog>
