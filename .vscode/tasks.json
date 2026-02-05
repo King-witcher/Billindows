@@ -53,6 +53,16 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "tsc --watch",
+      "type": "shell",
+      "command": "npx tsc --watch",
+      "problemMatcher": "$tsc-watch",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
     }
   ]
 }

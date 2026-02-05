@@ -1,7 +1,7 @@
 'use server'
 
+import { prisma } from '@/database/prisma'
 import { verifySession } from '@/lib/session'
-import { prisma } from '@/services/prisma'
 
 export async function deleteCategory(id: number) {
   const session = await verifySession()

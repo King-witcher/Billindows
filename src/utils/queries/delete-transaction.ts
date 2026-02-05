@@ -1,4 +1,4 @@
-import { prisma } from '@/services/prisma'
+import { prisma } from '@/database/prisma'
 
 export async function deleteTransaction(type: 'fixed' | 'one-time', id: number) {
   if (type === 'fixed') {

@@ -1,4 +1,4 @@
-import { prisma } from '@/services/prisma'
+import { prisma } from '@/database/prisma'
 import { DBTime } from '../time'
 import type { TxDto } from './get-one-time-txs'
 

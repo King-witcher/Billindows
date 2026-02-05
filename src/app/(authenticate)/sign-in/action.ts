@@ -1,9 +1,9 @@
 'use server'
 
 import bcrypt from 'bcrypt'
+import { prisma } from '@/database/prisma'
 import { ActionError, withActionState } from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
-import { prisma } from '@/services/prisma'
 import { SignInError } from './_error'
 import { type SignInPayload, schema } from './schema'
 

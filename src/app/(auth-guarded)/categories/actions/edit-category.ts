@@ -1,8 +1,8 @@
 'use server'
 
 import { z } from 'zod'
+import { prisma } from '@/database/prisma'
 import { verifySession } from '@/lib/session'
-import { prisma } from '@/services/prisma'
 import { parseFormData, sanitize } from '@/utils/utils'
 
 const schema = z.object({

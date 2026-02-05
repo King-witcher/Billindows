@@ -1,4 +1,4 @@
-import { prisma } from '@/services/prisma'
+import { prisma } from '@/database/prisma'
 
 export async function getTxUserId(type: 'one-time' | 'fixed', id: number): Promise<number> {
   const [{ user_id }]: [{ user_id: number }] =

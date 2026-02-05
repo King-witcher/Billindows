@@ -1,4 +1,4 @@
-import { prisma } from '@/services/prisma'
+import { prisma } from '@/database/prisma'
 import { DBTime } from '../time'
 
 // export type CategoryDto = {
@@ -42,7 +42,7 @@ export async function getOneTimeTxs(userId: number, year: number, month: number)
     WITH c AS (
       SELECT id, color, name FROM categories WHERE user_id = ${userId}
     )
-    
+
     SELECT
       t.id,
       t.name,

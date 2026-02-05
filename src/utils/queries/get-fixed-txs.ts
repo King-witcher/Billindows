@@ -1,4 +1,4 @@
-import { prisma } from '@/services/prisma'
+import { prisma } from '@/database/prisma'
 import { DBTime } from '../time'
 import type { TxDto } from './get-one-time-txs'
 
@@ -26,7 +26,7 @@ export async function getFixedTxs(userId: number, year: number, month: number): 
       FROM categories
       WHERE user_id = ${userId}
     )
-    
+
     SELECT
       t.id,
       t.name,

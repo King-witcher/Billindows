@@ -1,5 +1,5 @@
 import type { Category } from '@prisma/client'
-import { prisma } from '@/services/prisma'
+import { prisma } from '../prisma'
 
 export class CategoriesRepository {
   constructor(private userId: number) {}

@@ -2,9 +2,9 @@
 
 import bcrypt from 'bcrypt'
 import type { ZodError } from 'zod'
+import { prisma } from '@/database/prisma'
 import { ActionError, withActionState } from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
-import { prisma } from '@/services/prisma'
 import { sanitize } from '@/utils/utils'
 import { SignUpError } from './_error'
 import { schema } from './schema'
