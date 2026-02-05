@@ -56,6 +56,10 @@
     },
     {
       "label": "tsc --watch",
+      "icon": {
+        "color": "terminal.ansiCyan",
+        "id": "eye-watch"
+      },
       "type": "shell",
       "command": "npx tsc --watch",
       "problemMatcher": "$tsc-watch",
