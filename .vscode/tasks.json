@@ -44,6 +44,15 @@
           "endsPattern": ".*Laddle process started.*"
         }
       }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "npm run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }
