@@ -18,5 +18,5 @@ export async function updateTxAction({ id, transaction }: UpdateTxParams): Promi
   const category = await catRepo.getById(transaction.category_id)
   if (!category) throw new Error('Category not found')
 
-  await txRepo.updateTransaction(id, transaction)
+  await txRepo.update(id, transaction)
 }

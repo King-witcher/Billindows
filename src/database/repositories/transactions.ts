@@ -1,7 +1,9 @@
+import type { FixedTx, OneTimeTx } from '@prisma/client'
 import type { WithId } from '@/types/with-id'
 import { DBTime } from '@/utils/time'
 import { prisma } from '../prisma'
 
+/** Abstracts both one-time-txs and fixed-txs tables as a single transaction object with type. */
 export type Transaction = {
   name: string
   value: number
@@ -14,7 +16,7 @@ export type Transaction = {
 }
 
 export class TransactionsRepository {
-  async createTransaction(tx: Transaction) {
+  async create(tx: Transaction) {
     const month = DBTime.fromYMToDB(tx.year, tx.month)
 
     if (tx.type === 'one-time') {
@@ -42,7 +44,7 @@ export class TransactionsRepository {
     }
   }
 
-  async updateTransaction(id: number, tx: Transaction) {
+  async update(id: number, tx: Transaction) {
     const month = DBTime.fromYMToDB(tx.year, tx.month)
 
     if (tx.type === 'one-time') {
@@ -72,7 +74,7 @@ export class TransactionsRepository {
     }
   }
 
-  async deleteTransaction(id: number, type: 'fixed' | 'one-time') {
+  async delete(id: number, type: 'fixed' | 'one-time') {
     if (type === 'fixed') {
       await prisma.fixedTx.delete({
         where: {
@@ -88,57 +90,75 @@ export class TransactionsRepository {
     }
   }
 
-  async getFixedTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
+  async listOneTimeTxs(
+    userId: number,
+    year: number,
+    month: number,
+  ): Promise<WithId<Transaction>[]> {
+    const dbMonth = DBTime.fromYMToDB(year, month)
+    const queryResults = await prisma.$queryRaw<OneTimeTx[]>`
+      SELECT *
+      FROM one_time_txs t
+      WHERE t.month = ${dbMonth}
+      AND EXISTS (
+        SELECT 1
+        FROM categories c
+        WHERE c.id = t.category_id
+        AND c.user_id = ${userId}
+      )
+    `
+
+    return queryResults.map(
+      ({ category_id, month: dbMonth, day, name, value, forecast, id }): WithId<Transaction> => {
+        const [year, month] = DBTime.fromDBToYM(dbMonth)
+        return {
+          category_id,
+          year,
+          month,
+          day,
+          type: 'one-time',
+          forecast,
+          id,
+          name,
+          value,
+        }
+      },
+    )
+  }
+
+  async listFixedTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
     const dbMonthNow = DBTime.fromYMToDB(year, month)
 
-    const now = Date.now()
-    const queryResults: {
-      id: number
-      name: string
-      value: number
-      start_month: number
-      day: number
-      category_id: number
-      category_color: string
-      category_name: string
-    }[] = await prisma.$queryRaw`
-      WITH c AS (
-        SELECT id, color, name
-        FROM categories
-        WHERE user_id = ${userId}
+    const queryResults = await prisma.$queryRaw<Omit<FixedTx, 'end_month'>[]>`
+      SELECT "id", "category_id", "start_month", "day", "name", "value"
+      FROM fixed_txs t
+      WHERE t.start_month <= ${dbMonthNow}
+      AND (
+        t.end_month IS NULL OR t.end_month > ${dbMonthNow}
       )
-
-      SELECT
-        t.id,
-        t.name,
-        t.value,
-        t.start_month,
-        t.day,
-        t.category_id
-      FROM c INNER JOIN fixed_txs t
-          ON c.id = t.category_id
-      WHERE
-        t.start_month <= ${dbMonthNow}
-        AND (
-          t.end_month IS NULL
-          OR t.end_month > ${dbMonthNow}
-        )
+      AND EXISTS (
+        SELECT 1
+        FROM categories c
+        WHERE c.id = t.category_id
+        AND c.user_id = ${userId}
+      )
     `
-    console.log(`Got ${queryResults.length} fixed transactions in ${Date.now() - now}ms.`)
 
-    return queryResults.map((result): WithId<Transaction> => {
-      const [year, month] = DBTime.fromDBToYM(result.start_month)
-      return {
-        category_id: result.category_id,
-        year,
-        month,
-        day: result.day,
-        type: 'fixed',
-        forecast: false,
-        id: result.id,
-        name: result.name,
-        value: result.value,
-      }
-    })
+    return queryResults.map(
+      ({ id, category_id, start_month, day, name, value }): WithId<Transaction> => {
+        const [year, month] = DBTime.fromDBToYM(start_month)
+        return {
+          category_id,
+          year,
+          month,
+          day,
+          type: 'fixed',
+          forecast: false, // Fixed transactions
+          id,
+          name,
+          value,
+        }
+      },
+    )
   }
 }

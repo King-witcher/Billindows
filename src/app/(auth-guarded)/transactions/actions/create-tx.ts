@@ -13,5 +13,5 @@ export async function createTxAction(data: Transaction): Promise<void> {
   const category = await catRepo.getById(data.category_id)
   if (!category) throw new Error('Category not found')
 
-  await txRepo.createTransaction(data)
+  await txRepo.create(data)
 }

@@ -1,23 +1,8 @@
-import {
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material'
-import Paper from '@mui/material/Paper'
-import { CurrencyText } from '@/components/atoms/currency-text'
-import { prisma } from '@/database/prisma'
+import { CategoriesRepository } from '@/database/repositories/categories'
+import { TransactionsRepository } from '@/database/repositories/transactions'
 import { verifySession } from '@/lib/session'
-import { getFixedTxs } from '@/utils/queries/get-fixed-txs'
-import { getOneTimeTxs } from '@/utils/queries/get-one-time-txs'
-import { CategoryRow, type DashboardCategory } from './category-row'
-import { CreateTxButton } from './components/create-tx-button'
-import { analyze } from './helpers'
+import { DashboardContent } from './dashboard-content'
+import { processDashboardData } from './helpers'
 
 export const metadata = {
   title: 'Billindows - Dashboard',
@@ -26,6 +11,8 @@ export const metadata = {
 export default async function Page() {
   const session = await verifySession()
   if (!session) return null
+  const categoryRepo = new CategoriesRepository(session.id)
+  const transactionsRepo = new TransactionsRepository()
 
   const now = new Date()
   const daysInTheMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
@@ -33,111 +20,31 @@ export default async function Page() {
   const monthProgress = currentDay / daysInTheMonth
 
   const [fixed, oneTime, categories] = await Promise.all([
-    getFixedTxs(session.id, now.getFullYear(), now.getMonth()),
-    getOneTimeTxs(session.id, now.getFullYear(), now.getMonth()),
-    prisma.category
-      .findMany({
-        where: {
-          user_id: session.id,
-        },
-      })
-      .then((results) => results.sort((a, b) => a.name.localeCompare(b.name))),
+    transactionsRepo.listFixedTxs(session.id, now.getFullYear(), now.getMonth()),
+    transactionsRepo.listOneTimeTxs(session.id, now.getFullYear(), now.getMonth()),
+    categoryRepo.listCategories(),
   ])
 
-  const categoryRows: DashboardCategory[] = categories.map((category) => {
-    const categoryFixed = fixed.filter((tx) => tx.category_id === category.id)
-    const categoryOt = oneTime.filter((tx) => tx.category_id === category.id)
+  const dashboardData = processDashboardData(fixed, oneTime, categories, monthProgress)
 
-    const analyzed = analyze([...categoryFixed, ...categoryOt], monthProgress, category.goal)
-
-    return {
-      id: category.id,
-      name: category.name,
-      balance: analyzed.balance,
-      color: category.color,
-      goal: category.goal,
-      forecast: analyzed.forecast,
-    }
-  })
-
-  const categoryMax = Math.max(...categoryRows.map((c) => Math.abs(c.forecast)), 0)
-  const overallAnalysis = analyze([...fixed, ...oneTime], monthProgress, null)
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ]
+  const currentMonth = monthNames[now.getMonth()]
+  const currentYear = now.getFullYear()
 
   return (
-    <div className="w-full min-h-full p-[20px]">
-      <Paper className="p-[40px] h-full">
-        <div className="flex flex-col sm:flex-row items-center justify-between">
-          <Typography variant="h3" gutterBottom color="primary" margin={0}>
-            Welcome, {session.name}!
-          </Typography>
-          <CreateTxButton />
-        </div>
-        <div className="flex flex-col gap-[20px] mt-[40px]">
-          <Typography variant="h5" color="textSecondary">
-            Monthly performance
-          </Typography>
-          <div className="flex flex-col sm:flex-row gap-[20px]">
-            <Card className="flex-1" variant="outlined">
-              <CardContent>
-                <Typography variant="h4" gutterBottom component="div">
-                  Current Balance
-                </Typography>
-                <CurrencyText value={overallAnalysis.balance} variant="h5" gutterBottom />
-              </CardContent>
-            </Card>
-            <Card className="flex-1" variant="outlined">
-              <CardContent>
-                <Typography variant="h4" gutterBottom component="div">
-                  Balance Forecast
-                </Typography>
-                <CurrencyText value={overallAnalysis.forecast} variant="h5" gutterBottom />
-              </CardContent>
-            </Card>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-[20px]">
-            <Card className="flex-1" variant="outlined">
-              <CardContent>
-                <Typography variant="h4" gutterBottom component="div">
-                  Fixed Balance
-                </Typography>
-
-                <CurrencyText value={overallAnalysis.fixed} variant="h5" gutterBottom />
-              </CardContent>
-            </Card>
-            <Card className="flex-1" variant="outlined">
-              <CardContent>
-                <Typography variant="h4" gutterBottom component="div">
-                  One Time Balance
-                </Typography>
-
-                <CurrencyText value={overallAnalysis.oneTime} variant="h5" gutterBottom />
-              </CardContent>
-            </Card>
-          </div>
-          <Typography variant="h5" color="textSecondary">
-            Categories
-          </Typography>
-          <TableContainer component={Paper} variant="outlined">
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Category</TableCell>
-                  <TableCell align="center">Balance</TableCell>
-                  <TableCell align="center" className="hidden! md:table-cell!">
-                    Goal
-                  </TableCell>
-                  <TableCell align="right">Forecast</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {categoryRows.map((category) => (
-                  <CategoryRow key={category.id} category={category} max={categoryMax} />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      </Paper>
-    </div>
+    <DashboardContent data={dashboardData} currentMonth={currentMonth} currentYear={currentYear} />
   )
 }

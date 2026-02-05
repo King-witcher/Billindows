@@ -27,6 +27,7 @@ export type TxDto = {
  */
 export async function getOneTimeTxs(userId: number, year: number, month: number): Promise<TxDto[]> {
   const dbMonthNow = DBTime.fromYMToDB(year, month)
+  console.log(dbMonthNow)
 
   const now = Date.now()
   const queryResults: {

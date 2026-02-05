@@ -63,7 +63,7 @@ export class CreateTransactionTool implements Tool {
       const txRepo = new TransactionsRepository()
       this.schema.parse(args)
 
-      await txRepo.createTransaction({
+      await txRepo.create({
         name: args.name,
         value: (args.sign === 'income' ? 1 : -1) * args.value * 100,
         year: args.year,
