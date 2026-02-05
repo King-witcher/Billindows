@@ -35,6 +35,7 @@ export type FormData = zod.infer<typeof formSchema>
 
 type Props = {
   initValue?: Transaction
+  isEditting: boolean
   onSubmit: (data: Transaction) => Promise<void>
   onClose: () => void
 }
@@ -70,7 +71,7 @@ function formatDate(now: Date, date: Date): string {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
 }
 
-export function TxForm({ onClose, onSubmit, initValue }: Props) {
+export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
   const user = useUser()
   const today = useToday()
   const [pending, setPending] = useState(false)
@@ -182,7 +183,12 @@ export function TxForm({ onClose, onSubmit, initValue }: Props) {
             control={form.control}
             name="fixed"
             render={({ field }) => (
-              <Button variant="outline" type="button" onClick={() => field.onChange(!field.value)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => field.onChange(!field.value)}
+                disabled={isEditting}
+              >
                 {field.value ? <Calendar1 /> : <Asterisk />}
                 {field.value ? 'Fixed' : 'Single'}
               </Button>
@@ -243,7 +249,10 @@ export function TxForm({ onClose, onSubmit, initValue }: Props) {
               id={field.name}
               name={field.name}
               checked={fixed || field.value}
-              onCheckedChange={field.onChange}
+              onCheckedChange={(data) => {
+                console.log(data)
+                field.onChange(data.valueOf())
+              }}
               disabled={fixed}
             />
             <div className="flex flex-col gap-1">

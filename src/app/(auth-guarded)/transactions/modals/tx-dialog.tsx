@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import type { Transaction } from '@/database/repositories/transactions'
 import type { WithId } from '@/types/with-id'
 import { createTxAction } from '../actions/create-tx'
+import { updateTxAction } from '../actions/udpate-tx'
 import { TxForm } from './tx-form'
 
 type Props = {
@@ -18,7 +19,7 @@ export function TxDialog(props: Props) {
 
   const updateMutation = useMutation({
     mutationKey: ['update-transaction', txToEdit?.id],
-    mutationFn: async () => {},
+    mutationFn: updateTxAction,
     onSuccess: () => {
       client.refetchQueries({ queryKey: ['transactions'] })
       toast.success('Transaction updated successfully')
@@ -40,7 +41,7 @@ export function TxDialog(props: Props) {
 
   async function handleSubmit(data: Transaction) {
     if (txToEdit) {
-      await updateMutation.mutateAsync()
+      await updateMutation.mutateAsync({ id: txToEdit.id, transaction: data })
     } else {
       await createMutation.mutateAsync(data)
     }
@@ -55,6 +56,7 @@ export function TxDialog(props: Props) {
           </DialogTitle>
         </DialogHeader>
         <TxForm
+          isEditting={Boolean(txToEdit)}
           initValue={txToEdit}
           onSubmit={handleSubmit}
           onClose={() => onOpenChange?.(false)}

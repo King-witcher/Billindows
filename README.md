@@ -26,14 +26,20 @@ git clone https://github.com/King-witcher/Billindows.git
 cd Billindows
 
 # Install dependencies
-yarn
+npm i
+
+# Generate the Prisma client
+npm run db:codegen
+
+# Set up environment variables
+npm run db:migrate
 ```
 
 ## 🔧 Usage
 
 ```bash
 # Basic usage example
-yarn dev
+npm run dev
 ```
 
 ## 📜 License

@@ -42,6 +42,36 @@ export class TransactionsRepository {
     }
   }
 
+  async updateTransaction(id: number, tx: Transaction) {
+    const month = DBTime.fromYMToDB(tx.year, tx.month)
+
+    if (tx.type === 'one-time') {
+      await prisma.oneTimeTx.update({
+        where: { id },
+        data: {
+          month,
+          day: tx.day,
+          name: tx.name,
+          value: tx.value,
+          forecast: tx.forecast,
+          category_id: tx.category_id,
+        },
+      })
+    } else if (tx.type === 'fixed') {
+      await prisma.fixedTx.update({
+        where: { id },
+        data: {
+          start_month: month,
+          end_month: null,
+          day: tx.day,
+          name: tx.name,
+          value: tx.value,
+          category_id: tx.category_id,
+        },
+      })
+    }
+  }
+
   async deleteTransaction(id: number, type: 'fixed' | 'one-time') {
     if (type === 'fixed') {
       await prisma.fixedTx.delete({

@@ -25,6 +25,7 @@ const buttonVariants = cva(
         icon: 'size-9',
         'icon-sm': 'size-8',
         'icon-lg': 'size-10',
+        'icon-md-default': 'size-9 md:has-[>svg]:px-3 md:w-auto md:h-9 md:px-4 md:py-2',
       },
     },
     defaultVariants: {
@@ -51,7 +52,7 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   )
