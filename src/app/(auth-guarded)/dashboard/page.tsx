@@ -24,9 +24,9 @@ export default async function Page() {
     categoryRepo.listCategories(),
   ])
 
-  const grouped = Object.groupBy(transactions, (tx) => tx.type)
+  const { fixed = [], 'one-time': oneTime = [] } = Object.groupBy(transactions, (tx) => tx.type)
 
-  const dashboardData = processDashboardData(grouped.fixed || [], grouped['one-time'] || [])
+  const dashboardData = processDashboardData(fixed, oneTime)
 
   const monthNames = [
     'January',
