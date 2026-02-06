@@ -100,27 +100,11 @@ export function DashboardContent({
       </div>
 
       {/* Category Details */}
-      <div className="space-y-4">
-        <Tabs defaultValue="table" className="w-full">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold">Category Details</h3>
-            <TabsList>
-              <TabsTrigger value="table">Table</TabsTrigger>
-              <TabsTrigger value="cards">Cards</TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="table" className="mt-4">
-            <CategoryTable
-              categorySummaries={data.categories}
-              categoriesMap={categoriesMap}
-              monthProgress={monthProgress}
-            />
-          </TabsContent>
-          <TabsContent value="cards" className="mt-4">
-            {/* <CategoryCards categories={data.byCategory} /> */}
-          </TabsContent>
-        </Tabs>
-      </div>
+      <CategoryTable
+        categorySummaries={data.categories}
+        categoriesMap={categoriesMap}
+        monthProgress={monthProgress}
+      />
     </div>
   )
 }
