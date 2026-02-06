@@ -91,7 +91,7 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initValue?.name || '',
-      date: today,
+      date: initValue ? new Date(initValue.year, initValue.month, initValue.day) : today,
       value: initValue ? Math.abs(initValue.value) : 100,
       categoryId: initValue ? String(initValue.category_id) : '',
       fixed: initValue ? initValue.type === 'fixed' : false,
