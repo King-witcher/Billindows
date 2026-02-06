@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "sh install-production.sh"
+  "installCommand": "sh install-production.sh",
+  "regions": ["sa-east-1"]
 }
