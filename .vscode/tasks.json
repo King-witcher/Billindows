@@ -46,15 +46,6 @@
       }
     },
     {
-      "label": "build",
-      "type": "shell",
-      "command": "npm run build",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
       "label": "tsc --watch",
       "icon": {
         "color": "terminal.ansiCyan",
@@ -67,6 +58,32 @@
         "kind": "test",
         "isDefault": true
       }
+    },
+
+    ////////////////// Build Tasks //////////////////
+
+    {
+      "label": "npm run build",
+      "type": "shell",
+      "command": "npm run build",
+      "group": "build"
+    },
+
+    {
+      "label": "biome check --write",
+      "type": "shell",
+      "command": "npx biome check --write",
+      "group": "build"
+    },
+
+    {
+      "label": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": ["npm run build", "biome check --write"],
+      "dependsOrder": "parallel"
     }
   ]
 }
