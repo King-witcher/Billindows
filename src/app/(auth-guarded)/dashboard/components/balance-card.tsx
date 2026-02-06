@@ -1,19 +1,19 @@
 'use client'
 
-import { Calendar, Repeat, Target, Wallet } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/utils/utils'
 
-type BalanceCardProps = {
+type Props = {
   title: string
   value: number
   subtitle?: string
   icon?: ReactNode
   showProgress?: boolean
   progressValue?: number
+  progressLabel?: string
   variant?: 'default' | 'income' | 'expense' | 'neutral'
 }
 
@@ -24,15 +24,16 @@ const variantStyles = {
   neutral: 'text-muted-foreground',
 }
 
-export function BalanceCard({
+export function SummaryCard({
   title,
   value,
   subtitle,
   icon,
   showProgress,
   progressValue,
+  progressLabel,
   variant = 'default',
-}: BalanceCardProps) {
+}: Props) {
   const computedVariant = variant === 'default' ? (value >= 0 ? 'income' : 'expense') : variant
 
   return (
@@ -50,60 +51,11 @@ export function BalanceCard({
           <div className="mt-3">
             <Progress value={Math.min(Math.max(progressValue, 0), 100)} className="h-2" />
             <p className="text-xs text-muted-foreground mt-1">
-              {progressValue.toFixed(1)}% of month
+              {progressValue.toFixed(1)}% {progressLabel}
             </p>
           </div>
         )}
       </CardContent>
     </Card>
-  )
-}
-
-type DashboardSummaryProps = {
-  balance: number
-  forecast: number
-  fixed: number
-  oneTime: number
-  monthProgress: number
-}
-
-export function DashboardSummary({
-  balance,
-  forecast,
-  fixed,
-  oneTime,
-  monthProgress,
-}: DashboardSummaryProps) {
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <BalanceCard
-        title="Current Balance"
-        value={balance}
-        subtitle="Month total so far"
-        icon={<Wallet className="h-4 w-4" />}
-        showProgress
-        progressValue={monthProgress * 100}
-      />
-      <BalanceCard
-        title="Forecast"
-        value={forecast}
-        subtitle="If the pace continues"
-        icon={<Target className="h-4 w-4" />}
-      />
-      <BalanceCard
-        title="Fixed Balance"
-        value={fixed}
-        subtitle="Recurring transactions"
-        icon={<Repeat className="h-4 w-4" />}
-        variant="neutral"
-      />
-      <BalanceCard
-        title="One-time Balance"
-        value={oneTime}
-        subtitle="One-time transactions"
-        icon={<Calendar className="h-4 w-4" />}
-        variant="neutral"
-      />
-    </div>
   )
 }

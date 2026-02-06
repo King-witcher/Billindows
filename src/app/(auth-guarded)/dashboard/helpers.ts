@@ -1,27 +1,22 @@
 import type { Category } from '@prisma/client'
-import type { TxDto } from '@/utils/queries/get-one-time-txs'
+import type { Transaction } from '@/database/repositories/transactions'
 import type { ChartData } from './components/types'
 
-export type GroupAnalysis = {
-  /** Total balance of transactions. */
-  actualBalance: number
+export type TarnsactionsSummary = {
+  totalIncome: number
+  totalExpenses: number
 
-  /** Fixed transactions balance. */
-  fixedBalance: number
+  oneTimeIncome: number
+  oneTimeExpenses: number
 
-  /** One-time transactions balance. */
-  oneTimeBalance: number
+  fixedIncome: number
+  fixedExpenses: number
 
-  /** Forecasted transactions balance. */
-  forecastBalance: number
-
-  /** Progress towards the goal. */
-  progress: number | null
+  forecastable: number
 }
 
-export type CategoryAnalysis = GroupAnalysis & {
-  category: Category
-}
+export type TransactionType = 'expenses' | 'income'
+export type BalanceType = 'actual' | 'forecast'
 
 /**
  * Analyzes a group of transactions and calculates the fixed, one-time, and forecasted balances.
@@ -30,33 +25,46 @@ export type CategoryAnalysis = GroupAnalysis & {
  * @param goal
  * @returns
  */
-export function analyze(
-  transactions: TxDto[],
-  periodProgress: number,
-  goal: number | null,
-): GroupAnalysis {
-  const fixed = transactions
-    .filter((tx) => tx.type === 'fixed')
-    .reduce((prev, current) => prev + current.value, 0)
+export function analyze(transactions: Transaction[]): TarnsactionsSummary {
+  return transactions.reduce<TarnsactionsSummary>(
+    (acc: TarnsactionsSummary, tx: Transaction) => {
+      if (tx.type === 'one-time') {
+        if (tx.value >= 0) {
+          acc.oneTimeIncome += tx.value
+          acc.totalIncome += tx.value
+        } else {
+          acc.oneTimeExpenses += Math.abs(tx.value)
+          acc.totalExpenses += Math.abs(tx.value)
+        }
 
-  const oneTime = transactions
-    .filter((tx) => tx.type === 'one-time')
-    .reduce((prev, current) => prev + current.value, 0)
+        if (tx.forecast) acc.forecastable += tx.value
+      } else {
+        if (tx.value >= 0) {
+          acc.fixedIncome += tx.value
+          acc.totalIncome += tx.value
+        } else {
+          acc.fixedExpenses += Math.abs(tx.value)
+          acc.totalExpenses += Math.abs(tx.value)
+        }
+      }
+      return acc
+    },
+    {
+      totalIncome: 0,
+      totalExpenses: 0,
+      oneTimeIncome: 0,
+      oneTimeExpenses: 0,
+      fixedIncome: 0,
+      fixedExpenses: 0,
+      forecastable: 0,
+    },
+  )
+}
 
-  const forecastable = transactions
-    .filter((tx) => tx.forecast)
-    .reduce((prev, current) => prev + current.value, 0)
+export function forecast(currentForecastable: number, periodProgress: number): number {
+  if (periodProgress === 0) return 0
 
-  const rate = forecastable / periodProgress
-  const forecast = fixed + oneTime + rate * (1 - periodProgress)
-
-  return {
-    actualBalance: fixed + oneTime,
-    fixedBalance: fixed,
-    oneTimeBalance: oneTime,
-    forecastBalance: forecast,
-    progress: goal ? (fixed + oneTime) / goal : null,
-  }
+  return currentForecastable / periodProgress
 }
 
 /**
@@ -66,83 +74,71 @@ export function analyze(
  * @param periodProgress The progress of the current period (0-1)
  * @returns Analysis for each category
  */
-export function analyzeByCategory(
-  transactions: TxDto[],
-  categories: Category[],
-  periodProgress: number,
-): CategoryAnalysis[] {
-  return categories.map((category) => {
-    const categoryTxs = transactions.filter((tx) => tx.category_id === category.id)
-    const analysis = analyze(categoryTxs, periodProgress, category.goal)
+// export function analyzeByCategory(
+//   transactions: Transaction[],
+//   categories: Category[],
+// ): CategoryAnalysis[] {
+//   // TODO: Improve with hash map for categories
+//   return categories.map((category) => {
+//     const categoryTxs = transactions.filter((tx) => tx.category_id === category.id)
+//     const analysis = analyze(categoryTxs)
 
-    return {
-      category,
-      ...analysis,
-    }
-  })
-}
+//     return {
+//       category,
+//       ...analysis,
+//     }
+//   })
+// }
 
 export type DashboardData = {
-  /** Current balance (income - expenses) */
-  actualBalance: number
-  /** Fixed transactions balance */
-  fixedBalance: number
-  /** One-time transactions balance */
-  oneTimeBalance: number
-  /** Forecasted balance if current rate continues */
-  forecastBalance: number
-  /** Progress through the month (current / total days) */
-  monthProgress: number
-  /** Analysis broken down by category */
-  byCategory: CategoryAnalysis[]
+  overall: TarnsactionsSummary
+  categories: Record<string, TarnsactionsSummary>
 }
 
 /**
  * Process all data for the dashboard
  */
-export function processDashboardData(
-  fixed: TxDto[],
-  oneTime: TxDto[],
-  categories: Category[],
-  monthProgress: number,
-): DashboardData {
+export function processDashboardData(fixed: Transaction[], oneTime: Transaction[]): DashboardData {
   const allTransactions = [...fixed, ...oneTime]
-  const overall = analyze(allTransactions, monthProgress, null)
-  const byCategory = analyzeByCategory(allTransactions, categories, monthProgress)
+  const overallSummary = analyze(allTransactions)
+
+  const transactionsByCategory = Object.groupBy(allTransactions, (tx) => tx.category_id)
+  const categoriesSummary = Object.entries(transactionsByCategory).map(([catId, catTxs]) => {
+    if (!catTxs) throw new Error(`No transactions found for category ID ${catId}`)
+
+    const summary = analyze(catTxs)
+    return [catId, summary]
+  })
 
   return {
-    actualBalance: overall.actualBalance,
-    fixedBalance: overall.fixedBalance,
-    oneTimeBalance: overall.oneTimeBalance,
-    forecastBalance: overall.forecastBalance,
-    monthProgress: monthProgress,
-    byCategory,
+    overall: overallSummary,
+    categories: Object.fromEntries(categoriesSummary),
   }
 }
 
-export type TransactionType = 'expenses' | 'income'
-export type BalanceType = 'actual' | 'forecast'
+// export type TransactionType = 'expenses' | 'income'
+// export type BalanceType = 'actual' | 'forecast'
 
-/** Filter and prepare chart data based on transaction and balance types */
-export function prepareChartData(
-  categories: CategoryAnalysis[],
-  transactionType: TransactionType,
-  balanceType: BalanceType,
-): ChartData[] {
-  const filtered = categories.filter((cat) => {
-    const value = balanceType === 'actual' ? cat.actualBalance : cat.forecastBalance
-    if (transactionType === 'income') return value > 0
-    return value < 0
-  })
+// /** Filter and prepare chart data based on transaction and balance types */
+// export function prepareChartData(
+//   categories: CategoryAnalysis[],
+//   transactionType: TransactionType,
+//   balanceType: BalanceType,
+// ): ChartData[] {
+//   const filtered = categories.filter((cat) => {
+//     const value = balanceType === 'actual' ? cat.actualBalance : cat.forecastBalance
+//     if (transactionType === 'income') return value > 0
+//     return value < 0
+//   })
 
-  return filtered
-    .map((cat) => {
-      const value = balanceType === 'actual' ? cat.actualBalance : cat.forecastBalance
-      return {
-        name: cat.category.name,
-        value: Math.abs(value) / 100,
-        fill: cat.category.color,
-      }
-    })
-    .sort((a, b) => b.value - a.value)
-}
+//   return filtered
+//     .map((cat) => {
+//       const value = balanceType === 'actual' ? cat.actualBalance : cat.forecastBalance
+//       return {
+//         name: cat.category.name,
+//         value: Math.abs(value) / 100,
+//         fill: cat.category.color,
+//       }
+//     })
+//     .sort((a, b) => b.value - a.value)
+// }

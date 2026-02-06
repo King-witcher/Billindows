@@ -25,7 +25,7 @@ export default async function Page() {
     categoryRepo.listCategories(),
   ])
 
-  const dashboardData = processDashboardData(fixed, oneTime, categories, monthProgress)
+  const dashboardData = processDashboardData(fixed, oneTime)
 
   const monthNames = [
     'January',
@@ -45,6 +45,12 @@ export default async function Page() {
   const currentYear = now.getFullYear()
 
   return (
-    <DashboardContent data={dashboardData} currentMonth={currentMonth} currentYear={currentYear} />
+    <DashboardContent
+      data={dashboardData}
+      monthProgress={monthProgress}
+      categories={categories}
+      currentMonth={currentMonth}
+      currentYear={currentYear}
+    />
   )
 }
