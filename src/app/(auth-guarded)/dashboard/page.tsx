@@ -19,13 +19,14 @@ export default async function Page() {
   const currentDay = now.getDate()
   const monthProgress = currentDay / daysInTheMonth
 
-  const [fixed, oneTime, categories] = await Promise.all([
-    transactionsRepo.listFixedTxs(session.id, now.getFullYear(), now.getMonth()),
-    transactionsRepo.listOneTimeTxs(session.id, now.getFullYear(), now.getMonth()),
+  const [transactions, categories] = await Promise.all([
+    transactionsRepo.listAllTxs(session.id, now.getFullYear(), now.getMonth()),
     categoryRepo.listCategories(),
   ])
 
-  const dashboardData = processDashboardData(fixed, oneTime)
+  const grouped = Object.groupBy(transactions, (tx) => tx.type)
+
+  const dashboardData = processDashboardData(grouped.fixed || [], grouped['one-time'] || [])
 
   const monthNames = [
     'January',

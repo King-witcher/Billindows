@@ -131,6 +131,73 @@ export class TransactionsRepository {
     )
   }
 
+  async listAllTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
+    const dbMonthNow = DBTime.fromYMToDB(year, month)
+
+    type QueryResult = {
+      id: number
+      type: 'fixed' | 'one-time'
+      name: string
+      value: number
+      day: number
+      forecast: boolean
+      category_id: number
+    }
+
+    const now = Date.now()
+    const results = await prisma.$queryRaw<QueryResult[]>`
+      SELECT * FROM (
+          SELECT
+              t.id,
+              'fixed' AS "type",
+              t.name,
+              t.value,
+              t.day,
+              TRUE AS "forecast",
+              t.category_id
+          FROM fixed_txs t
+              JOIN categories c
+                  ON c.id = t.category_id
+                  AND c.user_id = ${userId}
+          WHERE ${dbMonthNow} >= t.start_month
+              AND (t.end_month IS NULL OR ${dbMonthNow} < t.end_month)
+
+          UNION ALL
+
+          SELECT
+              t.id,
+              'one-time' AS "type",
+              t.name,
+              t.value,
+              t.day,
+              t.forecast,
+              t.category_id
+          FROM one_time_txs t
+              JOIN categories c
+                  ON c.id = t.category_id
+                  AND c.user_id = ${userId}
+          WHERE t.month = ${dbMonthNow}
+        ) q
+    ORDER BY q.day DESC, q.type ASC, q.name ASC, q.id ASC`
+    console.debug(
+      `Fetched ${results.length} transactions for user ${userId} in ${Date.now() - now}ms`,
+    )
+
+    return results.map(({ id, type, name, value, day, forecast, category_id }) => {
+      return {
+        id,
+        type,
+        name,
+        value,
+        day,
+        forecast,
+        category_id,
+        year,
+        month,
+      }
+    })
+  }
+
   async listFixedTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
     const dbMonthNow = DBTime.fromYMToDB(year, month)
 
