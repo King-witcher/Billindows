@@ -2,7 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
-import { Asterisk, BanknoteArrowDown, BanknoteArrowUp, Calendar1, CalendarIcon } from 'lucide-react'
+import {
+  BanknoteArrowDown,
+  BanknoteArrowUp,
+  Calendar1Icon,
+  CalendarIcon,
+  RepeatIcon,
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import * as zod from 'zod'
@@ -176,6 +182,25 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
       </div>
 
       <div className="flex gap-4 w-full">
+        {/* Value */}
+        <Field className="flex-1">
+          <FieldLabel>Value</FieldLabel>
+          <Controller
+            control={form.control}
+            name="value"
+            render={({ field }) => (
+              <MoneyField
+                name={field.name}
+                value={field.value}
+                onChange={(v) => field.onChange(v)}
+                defaultValue={initValue ? Math.abs(initValue.value) : undefined}
+              />
+            )}
+          />
+
+          <FieldError>{errors.value?.message}</FieldError>
+        </Field>
+
         {/* Fixed */}
         <Field className="max-w-25">
           <FieldLabel>Type</FieldLabel>
@@ -189,7 +214,7 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
                 onClick={() => field.onChange(!field.value)}
                 disabled={isEditting}
               >
-                {field.value ? <Calendar1 /> : <Asterisk />}
+                {field.value ? <RepeatIcon /> : <Calendar1Icon />}
                 {field.value ? 'Fixed' : 'Single'}
               </Button>
             )}
@@ -218,24 +243,6 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
               </Button>
             )}
           />
-        </Field>
-        {/* Value */}
-        <Field className="flex-1">
-          <FieldLabel>Value</FieldLabel>
-          <Controller
-            control={form.control}
-            name="value"
-            render={({ field }) => (
-              <MoneyField
-                name={field.name}
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                defaultValue={initValue ? Math.abs(initValue.value) : undefined}
-              />
-            )}
-          />
-
-          <FieldError>{errors.value?.message}</FieldError>
         </Field>
       </div>
 

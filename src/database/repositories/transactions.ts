@@ -96,6 +96,8 @@ export class TransactionsRepository {
     month: number,
   ): Promise<WithId<Transaction>[]> {
     const dbMonth = DBTime.fromYMToDB(year, month)
+
+    const now = Date.now()
     const queryResults = await prisma.$queryRaw<OneTimeTx[]>`
       SELECT *
       FROM one_time_txs t
@@ -107,6 +109,9 @@ export class TransactionsRepository {
         AND c.user_id = ${userId}
       )
     `
+    console.debug(
+      `Fetched ${queryResults.length} one-time transactions for user ${userId} in ${Date.now() - now}ms`,
+    )
 
     return queryResults.map(
       ({ category_id, month: dbMonth, day, name, value, forecast, id }): WithId<Transaction> => {
@@ -129,6 +134,7 @@ export class TransactionsRepository {
   async listFixedTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
     const dbMonthNow = DBTime.fromYMToDB(year, month)
 
+    const now = Date.now()
     const queryResults = await prisma.$queryRaw<Omit<FixedTx, 'end_month'>[]>`
       SELECT "id", "category_id", "start_month", "day", "name", "value"
       FROM fixed_txs t
@@ -143,6 +149,9 @@ export class TransactionsRepository {
         AND c.user_id = ${userId}
       )
     `
+    console.debug(
+      `Fetched ${queryResults.length} fixed transactions for user ${userId} in ${Date.now() - now}ms`,
+    )
 
     return queryResults.map(
       ({ id, category_id, start_month, day, name, value }): WithId<Transaction> => {
