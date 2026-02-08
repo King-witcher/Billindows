@@ -1,36 +1,23 @@
 'use server'
 
-import { z } from 'zod'
-import { prisma } from '@/database/prisma'
-import { verifySession } from '@/lib/session'
-import { parseFormData, sanitize } from '@/utils/utils'
+import * as z from 'zod'
+import { action } from '@/lib/server-actions'
+import { sanitizeSpaces } from '@/utils/utils'
 
 const schema = z.object({
-  name: z.string().nonempty().max(30),
-  goal: z.coerce.number().int().gt(0).optional(),
-  goalType: z.enum(['income', 'expense', 'off']),
-  color: z.string(),
+  name: z.string().nonempty().max(30).transform(sanitizeSpaces),
+  goal: z.int().nullable(),
+  color: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/), // Hex color validation
 })
 
-export async function createCategory(formData: FormData) {
-  const session = await verifySession()
-  if (!session) return
+export const createCategoryAction = action(schema, async (data, ctx) => {
+  // Require auth and get user ID from JWT
+  const jwt = await ctx.requireAuth()
 
-  const parseData = schema.safeParse(parseFormData(formData))
-
-  if (!parseData.success) {
-    console.error(parseData.error)
-    return
-  }
-
-  const body = parseData.data
-
-  await prisma.category.create({
-    data: {
-      color: body.color,
-      name: sanitize(body.name),
-      goal: body.goal ? (body.goalType === 'expense' ? -body.goal : body.goal) : undefined,
-      user_id: session.id,
-    },
+  await ctx.repositories.categories.create({
+    color: data.color,
+    name: data.name,
+    goal: data.goal,
+    user_id: jwt.id,
   })
-}
+})

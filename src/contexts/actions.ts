@@ -30,7 +30,7 @@ export async function callAgent(history: Message[], message: string): Promise<Ca
     }
 
   const categoriesRepository = new CategoriesRepository(session.id)
-  const categories = await categoriesRepository.listCategories()
+  const categories = await categoriesRepository.list()
   const createTransactionTool = new CreateTransactionTool({ categories })
 
   const agent = new Agent({

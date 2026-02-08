@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import type { Transaction } from '@/database/repositories/transactions'
 import type { WithId } from '@/types/with-id'
-import { deleteTransactionAction } from '../actions/delete-transaction'
+import { deleteTxAction } from '../actions/delete-tx'
 
 interface Props {
   tx: WithId<Transaction>
@@ -20,7 +20,7 @@ export function DeleteTxForm({ tx, onClose }: Props) {
   const value = Math.abs(tx.value / 100).toFixed(2)
 
   const mutation = useMutation({
-    mutationFn: async () => deleteTransactionAction(tx.type, tx.id),
+    mutationFn: async () => deleteTxAction({ recurrence: tx.type, id: tx.id }),
     mutationKey: ['delete-transaction', tx.id],
     onMutate() {
       onClose()

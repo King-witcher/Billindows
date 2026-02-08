@@ -23,13 +23,12 @@ import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useToday } from '@/contexts/today-context'
 import { useUser } from '@/contexts/user-context'
-import type { Transaction } from '@/database/repositories/transactions'
-import { getCategories } from '../actions/get-categories'
+import type { Transaction } from '@/database/repositories'
+import { listCategoriesAction } from '../actions/list-categories'
 
 const formSchema = zod.object({
-  id: zod.number().optional(),
   type: zod.enum(['income', 'expense']),
-  name: zod.string().min(1, 'Name is required').max(50, 'Name is too long'),
+  name: zod.string().min(1, 'Name is required').max(64, 'Name is too long'),
   categoryId: zod.string().min(1, 'Category is required'),
   value: zod.int().min(1, 'Value must be at least R$ 0,01'),
   date: zod.date(),
@@ -42,7 +41,7 @@ export type FormData = zod.infer<typeof formSchema>
 type Props = {
   initValue?: Transaction
   isEditting: boolean
-  onSubmit: (data: Transaction) => Promise<void>
+  onSubmit: (data: Omit<Transaction, 'id'>) => Promise<void>
   onClose: () => void
 }
 
@@ -84,7 +83,7 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
 
   const categoriesQuery = useQuery({
     queryKey: ['categories', user.email],
-    queryFn: getCategories,
+    queryFn: listCategoriesAction,
     initialData: [],
   })
 
@@ -93,7 +92,7 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
     [categoriesQuery.data],
   )
 
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initValue?.name || '',
@@ -109,7 +108,7 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
   const [fixed] = form.watch(['fixed'])
   const errors = form.formState.errors
 
-  async function handleSubmit(data: zod.infer<typeof formSchema>) {
+  async function handleSubmit(data: FormData) {
     if (pending) return
 
     const year = data.date.getFullYear()
@@ -266,10 +265,10 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
               <Label htmlFor={field.name}>Ignore from forecast</Label>
               <p className="text-sm text-muted-foreground">
                 {fixed
-                  ? 'Fixed transactions are always included in the forecast calculations.'
+                  ? 'Fixed transactions are always included in the forecast.'
                   : field.value
-                    ? 'This transaction will be ignored in the forecast calculations.'
-                    : 'This transaction will be included in the forecast calculations.'}
+                    ? 'This transaction will be ignored from the forecast calculation.'
+                    : 'This transaction will be included in the forecast calculation.'}
               </p>
             </div>
           </div>

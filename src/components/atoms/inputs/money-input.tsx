@@ -1,7 +1,7 @@
 import { type ChangeEvent, useCallback, useState } from 'react'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 
-type Props = React.ComponentProps<'div'> & {
+type Props = Omit<React.ComponentProps<'div'>, 'onChange'> & {
   /** The value in cents. */
   value?: number
   name?: string
@@ -33,7 +33,7 @@ export function MoneyField(props: Props) {
       if (!controlled) setInternalValue(newValue)
       onChange?.(newValue)
     },
-    [controlled],
+    [controlled, onChange],
   )
 
   return (

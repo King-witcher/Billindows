@@ -14,7 +14,7 @@ export function parseFormData(formData: FormData): Record<string, string> {
   return record
 }
 
-export function sanitize(str: string): string {
+export function sanitizeSpaces(str: string): string {
   return str.trim().replace(/\s+/g, ' ')
 }
 

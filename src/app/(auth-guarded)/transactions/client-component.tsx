@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import type { TxDto } from '@/utils/queries/get-one-time-txs'
-import { getTransactions } from './actions'
+import { listTxs } from './actions'
 import { DeleteTxForm } from './modals/delete-tx-form'
 import { TxDialog } from './modals/tx-dialog'
 import { TxTable } from './tx-table'
@@ -32,7 +32,7 @@ export function ClientComponent({ categories, now }: Props) {
   const txQuery = useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
-      return getTransactions(now)
+      return listTxs({ now })
     },
   })
 

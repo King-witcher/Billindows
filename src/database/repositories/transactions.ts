@@ -3,21 +3,28 @@ import type { WithId } from '@/types/with-id'
 import { DBTime } from '@/utils/time'
 import { prisma } from '../prisma'
 
+export type TransactionRecurrence = 'fixed' | 'one-time'
+
 /** Abstracts both one-time-txs and fixed-txs tables as a single transaction object with type. */
 export type Transaction = {
+  id: number
   name: string
   value: number
   year: number
   month: number
   day: number
-  type: 'fixed' | 'one-time'
+  type: TransactionRecurrence
   forecast: boolean
   category_id: number
 }
 
 export class TransactionsRepository {
-  async create(tx: Transaction) {
+  /** Create a transaction regardless of the owner of it's transaction */
+  async create(tx: Omit<Transaction, 'id'>) {
     const month = DBTime.fromYMToDB(tx.year, tx.month)
+    if (tx.type === 'fixed' && !tx.forecast) {
+      throw new Error('fixed-transaction-should-forecast')
+    }
 
     if (tx.type === 'one-time') {
       await prisma.oneTimeTx.create({
@@ -44,52 +51,84 @@ export class TransactionsRepository {
     }
   }
 
-  async update(id: number, tx: Transaction) {
+  /**
+   * Update a transaction regardless of its owner.
+   *
+   * Transaction recurrence cannot be changed after creation.
+   */
+  async update(
+    id: number,
+    recurrence: TransactionRecurrence,
+    tx: Omit<Transaction, 'id' | 'type'>,
+  ) {
     const month = DBTime.fromYMToDB(tx.year, tx.month)
+    if (recurrence === 'fixed' && !tx.forecast) {
+      throw new Error('fixed-transaction-should-forecast')
+    }
 
-    if (tx.type === 'one-time') {
-      await prisma.oneTimeTx.update({
-        where: { id },
-        data: {
-          month,
-          day: tx.day,
-          name: tx.name,
-          value: tx.value,
-          forecast: tx.forecast,
-          category_id: tx.category_id,
-        },
-      })
-    } else if (tx.type === 'fixed') {
-      await prisma.fixedTx.update({
-        where: { id },
-        data: {
-          start_month: month,
-          end_month: null,
-          day: tx.day,
-          name: tx.name,
-          value: tx.value,
-          category_id: tx.category_id,
-        },
-      })
+    switch (recurrence) {
+      case 'one-time': {
+        await prisma.oneTimeTx.update({
+          where: { id },
+          data: {
+            month,
+            day: tx.day,
+            name: tx.name,
+            value: tx.value,
+            forecast: tx.forecast,
+            category_id: tx.category_id,
+          },
+        })
+        break
+      }
+      case 'fixed': {
+        await prisma.fixedTx.update({
+          where: { id },
+          data: {
+            start_month: month,
+            end_month: null,
+            day: tx.day,
+            name: tx.name,
+            value: tx.value,
+            category_id: tx.category_id,
+          },
+        })
+        break
+      }
+      default: {
+        console.error(`Invalid transaction recurrence type: ${recurrence}`)
+        throw new Error(`invalid-recurrence`)
+      }
     }
   }
 
-  async delete(id: number, type: 'fixed' | 'one-time') {
-    if (type === 'fixed') {
-      await prisma.fixedTx.delete({
-        where: {
-          id,
-        },
-      })
-    } else if (type === 'one-time') {
-      await prisma.oneTimeTx.delete({
-        where: {
-          id,
-        },
-      })
+  /** Delete a transaction regardless of its owner. */
+  async delete(id: number, recurrence: TransactionRecurrence) {
+    switch (recurrence) {
+      case 'one-time': {
+        await prisma.oneTimeTx.delete({
+          where: {
+            id,
+          },
+        })
+        break
+      }
+      case 'fixed': {
+        await prisma.fixedTx.delete({
+          where: {
+            id,
+          },
+        })
+        break
+      }
+      default: {
+        console.error(`Invalid transaction recurrence type: ${recurrence}`)
+        throw new Error(`invalid-recurrence`)
+      }
     }
   }
 
+  /** Lists all one time transactions for the current user in a given month and year */
   async listOneTimeTxs(
     userId: number,
     year: number,
@@ -131,6 +170,7 @@ export class TransactionsRepository {
     )
   }
 
+  /** Lists all transactions for the current user in a given month and year */
   async listAllTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
     const dbMonthNow = DBTime.fromYMToDB(year, month)
 
@@ -198,6 +238,7 @@ export class TransactionsRepository {
     })
   }
 
+  /** Lists all fixed transactions for the current user in a given month and year */
   async listFixedTxs(userId: number, year: number, month: number): Promise<WithId<Transaction>[]> {
     const dbMonthNow = DBTime.fromYMToDB(year, month)
 
@@ -236,5 +277,27 @@ export class TransactionsRepository {
         }
       },
     )
+  }
+
+  /** Gets the userId of a transaction */
+  async getTxOwner(id: number, recurrence: TransactionRecurrence): Promise<number> {
+    const [{ user_id }]: [{ user_id: number }] =
+      recurrence === 'fixed'
+        ? await prisma.$queryRaw`
+            SELECT c.user_id
+            FROM categories c
+            JOIN ${'fixed_txs'} t
+                ON c.id = t.category_id
+            WHERE t.id = ${id}
+        `
+        : await prisma.$queryRaw`
+            SELECT c.user_id
+            FROM categories c
+            JOIN one_time_txs t
+                ON c.id = t.category_id
+            WHERE t.id = ${id}
+        `
+
+    return user_id
   }
 }

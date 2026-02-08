@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import type { Transaction } from '@/database/repositories/transactions'
 import type { WithId } from '@/types/with-id'
 import { createTxAction } from '../actions/create-tx'
-import { updateTxAction } from '../actions/udpate-tx'
+import { updateTxAction } from '../actions/update-tx'
 import { TxForm } from './tx-form'
 
 type Props = {
@@ -25,7 +25,7 @@ export function TxDialog(props: Props) {
       toast.success('Transaction updated successfully')
       onOpenChange?.(false)
     },
-    onError: () => toast.error('Error updating transaction'),
+    onError: (e) => toast.error(`Error updating transaction: ${e.message}`),
   })
 
   const createMutation = useMutation({
@@ -39,9 +39,13 @@ export function TxDialog(props: Props) {
     onError: () => toast.error('Error creating transaction'),
   })
 
-  async function handleSubmit(data: Transaction) {
+  async function handleSubmit(data: Omit<Transaction, 'id'>) {
     if (txToEdit) {
-      await updateMutation.mutateAsync({ id: txToEdit.id, transaction: data })
+      await updateMutation.mutateAsync({
+        id: txToEdit.id,
+        recurrence: txToEdit.type,
+        updateData: data,
+      })
     } else {
       await createMutation.mutateAsync(data)
     }

@@ -1,31 +1,15 @@
 'use server'
 
-import { prisma } from '@/database/prisma'
-import { verifySession } from '@/lib/session'
+import * as z from 'zod'
+import { action, fail } from '@/lib/server-actions'
 
-export async function deleteCategory(id: number) {
-  const session = await verifySession()
-  if (!session) return
+const schema = z.object({
+  id: z.int().gt(0),
+})
 
-  const category = await prisma.category.findUnique({
-    where: {
-      id,
-    },
-  })
+export const deleteCategoryAction = action(schema, async (data, ctx) => {
+  const jwt = await ctx.requireAuth()
 
-  if (!category) {
-    console.error("couldn't find category")
-    return
-  }
-
-  if (category.user_id !== Number(session?.id)) {
-    console.error('wrong owner')
-    return
-  }
-
-  await prisma.category.delete({
-    where: {
-      id,
-    },
-  })
-}
+  const result = await ctx.repositories.categories.deleteForUser(jwt.id, data.id)
+  if (result === null) fail('CategoryNotFound')
+})

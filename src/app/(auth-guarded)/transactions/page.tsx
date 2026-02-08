@@ -1,5 +1,4 @@
-import { prisma } from '@/database/prisma'
-import { verifySession } from '@/lib/session'
+import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
 import { ClientComponent } from './client-component'
 
 export const metadata = {
@@ -7,17 +6,13 @@ export const metadata = {
 }
 
 export default async function Page() {
-  const session = await verifySession()
-  if (!session) return null
+  const ctx = buildDefaultContainer()
+  const userId = await ctx.userIdAsync
+  if (!userId) return null
+
+  const categories = await ctx.repositories.categories.list(userId)
 
   const now = new Date()
-  const [categories] = await Promise.all([
-    prisma.category.findMany({
-      where: {
-        user_id: session.id,
-      },
-    }),
-  ])
 
   return <ClientComponent now={now} categories={categories} />
 }

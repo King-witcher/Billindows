@@ -1,6 +1,4 @@
-import { CategoriesRepository } from '@/database/repositories/categories'
-import { TransactionsRepository } from '@/database/repositories/transactions'
-import { verifySession } from '@/lib/session'
+import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
 import { DashboardContent } from './dashboard-content'
 import { processDashboardData } from './helpers'
 
@@ -9,19 +7,19 @@ export const metadata = {
 }
 
 export default async function Page() {
-  const session = await verifySession()
-  if (!session) return null
-  const categoryRepo = new CategoriesRepository(session.id)
-  const transactionsRepo = new TransactionsRepository()
+  const deps = buildDefaultContainer()
+  const jwt = await deps.jwtAsync
 
-  const now = new Date()
-  const daysInTheMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-  const currentDay = now.getDate()
+  const categoriesRepo = deps.repositories.categories
+  const transactionsRepo = deps.repositories.transactions
+
+  const daysInTheMonth = new Date(deps.date.year, deps.date.month + 1, 0).getDate()
+  const currentDay = deps.date.day
   const monthProgress = currentDay / daysInTheMonth
 
   const [transactions, categories] = await Promise.all([
-    transactionsRepo.listAllTxs(session.id, now.getFullYear(), now.getMonth()),
-    categoryRepo.listCategories(),
+    transactionsRepo.listAllTxs(jwt.id, deps.date.year, deps.date.month),
+    categoriesRepo.list(jwt.id),
   ])
 
   const { fixed = [], 'one-time': oneTime = [] } = Object.groupBy(transactions, (tx) => tx.type)
@@ -42,8 +40,8 @@ export default async function Page() {
     'November',
     'December',
   ]
-  const currentMonth = monthNames[now.getMonth()]
-  const currentYear = now.getFullYear()
+  const currentMonth = monthNames[deps.date.month]
+  const currentYear = deps.date.year
 
   return (
     <DashboardContent

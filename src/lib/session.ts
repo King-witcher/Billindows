@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 const key = new TextEncoder().encode(process.env.JWT_SECRET)
 const COOKIE_NAME = 'session'
 
+/** @deprecated */
 export type JWTPaylaod = {
   id: number
   name: string
@@ -12,7 +13,7 @@ export type JWTPaylaod = {
   role: 'user'
 }
 
-export async function encryptJWT(payload: JWTPaylaod) {
+async function encryptJWT(payload: JWTPaylaod) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -20,7 +21,7 @@ export async function encryptJWT(payload: JWTPaylaod) {
     .sign(key)
 }
 
-export async function decryptJWT(session: string): Promise<JWTPaylaod | null> {
+async function decryptJWT(session: string): Promise<JWTPaylaod | null> {
   try {
     const { payload } = await jwtVerify(session, key, {
       algorithms: ['HS256'],
@@ -31,6 +32,7 @@ export async function decryptJWT(session: string): Promise<JWTPaylaod | null> {
   }
 }
 
+/** @deprecated */
 export async function createSession(payload: JWTPaylaod) {
   const expires = new Date(Date.now() + 1000 * 60 * 60 * 24)
   const session = await encryptJWT(payload)
@@ -45,6 +47,7 @@ export async function createSession(payload: JWTPaylaod) {
   })
 }
 
+/** @deprecated */
 export async function verifySession(): Promise<JWTPaylaod | null> {
   const cookieStore = await cookies()
   const cookie = cookieStore.get(COOKIE_NAME)?.value
@@ -54,11 +57,13 @@ export async function verifySession(): Promise<JWTPaylaod | null> {
   return session
 }
 
+/** @deprecated */
 export async function requireAuth(): Promise<void> {
   const session = await verifySession()
   if (!session) redirect('/login')
 }
 
+/** @deprecated */
 export async function deleteSession() {
   const cookieStore = await cookies()
   cookieStore.delete(COOKIE_NAME)

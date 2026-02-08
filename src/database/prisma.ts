@@ -7,5 +7,5 @@ const connectionString = `${process.env.POSTGRES_URL}`
 const adapter = new PrismaPg({ connectionString })
 export const prisma = new PrismaClient({
   adapter,
-  log: ['query', 'warn', 'error'],
+  log: ['warn', 'error'],
 })

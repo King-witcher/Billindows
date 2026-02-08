@@ -1,5 +1,4 @@
-import { prisma } from '@/database/prisma'
-import { verifySession } from '@/lib/session'
+import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
 import { ClientComponent } from './client-component'
 
 export const metadata = {
@@ -7,15 +6,9 @@ export const metadata = {
 }
 
 export default async function Page() {
-  const session = await verifySession()
+  const deps = buildDefaultContainer()
+  const jwt = await deps.requireAuth()
+  const categories = await deps.repositories.categories.list(jwt.id)
 
-  const results = await prisma.category
-    .findMany({
-      where: {
-        user_id: session!.id,
-      },
-    })
-    .then((results) => results.sort((a, b) => a.name.localeCompare(b.name)))
-
-  return <ClientComponent categories={results} />
+  return <ClientComponent initialCategories={categories} />
 }

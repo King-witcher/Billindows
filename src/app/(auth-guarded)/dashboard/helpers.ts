@@ -1,6 +1,4 @@
-import type { Category } from '@prisma/client'
 import type { Transaction } from '@/database/repositories/transactions'
-import type { ChartData } from './components/types'
 
 export type TarnsactionsSummary = {
   totalIncome: number

@@ -5,7 +5,7 @@ import type { ZodError } from 'zod'
 import { prisma } from '@/database/prisma'
 import { ActionError, withActionState } from '@/lib/action-state-management'
 import { createSession } from '@/lib/session'
-import { sanitize } from '@/utils/utils'
+import { sanitizeSpaces } from '@/utils/utils'
 import { SignUpError } from './_error'
 import { schema } from './schema'
 
@@ -42,7 +42,7 @@ export const signUp = withActionState(async (data: unknown) => {
   await createSession({
     email: user.email,
     id: user.id,
-    name: sanitize(user.name),
+    name: sanitizeSpaces(user.name),
     role: 'user',
   })
 })

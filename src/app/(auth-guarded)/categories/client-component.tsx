@@ -1,10 +1,8 @@
 'use client'
 
 import { Add } from '@mui/icons-material'
-// import { Button } from '@/components/atoms/button/button'
 import {
   Button,
-  Modal,
   Paper,
   Table,
   TableBody,
@@ -15,32 +13,45 @@ import {
   Typography,
 } from '@mui/material'
 import type { Category } from '@prisma/client'
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { createCategory } from './actions/create-category'
-import { editCategory } from './actions/edit-category'
+import { useUser } from '@/contexts/user-context'
+import { listCategoriesAction } from './actions/list-categories'
 import { CategoryRow } from './category-row'
-import { CategoryDialog } from './modals/category-dialog'
-import { DeleteCategoryDialog } from './modals/delete-category'
+import { CategoryDialog } from './dialogs/category-dialog'
+import { DeleteCategoryDialog } from './dialogs/delete-category-dialog'
 
 interface Props {
-  categories: Category[]
+  initialCategories: Category[]
 }
 
-export function ClientComponent({ categories: results }: Props) {
+export function ClientComponent({ initialCategories }: Props) {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
-  const [categoryToEdit, setCategoryToEdit] = useState<Category | undefined>()
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | undefined>()
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null)
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
+  const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false)
 
-  const categoryAction = categoryToEdit ? editCategory : createCategory
+  const user = useUser()
 
-  function handleClose() {
-    setCategoryDialogOpen(false)
-    setCategoryToEdit(undefined)
-    setCategoryToDelete(undefined)
-  }
+  const categoriesQuery = useQuery({
+    queryKey: ['categories', user.email],
+    queryFn: async () => listCategoriesAction(),
+    staleTime: Infinity,
+    initialData: initialCategories,
+  })
 
   function handleEdit(category: Category) {
     setCategoryToEdit(category)
+    setCategoryDialogOpen(true)
+  }
+
+  function handleDelete(category: Category) {
+    setCategoryToDelete(category)
+    setDeleteCategoryOpen(true)
+  }
+
+  function handleCreate() {
+    setCategoryToEdit(null)
     setCategoryDialogOpen(true)
   }
 
@@ -50,12 +61,7 @@ export function ClientComponent({ categories: results }: Props) {
         <Typography className="self-start" variant="h3" color="primary">
           Categories
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={() => setCategoryDialogOpen(true)}
-        >
+        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleCreate}>
           Add category
         </Button>
       </div>
@@ -72,9 +78,9 @@ export function ClientComponent({ categories: results }: Props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.map((category) => (
+            {categoriesQuery.data.map((category) => (
               <CategoryRow
-                onDelete={setCategoryToDelete}
+                onDelete={handleDelete}
                 onEdit={handleEdit}
                 key={category.id}
                 category={category}
@@ -83,12 +89,16 @@ export function ClientComponent({ categories: results }: Props) {
           </TableBody>
         </Table>
       </TableContainer>
-      <Modal onClose={handleClose} open={categoryDialogOpen}>
-        <CategoryDialog action={categoryAction} onClose={handleClose} category={categoryToEdit} />
-      </Modal>
-      <Modal open={!!categoryToDelete} onClose={handleClose}>
-        <DeleteCategoryDialog onClose={handleClose} category={categoryToDelete} />
-      </Modal>
+      <DeleteCategoryDialog
+        open={deleteCategoryOpen}
+        onOpenChange={setDeleteCategoryOpen}
+        category={categoryToDelete}
+      />
+      <CategoryDialog
+        isOpen={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+        categoryToEdit={categoryToEdit}
+      />
     </div>
   )
 }

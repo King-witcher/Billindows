@@ -1,24 +1,25 @@
+import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { AppNavbar } from '@/components/app-navbar/app-navbar'
 import { AssistantButton } from '@/components/organisms/assistant-button/assistant-button'
 import { ChatProvider } from '@/contexts/chat-context'
 import { UserProvider } from '@/contexts/user-context'
-import { verifySession } from '@/lib/session'
+import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
 
 interface Props {
   children: ReactNode
 }
 
 export default async function Layout(props: Props) {
-  const session = await verifySession()
-
-  if (!session) return null
+  const ctx = buildDefaultContainer()
+  const jwt = await ctx.authService.verifySession()
+  if (!jwt) redirect('/login')
 
   return (
     <UserProvider
       value={{
-        email: session.email,
-        name: session.name,
+        email: jwt.email,
+        name: jwt.name,
       }}
     >
       <ChatProvider>
