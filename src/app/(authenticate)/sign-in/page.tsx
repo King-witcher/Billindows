@@ -2,30 +2,36 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, TextField, Typography } from '@mui/material'
+import { useMutation } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useActionState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ActionState, ActionStateEnum } from '@/lib/action-state-management'
 import { getErrorMessage } from './_error'
-import { signIn } from './action'
-import { schema } from './schema'
+import { signInAction } from './action'
+import { type SignInPayload, schema } from './schema'
 
 export default function Page() {
-  const [state, action, pending] = useActionState(signIn, ActionState.idle())
   const search = useSearchParams()
   const referrer = search.get('referrer') ?? '/'
+
+  const signInMutation = useMutation({
+    mutationKey: ['signIn'],
+    mutationFn: signInAction,
+  })
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm({
     resolver: zodResolver(schema),
     mode: 'onBlur',
     reValidateMode: 'onChange',
   })
+
+  function onSubmit(data: SignInPayload) {
+    signInMutation.mutate(data)
+  }
 
   return (
     <>
@@ -34,7 +40,7 @@ export default function Page() {
       </Typography>
       <form
         className="w-full flex flex-col items-center gap-[20px] mt-[20px]"
-        onSubmit={handleSubmit(action)}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <input type="hidden" name="referrer" value={referrer} />
         <TextField
@@ -43,14 +49,14 @@ export default function Page() {
           fullWidth
           error={!!errors.email}
           helperText={errors.email?.message}
-          disabled={pending}
+          disabled={signInMutation.isPending}
           {...register('email')}
           required
         />
         <TextField
           label="Password"
           type="password"
-          disabled={pending}
+          disabled={signInMutation.isPending}
           error={!!errors.password}
           helperText={errors.password?.message}
           {...register('password')}
@@ -61,14 +67,14 @@ export default function Page() {
           type="submit"
           variant="contained"
           size="large"
-          disabled={pending}
+          disabled={signInMutation.isPending}
           fullWidth
         >
           Continue
         </Button>
-        {state.state === ActionStateEnum.Error && (
+        {signInMutation.isError && (
           <Typography color="error" fontSize="0.875rem" align="center" margin={0}>
-            {getErrorMessage(state.code)}
+            {getErrorMessage(signInMutation.error.message)}
           </Typography>
         )}
       </form>
@@ -80,7 +86,7 @@ export default function Page() {
         href="/sign-up"
         variant="outlined"
         size="large"
-        disabled={pending}
+        disabled={signInMutation.isPending}
         fullWidth
       >
         Create account

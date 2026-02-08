@@ -1,4 +1,4 @@
-import { CategoriesRepository, TransactionsRepository } from '@/database'
+import { CategoriesRepository, TransactionsRepository, UsersRepository } from '@/database'
 import { AuthService, type JWTPaylaod } from '../auth'
 import { Injector } from '../injector/injector2'
 
@@ -12,6 +12,7 @@ export type DependencyContainer = {
   repositories: {
     transactions: TransactionsRepository
     categories: CategoriesRepository
+    users: UsersRepository
   }
   authService: AuthService
   userIdAsync: Promise<number | null>
@@ -36,6 +37,7 @@ export function buildDefaultContainer(): DependencyContainer {
     repositories: {
       transactions: fromClass(TransactionsRepository),
       categories: fromClass(CategoriesRepository),
+      users: fromClass(UsersRepository),
     },
     authService: fromClass(AuthService),
     userIdAsync: factory(async ({ authService }) => {

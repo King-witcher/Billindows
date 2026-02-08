@@ -1,36 +1,27 @@
 'use server'
 
 import bcrypt from 'bcrypt'
-import { prisma } from '@/database/prisma'
-import { ActionError, withActionState } from '@/lib/action-state-management'
-import { createSession } from '@/lib/session'
+import { action, ClientError } from '@/lib/server-actions'
 import { SignInError } from './_error'
-import { type SignInPayload, schema } from './schema'
+import { schema } from './schema'
 
-export const signIn = withActionState(async (data: SignInPayload) => {
-  const body = await schema.parseAsync(data).catch(() => {
-    throw new ActionError(SignInError.InvalidFormData)
-  })
+class SignInException extends ClientError<SignInError> {}
 
-  const user = await prisma.user.findUnique({
-    where: {
-      email: body.email,
-    },
-  })
-
+export const signInAction = action(schema, async (data, ctx) => {
+  const user = await ctx.repositories.users.findByEmail(data.email)
   if (!user) {
-    // Pretend to validate something to avoid user enumeration
-    await bcrypt.compare(body.password, `$2b$10$${'0'.repeat(60)}`)
-    throw new ActionError(SignInError.InvalidCredentials)
+    // Perform a dummy bcrypt comparison to mitigate timing attacks for non-existent users
+    await bcrypt.compare(data.password, `$2b$10$${'0'.repeat(60)}`)
+    throw new SignInException(SignInError.InvalidCredentials)
   }
 
-  if (!(await bcrypt.compare(body.password, user.password_digest)))
-    throw new ActionError(SignInError.InvalidCredentials)
+  if (!(await bcrypt.compare(data.password, user.password_digest)))
+    throw new SignInException(SignInError.InvalidCredentials)
 
-  await createSession({
+  await ctx.authService.createSession({
     email: user.email,
     id: user.id,
-    name: user.name,
     role: 'user',
+    name: user.name,
   })
 })
