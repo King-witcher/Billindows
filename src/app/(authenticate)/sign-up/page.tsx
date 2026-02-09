@@ -38,8 +38,7 @@ function getPasswordStrength(password: string): {
   if (/\d/.test(password)) score++
   if (/[^a-zA-Z0-9]/.test(password)) score++
 
-  const label =
-    score <= 1 ? 'Weak' : score <= 2 ? 'Fair' : score <= 3 ? 'Good' : 'Strong'
+  const label = score <= 1 ? 'Weak' : score <= 2 ? 'Fair' : score <= 3 ? 'Good' : 'Strong'
 
   return { score, label }
 }
@@ -83,18 +82,12 @@ export default function Page() {
         </div>
         <div>
           <CardTitle className="text-2xl">Create account</CardTitle>
-          <CardDescription className="mt-1.5">
-            Get started managing your finances
-          </CardDescription>
+          <CardDescription className="mt-1.5">Get started managing your finances</CardDescription>
         </div>
       </CardHeader>
 
       <CardContent className="pt-4">
-        <form
-          id="sign-up-form"
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form id="sign-up-form" className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
           <input type="hidden" name="referrer" value={referrer} />
 
           <Field>

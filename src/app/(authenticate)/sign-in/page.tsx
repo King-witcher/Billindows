@@ -8,7 +8,14 @@ import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Separator } from '@/components/ui/separator'
@@ -49,18 +56,12 @@ export default function Page() {
         </div>
         <div>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription className="mt-1.5">
-            Sign in to your account to continue
-          </CardDescription>
+          <CardDescription className="mt-1.5">Sign in to your account to continue</CardDescription>
         </div>
       </CardHeader>
 
       <CardContent className="pt-4">
-        <form
-          id="sign-in-form"
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form id="sign-in-form" className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
           <input type="hidden" name="referrer" value={referrer} />
 
           <Field>
@@ -142,9 +143,7 @@ export default function Page() {
             or
           </span>
         </div>
-        <div className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?
-        </div>
+        <div className="text-center text-sm text-muted-foreground">Don&apos;t have an account?</div>
         <Button asChild variant="outline" className="w-full">
           <Link href="/sign-up">Create account</Link>
         </Button>

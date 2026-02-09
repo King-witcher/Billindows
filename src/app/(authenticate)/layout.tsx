@@ -19,9 +19,7 @@ export default async function Layout(props: Props) {
         <div className="absolute -right-1/4 -bottom-1/4 size-125 rounded-full bg-primary/8 blur-3xl" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
-        {props.children}
-      </div>
+      <div className="relative z-10 w-full max-w-md">{props.children}</div>
     </div>
   )
 }
