@@ -1,20 +1,16 @@
 'use client'
 
-import AddIcon from '@mui/icons-material/Add'
-import { Checkbox, ListItemText } from '@mui/material'
-import Button from '@mui/material/Button'
-import MenuItem from '@mui/material/MenuItem'
-import Select, { type SelectChangeEvent } from '@mui/material/Select'
-import Typography from '@mui/material/Typography'
 import type { Category } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import type { Transaction } from '@/database'
+import type { Transaction } from '@/database/repositories/transactions'
 import { listTxs } from './actions'
 import { DeleteTxForm } from './modals/delete-tx-form'
 import { TxDialog } from './modals/tx-dialog'
-import { TxTable } from './tx-table'
+import { TransactionList } from './transaction-list'
+import { TransactionSummary } from './transaction-summary'
+import { TransactionToolbar } from './transaction-toolbar'
 
 interface Props {
   categories: Category[]
@@ -27,7 +23,8 @@ export function ClientComponent({ categories, now }: Props) {
   const [txToDelete, setTxToDelete] = useState<Transaction | null>(null)
   const [txToEdit, setTxToEdit] = useState<Transaction | undefined>()
   const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
-  const [includeFilter, setIncludeFilter] = useState<string[]>([])
+  const [showFuture, setShowFuture] = useState(false)
+  const [showFixed, setShowFixed] = useState(false)
 
   const txQuery = useQuery({
     queryKey: ['transactions'],
@@ -36,40 +33,24 @@ export function ClientComponent({ categories, now }: Props) {
     },
   })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: explained
   const filteredTransactions = useMemo(() => {
     let result = txQuery.data
     if (!result) return []
 
-    // Filter by category
     if (categoriesFilter.length !== 0) {
-      result = result.filter((transaction) => categoriesFilter.includes(transaction.category_id))
+      result = result.filter((tx) => categoriesFilter.includes(tx.category_id))
     }
 
-    // Filter by future
-    if (!includeFilter.includes('show-future')) {
-      result = result.filter((transaction) => {
-        return transaction.day <= now.getDate()
-      })
+    if (!showFuture) {
+      result = result.filter((tx) => tx.day <= now.getDate())
     }
 
-    // Filter by fixed
-    if (!includeFilter.includes('show-fixed')) {
-      result = result.filter((transaction) => transaction.type !== 'fixed')
+    if (!showFixed) {
+      result = result.filter((tx) => tx.type !== 'fixed')
     }
 
     return result
-  }, [txQuery.data, categoriesFilter, includeFilter.join(',')])
-
-  function handleChangeCategoriesFilter(e: SelectChangeEvent<number[]>) {
-    const value = e.target.value as number[]
-    setCategoriesFilter(value)
-  }
-
-  function handleChnageIncludeFilter(e: SelectChangeEvent<string[]>) {
-    const value = e.target.value as string[]
-    setIncludeFilter(value)
-  }
+  }, [txQuery.data, categoriesFilter, showFuture, showFixed, now])
 
   function handleOpenCreateModal() {
     setTxToEdit(undefined)
@@ -81,74 +62,41 @@ export function ClientComponent({ categories, now }: Props) {
     setTxModalOpen(true)
   }
 
-  function onClickDelete(tx: Transaction) {
+  function handleClickDelete(tx: Transaction) {
     setTxToDelete(tx)
     setDeleteTxDialogOpen(true)
   }
 
   return (
-    <div className="p-[20px] flex flex-col gap-[20px] h-full">
-      <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[20px] w-full ml-auto">
-        <Typography className="self-start text-3xl! md:text-5xl!" variant="h3" color="primary">
-          Transactions
-        </Typography>
-        <div className="flex items-center gap-[20px]">
-          <Select
-            size="small"
-            value={includeFilter}
-            displayEmpty
-            multiple
-            onChange={handleChnageIncludeFilter}
-            renderValue={() => 'Include'}
-          >
-            <MenuItem value="show-future">
-              <Checkbox size="small" checked={includeFilter.includes('show-future')} />
-              <ListItemText primary="Future" />
-            </MenuItem>
-            <MenuItem value="show-fixed">
-              <Checkbox size="small" checked={includeFilter.includes('show-fixed')} />
-              <ListItemText primary="Fixed" />
-            </MenuItem>
-          </Select>
-          <Select
-            size="small"
-            value={categoriesFilter}
-            displayEmpty
-            onChange={handleChangeCategoriesFilter}
-            multiple
-            renderValue={(selected) => {
-              if (selected.length === 0) return 'All categories'
-              if (selected.length === 1) {
-                const category = categories.find((category) => category.id === selected[0])
-                return category ? category.name : ''
-              }
-              return `${selected.length} categories`
-            }}
-          >
-            {categories.map((category) => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </Select>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={handleOpenCreateModal}
-          >
-            New transaction
-          </Button>
-        </div>
+    <div className="flex h-full flex-col gap-4 p-4 sm:p-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Transactions</h1>
+        <TransactionSummary transactions={filteredTransactions} />
+        <TransactionToolbar
+          categories={categories}
+          categoriesFilter={categoriesFilter}
+          onCategoriesFilterChange={setCategoriesFilter}
+          showFuture={showFuture}
+          onShowFutureChange={setShowFuture}
+          showFixed={showFixed}
+          onShowFixedChange={setShowFixed}
+          onCreateClick={handleOpenCreateModal}
+        />
       </div>
 
-      <TxTable
-        transactions={filteredTransactions}
-        categories={categories}
-        onDeleteClick={onClickDelete}
-        onEdit={handleClickEdit}
-      />
+      {/* Transaction list */}
+      <div className="flex-1 overflow-y-auto -mx-4 px-4 sm:-mx-6 sm:px-6">
+        <TransactionList
+          transactions={filteredTransactions}
+          categories={categories}
+          now={now}
+          onEdit={handleClickEdit}
+          onDelete={handleClickDelete}
+        />
+      </div>
 
+      {/* Dialogs */}
       <TxDialog open={txModalOpen} onOpenChange={setTxModalOpen} txToEdit={txToEdit} />
       <Dialog open={deleteTxDialogOpen} onOpenChange={setDeleteTxDialogOpen}>
         <DialogContent>
