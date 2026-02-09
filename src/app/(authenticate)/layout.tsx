@@ -1,6 +1,6 @@
-import { Paper } from '@mui/material'
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
+import { Card } from '@/components/ui/card'
 import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
 
 interface Props {
@@ -13,10 +13,10 @@ export default async function Layout(props: Props) {
   if (session) redirect('/')
 
   return (
-    <div className="w-dvw h-dvh flex items-center justify-center p-[20px]">
-      <Paper className="p-[40px] w-[380px] max-w-full flex flex-col gap-[20px] items-center">
+    <div className="w-dvw h-dvh flex items-center justify-center p-5">
+      <Card className="p-10 w-95 max-w-full flex flex-col gap-5 items-center">
         {props.children}
-      </Paper>
+      </Card>
     </div>
   )
 }
