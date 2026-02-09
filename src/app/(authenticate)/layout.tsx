@@ -1,14 +1,15 @@
 import { Paper } from '@mui/material'
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { verifySession } from '@/lib/session'
+import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
 
 interface Props {
   children: ReactNode
 }
 
 export default async function Layout(props: Props) {
-  const session = await verifySession()
+  const ctx = buildDefaultContainer()
+  const session = await ctx.authService.verifySession()
   if (session) redirect('/')
 
   return (

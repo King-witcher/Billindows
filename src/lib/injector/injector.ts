@@ -1,56 +1,116 @@
 export namespace Injector {
-  class FactoryInjector<TContext, TProperty> {
-    constructor(readonly factory: (context: TContext) => TProperty) {}
+  export type ContainerOptions = {
+    debugInstanceCreation?: boolean
   }
 
-  type PropertyInjectorDef<TContext, TProperty> = {
-    durable: false
-    factory: (context: TContext) => TProperty
-  }
+  export function container<T extends Record<string, any>>(params: ContainerDefinition<T>): T {
+    type QueueEntry = {
+      /** Object from which we will read the injector definitions */
+      source: Record<string, any>
+      /** Object on which we will define the properties with getters */
+      target: Record<string, unknown>
+    }
 
-  export type InjectorParams<TContext> = {
-    [TProp in keyof TContext]: PropertyInjectorDef<TContext, TContext[TProp]>
-  }
+    const container = {} as T
 
-  type InjectorEntry<TCtx, TKey extends keyof TCtx> = [TKey, PropertyInjectorDef<TCtx, TCtx[TKey]>]
+    const queue: QueueEntry[] = [
+      {
+        source: params,
+        target: container,
+      },
+    ]
 
-  export function root<TContext extends object>(
-    params: InjectorParams<TContext>,
-  ): Readonly<TContext> {
-    const result = {} as TContext
-    for (const entry of Object.entries(params)) {
-      const [prop, propInjector] = entry as InjectorEntry<TContext, keyof TContext>
-      let ctxPropValue: TContext[typeof prop] | null = null
-
-      Object.defineProperty(result, prop, {
-        get: () => {
-          if (ctxPropValue === null) {
-            console.log(`Injecting property "${String(prop)}"...`)
-            ctxPropValue = propInjector.factory(result as TContext)
+    for (const { source, target } of queue) {
+      for (const [propKey, sourcePropValue] of Object.entries(source)) {
+        if (sourcePropValue instanceof PropInjector) {
+          Object.defineProperty(target, propKey, {
+            get: () => sourcePropValue.getInstance(container),
+          })
+        } else if (typeof sourcePropValue === 'object' && sourcePropValue !== null) {
+          const newTarget = {}
+          target[propKey] = newTarget
+          const queueEntry: QueueEntry = {
+            source: sourcePropValue,
+            target: newTarget,
           }
-          return ctxPropValue
-        },
-      })
+          queue.push(queueEntry)
+        } else {
+          Object.defineProperty(target, propKey, {
+            writable: false,
+            value: sourcePropValue,
+          })
+        }
+      }
     }
-    return result as Readonly<TContext>
+
+    return container as T
   }
 
-  export function nested<TContext, TNested>(params: InjectorParams<TNested>) {}
+  export function factory<TContext, TProp>(
+    factory: (context: TContext) => TProp,
+  ): FactoryInjector<TContext, TProp> {
+    return new FactoryInjector(factory)
+  }
 
-  export function factory<TContext, T>(
-    factory: (context: TContext) => T,
-  ): PropertyInjectorDef<TContext, T> {
-    return {
-      durable: false,
-      factory,
+  export function fromClass<T>(Class: new () => T): ClassInjector<unknown, T> {
+    return new ClassInjector(Class)
+  }
+
+  export function instance<T>(instance: T): InstanceInjector<unknown, T> {
+    return new InstanceInjector(instance)
+  }
+
+  type Factory<TContext, TProperty> = (context: TContext) => TProperty
+
+  type InjectorMap<TRoot, TCurrent> = {
+    [TPropKey in keyof TCurrent]:
+      | InjectorMap<TRoot, TCurrent[TPropKey]>
+      | PropInjector<TRoot, TCurrent[TPropKey]>
+  }
+
+  type ContainerDefinition<TContext> = InjectorMap<TContext, TContext>
+
+  abstract class PropInjector<TContext, TProperty> {
+    abstract getInstance(ctx: TContext, options?: ContainerOptions): TProperty
+  }
+
+  class FactoryInjector<TContext, TProperty> extends PropInjector<TContext, TProperty> {
+    private _instance: TProperty | null = null
+
+    constructor(private readonly factory: Factory<TContext, TProperty>) {
+      super()
+    }
+
+    getInstance(ctx: TContext): TProperty {
+      if (this._instance === null) {
+        this._instance = this.factory(ctx)
+      }
+      return this._instance
     }
   }
 
-  export function fromClass<T>(Class: new () => T): PropertyInjectorDef<unknown, T> {
-    return factory(() => new Class())
+  class InstanceInjector<TContext, TProperty> extends PropInjector<TContext, TProperty> {
+    constructor(private readonly instance: TProperty) {
+      super()
+    }
+
+    getInstance(): TProperty {
+      return this.instance
+    }
   }
 
-  export function instance<T>(instance: T): PropertyInjectorDef<unknown, T> {
-    return factory(() => instance)
+  class ClassInjector<TContext, TProperty> extends PropInjector<TContext, TProperty> {
+    private _instance: TProperty | null = null
+
+    constructor(private readonly Class: new () => TProperty) {
+      super()
+    }
+
+    getInstance(): TProperty {
+      if (this._instance === null) {
+        this._instance = new this.Class()
+      }
+      return this._instance
+    }
   }
 }

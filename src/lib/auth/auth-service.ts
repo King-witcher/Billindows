@@ -1,6 +1,6 @@
 import { jwtVerify, SignJWT } from 'jose'
 import { cookies } from 'next/headers'
-import { fail } from '../server-actions'
+import { fail } from '../server-actions/errors'
 
 const COOKIE_NAME = 'session'
 const COOKIE_LIFESPAN = 1000 * 60 * 60 * 24 // 1 day

@@ -1,6 +1,6 @@
 import { CategoriesRepository, TransactionsRepository, UsersRepository } from '@/database'
 import { AuthService, type JWTPaylaod } from '../auth'
-import { Injector } from '../injector/injector2'
+import { Injector } from '../injector/injector'
 
 import fromClass = Injector.fromClass
 import factory = Injector.factory

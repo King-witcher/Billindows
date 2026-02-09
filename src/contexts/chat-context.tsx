@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createContext, type ReactNode, use, useState } from 'react'
-import { callAgent } from './actions'
+import { callAgentAction } from './actions'
 
 export type Message = {
   role: 'user' | 'assistant' | 'internal'
@@ -30,7 +30,7 @@ export function ChatProvider({ children }: Props) {
   const callAgentMutation = useMutation({
     mutationKey: ['call-agent'],
     mutationFn: async (message: string) => {
-      return await callAgent(messages.slice(-20), message)
+      return await callAgentAction({ history: messages.slice(-20), input: message })
     },
     onMutate: async (message: string) => {
       const newMessage: Message = {
@@ -41,18 +41,15 @@ export function ChatProvider({ children }: Props) {
       setMessages((prev) => [...prev, newMessage])
     },
     onSuccess: async (response) => {
-      if (response.success) {
-        const assistantMessage: Message = {
-          role: 'assistant',
-          content: response.text,
-          sentAt: new Date(),
-        }
-        setMessages((prev) => [...prev, assistantMessage])
-        if (response.invalidate.transactions) {
-          client.refetchQueries({ queryKey: ['transactions'] })
-        }
-      } else {
-        console.error('Error handling user message:', response.error)
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: response.text,
+        sentAt: new Date(),
+      }
+
+      setMessages((prev) => [...prev, assistantMessage])
+      if (response.invalidate.transactions) {
+        client.refetchQueries({ queryKey: ['transactions'] })
       }
     },
     onError: async (error) => {

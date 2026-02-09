@@ -2,7 +2,6 @@
 
 import type { Category } from '@prisma/client'
 import { useMemo, useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CategoryBarChart, CategoryTable, type ChartData } from './components'
 import { CategoryPieChart } from './components/category-pie'
 import { DashboardSummary } from './components/dashboard-summary'
