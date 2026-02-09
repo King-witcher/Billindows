@@ -286,7 +286,7 @@ export class TransactionsRepository {
         ? await prisma.$queryRaw`
             SELECT c.user_id
             FROM categories c
-            JOIN ${'fixed_txs'} t
+            JOIN fixed_txs t
                 ON c.id = t.category_id
             WHERE t.id = ${id}
         `
