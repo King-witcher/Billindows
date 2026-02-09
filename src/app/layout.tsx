@@ -27,8 +27,8 @@ export default function RootLayout({
     <html lang="en-US">
       <Analytics />
       <SpeedInsights />
-      <Toaster position="top-center" />
       <body className={`${roboto.variable} antialiased bg-gray-100`}>
+        <Toaster position="top-center" />
         <Providers>{children}</Providers>
       </body>
     </html>

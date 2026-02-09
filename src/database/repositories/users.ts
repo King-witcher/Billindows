@@ -10,7 +10,7 @@ export class UsersRepository {
     })
   }
 
-  async create(data: Omit<User, 'id' | 'create_date'>): Promise<User> {
+  async create(data: Omit<User, 'id' | 'created_at'>): Promise<User> {
     return prisma.user.create({
       data,
     })

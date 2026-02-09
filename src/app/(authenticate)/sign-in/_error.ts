@@ -10,6 +10,6 @@ export function getErrorMessage(error: string) {
     case SignInError.InvalidCredentials:
       return 'The provided credentials are invalid. Please check your email and password and try again.'
     default:
-      return 'An unknown error occurred. Please contact Giuseppe and try again later.'
+      return 'Supabase has spun down due to inactivity. Please, contact Giuseppe so he can restart it.'
   }
 }

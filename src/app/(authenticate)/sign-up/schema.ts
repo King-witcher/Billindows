@@ -24,3 +24,5 @@ export const schema = z
       })
     }
   })
+
+export type SignUpPayload = z.infer<typeof schema>

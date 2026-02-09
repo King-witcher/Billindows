@@ -1,48 +1,32 @@
 'use server'
 
 import bcrypt from 'bcrypt'
-import type { ZodError } from 'zod'
-import { prisma } from '@/database/prisma'
-import { ActionError, withActionState } from '@/lib/action-state-management'
-import { createSession } from '@/lib/session'
+import { action, ClientError } from '@/lib/server-actions'
 import { sanitizeSpaces } from '@/utils/utils'
 import { SignUpError } from './_error'
 import { schema } from './schema'
 
-export const signUp = withActionState(async (data: unknown) => {
-  const body = await schema.parseAsync(data).catch((e: ZodError) => {
-    console.error(e)
-    throw new ActionError(SignUpError.InvalidFormData)
-  })
+class SignUpException extends ClientError<SignUpError> {}
 
-  // Check if the password and password confirmation match
-  if (body.password !== body.passwordConfirmation) {
-    throw new ActionError(SignUpError.PasswordsDoNotMatch)
+export const signUpAction = action(schema, async (data, ctx) => {
+  // TODO: This should be handled by the client
+  if (data.password !== data.passwordConfirmation) {
+    throw new SignUpException(SignUpError.PasswordsDoNotMatch)
   }
 
-  // Check if a user with this email already exists
-  {
-    const user = await prisma.user.findUnique({
-      where: { email: body.email },
-      select: { id: true },
-    })
+  const user = await ctx.repositories.users.findByEmail(data.email)
+  if (user) throw new SignUpException(SignUpError.EmailAlreadyInUse)
 
-    if (user) throw new ActionError(SignUpError.EmailAlreadyInUse)
-  }
-
-  // Create the user
-  const user = await prisma.user.create({
-    data: {
-      email: body.email,
-      name: body.name,
-      password_digest: bcrypt.hashSync(body.password, 10),
-    },
+  const newUser = await ctx.repositories.users.create({
+    email: data.email,
+    name: data.name,
+    password_digest: bcrypt.hashSync(data.password, 10),
   })
 
-  await createSession({
-    email: user.email,
-    id: user.id,
-    name: sanitizeSpaces(user.name),
+  await ctx.authService.createSession({
+    email: newUser.email,
+    id: newUser.id,
+    name: sanitizeSpaces(newUser.name),
     role: 'user',
   })
 })

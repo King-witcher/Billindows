@@ -74,7 +74,7 @@ export default function Page() {
         </Button>
         {signInMutation.isError && (
           <Typography color="error" fontSize="0.875rem" align="center" margin={0}>
-            {getErrorMessage(signInMutation.error.message)}
+            {getErrorMessage(signInMutation.error.name)}
           </Typography>
         )}
       </form>

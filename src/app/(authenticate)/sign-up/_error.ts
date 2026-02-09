@@ -9,10 +9,10 @@ export function getErrorMessage(error: string) {
     case SignUpError.InvalidFormData:
       return 'The provided form data is invalid. Please check your input and try again.'
     case SignUpError.EmailAlreadyInUse:
-      return 'The provided email is already in use. Please use a different email or sign in.'
+      return 'The provided email is already in use. Please use a different email or contact Giuseppe for recovery.'
     case SignUpError.PasswordsDoNotMatch:
       return 'The provided passwords do not match. Please check your input and try again.'
     default:
-      return 'An unknown error occurred. Please contact Giuseppe and try again later.'
+      return 'Supabase has spun down due to inactivity. Please, contact Giuseppe so he can restart it.'
   }
 }
