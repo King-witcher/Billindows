@@ -73,7 +73,7 @@ export function TransactionToolbar({
               {categoriesFilter.length === 0
                 ? 'All categories'
                 : categoriesFilter.length === 1
-                  ? categories.find((c) => c.id === categoriesFilter[0])?.name ?? '1 category'
+                  ? (categories.find((c) => c.id === categoriesFilter[0])?.name ?? '1 category')
                   : `${categoriesFilter.length} categories`}
             </span>
           </Button>
