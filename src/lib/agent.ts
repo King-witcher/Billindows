@@ -1,8 +1,4 @@
-import type {
-  Tool as OpenAITool,
-  Response,
-  ResponseInput,
-} from 'openai/resources/responses/responses.mjs'
+import type { Tool as OpenAITool, ResponseInput } from 'openai/resources/responses/responses.mjs'
 import type { ResponsesModel } from 'openai/resources/shared.mjs'
 import * as zod from 'zod'
 import { openai } from './openai'

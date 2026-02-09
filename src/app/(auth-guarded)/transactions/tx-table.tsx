@@ -12,14 +12,14 @@ import {
 } from '@mui/material'
 import type { Category } from '@prisma/client'
 import { type ChangeEvent, Fragment, useMemo, useState } from 'react'
-import type { TxDto } from '@/utils/queries/get-one-time-txs'
+import type { Transaction } from '@/database'
 import { TxRow } from './tx-row'
 
 interface Props {
-  transactions: TxDto[]
+  transactions: Transaction[]
   categories: Category[]
-  onDeleteClick: (tx: TxDto) => void
-  onEdit: (tx: TxDto) => void
+  onDeleteClick: (tx: Transaction) => void
+  onEdit: (tx: Transaction) => void
 }
 const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 

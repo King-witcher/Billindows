@@ -10,13 +10,13 @@ import Typography from '@mui/material/Typography'
 import type { Category } from '@prisma/client'
 import type { MouseEvent } from 'react'
 import { Badge } from '@/components/atoms/badge'
-import type { TxDto } from '@/utils/queries/get-one-time-txs'
+import type { Transaction } from '@/database'
 
 interface Props {
-  transaction: TxDto
+  transaction: Transaction
   category: Category
-  onEdit: (tx: TxDto) => void
-  onDelete: (tx: TxDto) => void
+  onEdit: (tx: Transaction) => void
+  onDelete: (tx: Transaction) => void
 }
 
 export function TxRow({ transaction, category, onDelete, onEdit }: Props) {

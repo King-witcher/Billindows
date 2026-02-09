@@ -70,9 +70,9 @@
     },
 
     {
-      "label": "biome check --write",
+      "label": "biome check src --write",
       "type": "shell",
-      "command": "npx biome check --write",
+      "command": "npx biome check src --write",
       "group": "build"
     },
 
@@ -82,7 +82,7 @@
         "kind": "build",
         "isDefault": true
       },
-      "dependsOn": ["npm run build", "biome check --write"],
+      "dependsOn": ["npm run build", "biome check src --write"],
       "dependsOrder": "parallel"
     }
   ]

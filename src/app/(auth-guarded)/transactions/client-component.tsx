@@ -10,7 +10,7 @@ import type { Category } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import type { TxDto } from '@/utils/queries/get-one-time-txs'
+import type { Transaction } from '@/database'
 import { listTxs } from './actions'
 import { DeleteTxForm } from './modals/delete-tx-form'
 import { TxDialog } from './modals/tx-dialog'
@@ -24,8 +24,8 @@ interface Props {
 export function ClientComponent({ categories, now }: Props) {
   const [txModalOpen, setTxModalOpen] = useState(false)
   const [deleteTxDialogOpen, setDeleteTxDialogOpen] = useState(false)
-  const [txToDelete, setTxToDelete] = useState<TxDto | null>(null)
-  const [txToEdit, setTxToEdit] = useState<TxDto | undefined>()
+  const [txToDelete, setTxToDelete] = useState<Transaction | null>(null)
+  const [txToEdit, setTxToEdit] = useState<Transaction | undefined>()
   const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
   const [includeFilter, setIncludeFilter] = useState<string[]>([])
 
@@ -76,12 +76,12 @@ export function ClientComponent({ categories, now }: Props) {
     setTxModalOpen(true)
   }
 
-  function handleClickEdit(tx: TxDto) {
+  function handleClickEdit(tx: Transaction) {
     setTxToEdit(tx)
     setTxModalOpen(true)
   }
 
-  function onClickDelete(tx: TxDto) {
+  function onClickDelete(tx: Transaction) {
     setTxToDelete(tx)
     setDeleteTxDialogOpen(true)
   }
