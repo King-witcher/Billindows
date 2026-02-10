@@ -2,6 +2,7 @@
 
 import type { Category } from '@prisma/client'
 import { Filter, Plus, SlidersHorizontal } from 'lucide-react'
+import { useMemo } from 'react'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,7 +22,23 @@ interface Props {
   onShowFutureChange: (show: boolean) => void
   showFixed: boolean
   onShowFixedChange: (show: boolean) => void
+  showOneTime: boolean
+  onShowOneTimeChange: (show: boolean) => void
+  showForecasted: boolean
+  onShowForecastedChange: (show: boolean) => void
+  showNotForecasted: boolean
+  onShowNotForecastedChange: (show: boolean) => void
+  showIncome: boolean
+  onShowIncomeChange: (show: boolean) => void
+  showExpenses: boolean
+  onShowExpensesChange: (show: boolean) => void
   onCreateClick: () => void
+}
+
+type FilterOption = {
+  label: string
+  value: boolean
+  onChange: (show: boolean) => void
 }
 
 export function TransactionToolbar({
@@ -32,6 +49,16 @@ export function TransactionToolbar({
   onShowFutureChange,
   showFixed,
   onShowFixedChange,
+  showOneTime,
+  onShowOneTimeChange,
+  showForecasted,
+  onShowForecastedChange,
+  showNotForecasted,
+  onShowNotForecastedChange,
+  showIncome,
+  onShowIncomeChange,
+  showExpenses,
+  onShowExpensesChange,
   onCreateClick,
 }: Props) {
   function toggleCategory(id: number) {
@@ -59,8 +86,37 @@ export function TransactionToolbar({
             <DropdownMenuCheckboxItem checked={showFuture} onCheckedChange={onShowFutureChange}>
               Future transactions
             </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem checked={showFixed} onCheckedChange={onShowFixedChange}>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+              checked={showFixed}
+              onCheckedChange={(e) => {
+                onShowFixedChange(e)
+              }}
+            >
               Fixed transactions
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem checked={showOneTime} onCheckedChange={onShowOneTimeChange}>
+              One-time transactions
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+              checked={showForecasted}
+              onCheckedChange={onShowForecastedChange}
+            >
+              Forecasted transactions
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={showNotForecasted}
+              onCheckedChange={onShowNotForecastedChange}
+            >
+              Not forecasted transactions
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem checked={showIncome} onCheckedChange={onShowIncomeChange}>
+              Income transactions
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem checked={showExpenses} onCheckedChange={onShowExpensesChange}>
+              Expenses transactions
             </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>

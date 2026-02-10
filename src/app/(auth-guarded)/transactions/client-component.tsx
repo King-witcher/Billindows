@@ -4,6 +4,7 @@ import type { Category } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { useUser } from '@/contexts/user-context'
 import type { Transaction } from '@/database/repositories/transactions'
 import { listTxs } from './actions'
 import { DeleteTxForm } from './dialogs/delete-tx-form'
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function ClientComponent({ categories, now }: Props) {
+  const user = useUser()
   const [txModalOpen, setTxModalOpen] = useState(false)
   const [deleteTxDialogOpen, setDeleteTxDialogOpen] = useState(false)
   const [txToDelete, setTxToDelete] = useState<Transaction | null>(null)
@@ -25,32 +27,47 @@ export function ClientComponent({ categories, now }: Props) {
   const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
   const [showFuture, setShowFuture] = useState(false)
   const [showFixed, setShowFixed] = useState(false)
+  const [showOneTime, setShowOneTime] = useState(true)
+  const [showForecasted, setShowForecasted] = useState(true)
+  const [showNotForecasted, setShowNotForecasted] = useState(true)
+  const [showIncome, setShowIncome] = useState(true)
+  const [showExpenses, setShowExpenses] = useState(true)
 
   const txQuery = useQuery({
-    queryKey: ['transactions'],
+    queryKey: ['transactions', user.email],
     queryFn: async () => {
       return listTxs({ now })
     },
   })
 
   const filteredTransactions = useMemo(() => {
-    let result = txQuery.data
-    if (!result) return []
+    const result = txQuery.data?.filter((tx) => {
+      if (categoriesFilter.length > 0 && !categoriesFilter.includes(tx.category_id)) return false
+      if (!showFuture && tx.day > now.getDate()) return false
 
-    if (categoriesFilter.length !== 0) {
-      result = result.filter((tx) => categoriesFilter.includes(tx.category_id))
-    }
+      if (!showFixed && tx.type === 'fixed') return false
+      if (!showOneTime && tx.type === 'one-time') return false
 
-    if (!showFuture) {
-      result = result.filter((tx) => tx.day <= now.getDate())
-    }
+      if (!showForecasted && tx.forecast) return false
+      if (!showNotForecasted && !tx.forecast) return false
 
-    if (!showFixed) {
-      result = result.filter((tx) => tx.type !== 'fixed')
-    }
-
+      if (!showIncome && tx.value > 0) return false
+      if (!showExpenses && tx.value < 0) return false
+      return true
+    })
     return result
-  }, [txQuery.data, categoriesFilter, showFuture, showFixed, now])
+  }, [
+    txQuery.data,
+    categoriesFilter,
+    showFuture,
+    showFixed,
+    showOneTime,
+    showForecasted,
+    showNotForecasted,
+    showIncome,
+    showExpenses,
+    now,
+  ])
 
   function handleOpenCreateModal() {
     setTxToEdit(undefined)
@@ -80,20 +97,34 @@ export function ClientComponent({ categories, now }: Props) {
           onShowFutureChange={setShowFuture}
           showFixed={showFixed}
           onShowFixedChange={setShowFixed}
+          showOneTime={showOneTime}
+          onShowOneTimeChange={setShowOneTime}
+          showForecasted={showForecasted}
+          onShowForecastedChange={setShowForecasted}
+          showNotForecasted={showNotForecasted}
+          onShowNotForecastedChange={setShowNotForecasted}
+          showIncome={showIncome}
+          onShowIncomeChange={setShowIncome}
+          showExpenses={showExpenses}
+          onShowExpensesChange={setShowExpenses}
           onCreateClick={handleOpenCreateModal}
         />
-        <TransactionSummary transactions={filteredTransactions} className="hidden sm:flex" />
+        {filteredTransactions && (
+          <TransactionSummary transactions={filteredTransactions} className="hidden sm:flex" />
+        )}
       </div>
 
       <div className="lg:flex-1 lg:-mr-6 lg:pr-6 lg:overflow-y-auto lg:relative">
         {/* Transaction list */}
-        <TransactionList
-          transactions={filteredTransactions}
-          categories={categories}
-          now={now}
-          onEdit={handleClickEdit}
-          onDelete={handleClickDelete}
-        />
+        {filteredTransactions && (
+          <TransactionList
+            transactions={filteredTransactions}
+            categories={categories}
+            now={now}
+            onEdit={handleClickEdit}
+            onDelete={handleClickDelete}
+          />
+        )}
       </div>
 
       {/* Dialogs */}
