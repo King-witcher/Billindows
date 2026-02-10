@@ -1,16 +1,16 @@
 'use client'
 
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react'
-import { useMemo } from 'react'
+import { type ComponentProps, useMemo } from 'react'
 import type { Transaction } from '@/database/repositories/transactions'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/utils/utils'
 
-interface Props {
+interface Props extends ComponentProps<'div'> {
   transactions: Transaction[]
 }
 
-export function TransactionSummary({ transactions }: Props) {
+export function TransactionSummary({ transactions, className, ...props }: Props) {
   const { income, expenses, balance } = useMemo(() => {
     let income = 0
     let expenses = 0
@@ -22,7 +22,7 @@ export function TransactionSummary({ transactions }: Props) {
   }, [transactions])
 
   return (
-    <div className="grid grid-cols-3 gap-2 sm:gap-3">
+    <div className={cn('flex gap-2 sm:gap-3 lg:flex-col', className)} {...props}>
       <SummaryCard
         label="Income"
         value={income}
@@ -59,7 +59,7 @@ function SummaryCard({
   className?: string
 }) {
   return (
-    <div className="rounded-lg border bg-card p-3 sm:p-4">
+    <div className="rounded-lg border bg-card p-3 sm:p-4 flex-1">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground sm:text-sm">
         {icon}
         {label}

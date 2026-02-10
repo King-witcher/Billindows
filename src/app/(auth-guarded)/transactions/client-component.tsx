@@ -68,11 +68,10 @@ export function ClientComponent({ categories, now }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 sm:p-6">
+    <div className="flex flex-col gap-4 p-4 sm:p-6 lg:py-0 lg:flex-row lg:h-full">
       {/* Header */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 lg:py-6 lg:w-72">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Transactions</h1>
-        <TransactionSummary transactions={filteredTransactions} />
         <TransactionToolbar
           categories={categories}
           categoriesFilter={categoriesFilter}
@@ -83,16 +82,19 @@ export function ClientComponent({ categories, now }: Props) {
           onShowFixedChange={setShowFixed}
           onCreateClick={handleOpenCreateModal}
         />
+        <TransactionSummary transactions={filteredTransactions} className="hidden sm:flex" />
       </div>
 
-      {/* Transaction list */}
-      <TransactionList
-        transactions={filteredTransactions}
-        categories={categories}
-        now={now}
-        onEdit={handleClickEdit}
-        onDelete={handleClickDelete}
-      />
+      <div className="lg:flex-1 lg:-mr-6 lg:pr-6 lg:overflow-y-auto lg:relative">
+        {/* Transaction list */}
+        <TransactionList
+          transactions={filteredTransactions}
+          categories={categories}
+          now={now}
+          onEdit={handleClickEdit}
+          onDelete={handleClickDelete}
+        />
+      </div>
 
       {/* Dialogs */}
       <TxDialog open={txModalOpen} onOpenChange={setTxModalOpen} txToEdit={txToEdit} />
