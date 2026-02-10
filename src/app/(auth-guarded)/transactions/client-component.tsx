@@ -6,8 +6,8 @@ import { useMemo, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import type { Transaction } from '@/database/repositories/transactions'
 import { listTxs } from './actions'
-import { DeleteTxForm } from './modals/delete-tx-form'
-import { TxDialog } from './modals/tx-dialog'
+import { DeleteTxForm } from './dialogs/delete-tx-form'
+import { TxDialog } from './dialogs/tx-dialog'
 import { TransactionList } from './transaction-list'
 import { TransactionSummary } from './transaction-summary'
 import { TransactionToolbar } from './transaction-toolbar'
@@ -68,7 +68,7 @@ export function ClientComponent({ categories, now }: Props) {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4 sm:p-6">
+    <div className="flex flex-col gap-4 p-4 sm:p-6">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Transactions</h1>
@@ -86,15 +86,13 @@ export function ClientComponent({ categories, now }: Props) {
       </div>
 
       {/* Transaction list */}
-      <div className="flex-1 overflow-y-auto -mx-4 px-4 sm:-mx-6 sm:px-6">
-        <TransactionList
-          transactions={filteredTransactions}
-          categories={categories}
-          now={now}
-          onEdit={handleClickEdit}
-          onDelete={handleClickDelete}
-        />
-      </div>
+      <TransactionList
+        transactions={filteredTransactions}
+        categories={categories}
+        now={now}
+        onEdit={handleClickEdit}
+        onDelete={handleClickDelete}
+      />
 
       {/* Dialogs */}
       <TxDialog open={txModalOpen} onOpenChange={setTxModalOpen} txToEdit={txToEdit} />

@@ -9,7 +9,7 @@ const schema = z.object({
 
 export const listTxs = action(schema, async ({ now }, ctx) => {
   // Require auth
-  const { id: userId } = await ctx.jwtAsync
+  const { id: userId } = await ctx.requireAuth()
 
   // List all transactions for the user for the current month
   return ctx.repositories.transactions.listAllTxs(userId, now.getFullYear(), now.getMonth())

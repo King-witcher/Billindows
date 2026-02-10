@@ -1,18 +1,16 @@
-import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
+import { action } from '@/lib/server-actions'
 import { ClientComponent } from './client-component'
 
 export const metadata = {
   title: 'Billindows - Transactions',
 }
 
-export default async function Page() {
-  const ctx = buildDefaultContainer()
-  const userId = await ctx.userIdAsync
-  if (!userId) return null
+export default action(async (ctx) => {
+  const jwt = await ctx.requireAuth()
 
-  const categories = await ctx.repositories.categories.list(userId)
+  const categories = await ctx.repositories.categories.list(jwt.id)
 
   const now = new Date()
 
   return <ClientComponent now={now} categories={categories} />
-}
+})

@@ -27,7 +27,7 @@ const schema = z.object({
 export const updateTxAction = action(schema, async ({ id, recurrence, updateData }, ctx) => {
   // TODO: validate transaction owner in a single query
   // Verify session
-  const jwt = await ctx.jwtAsync
+  const jwt = await ctx.requireAuth()
 
   // Ensure the transaction exists and belongs to the user
   const txOwner = await ctx.repositories.transactions.getTxOwner(id, recurrence)

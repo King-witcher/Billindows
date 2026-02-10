@@ -22,7 +22,7 @@ const schema = z.object({
 export const createTxAction = action(schema, async (data, ctx) => {
   // TODO: Validate category ownership in a single query
   // Require authentication
-  const jwt = await ctx.jwtAsync
+  const jwt = await ctx.requireAuth()
 
   // Validate category ownership
   const category = await ctx.repositories.categories.find(jwt.id, data.category_id)

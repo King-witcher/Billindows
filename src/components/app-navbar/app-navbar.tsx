@@ -58,7 +58,7 @@ export function AppNavbar({ className, ...props }: ComponentProps<'nav'>) {
   return (
     <nav
       className={cn(
-        'bg-background flex gap-2 items-center w-full border-b px-4 h-15 shadow-xs',
+        'bg-white flex gap-2 items-center w-full border-b px-4 h-15 shadow-xs',
         className,
       )}
       {...props}

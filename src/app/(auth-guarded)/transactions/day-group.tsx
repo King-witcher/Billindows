@@ -16,8 +16,8 @@ export function DayGroup({ day, year, month, isToday, children }: Props) {
   const weekDay = new Date(year, month, day).getDay()
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="sticky top-0 z-10 flex items-center gap-2 bg-background/80 px-1 py-1.5 backdrop-blur-sm">
+    <div className="flex flex-col gap-2">
+      <div className="sticky top-0 z-10 flex items-center gap-2 0 px-1 py-1.5 backdrop-blur-sm">
         <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
           {day}
         </span>
@@ -25,9 +25,9 @@ export function DayGroup({ day, year, month, isToday, children }: Props) {
           <span className="text-xs font-medium text-muted-foreground">{WEEK_DAYS[weekDay]}</span>
           {isToday && <span className="text-[10px] font-semibold text-primary">Today</span>}
         </div>
-        <div className="ml-2 h-px flex-1 bg-border" />
+        <div className="ml-2 h-px flex-1 border border-t-border border-b-white" />
       </div>
-      <div className="flex flex-col gap-1">{children}</div>
+      <div className="flex flex-col gap-2">{children}</div>
     </div>
   )
 }

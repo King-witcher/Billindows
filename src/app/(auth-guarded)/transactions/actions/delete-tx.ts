@@ -10,7 +10,7 @@ const schema = z.object({
 
 export const deleteTxAction = action(schema, async ({ recurrence, id }, ctx) => {
   // Require auth
-  const jwt = await ctx.jwtAsync
+  const jwt = await ctx.requireAuth()
   const userId = jwt.id
 
   // Ensure the transaction exists and belongs to the user

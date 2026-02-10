@@ -279,6 +279,9 @@ export class TransactionsRepository {
     )
   }
 
+  /** Gets the transaction, it's category and user in a single query */
+  async getFullTxData(id: number, recurrence: TransactionRecurrence): Promise<void> {}
+
   /** Gets the userId of a transaction */
   async getTxOwner(id: number, recurrence: TransactionRecurrence): Promise<number> {
     const [{ user_id }]: [{ user_id: number }] =

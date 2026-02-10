@@ -34,16 +34,10 @@ export function TransactionCard({ transaction, category, isFuture, onEdit, onDel
       type="button"
       onClick={() => onEdit(transaction)}
       className={cn(
-        'group flex w-full items-center gap-3 rounded-lg border bg-card px-3 py-2.5 text-left transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'group flex w-full items-center gap-3 rounded-lg border bg-card px-4 py-2.5 text-left transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         isFuture && 'opacity-50',
       )}
     >
-      {/* Color indicator */}
-      <div
-        className="hidden size-2 shrink-0 rounded-full sm:block"
-        style={{ backgroundColor: category.color }}
-      />
-
       {/* Name + category */}
       <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 sm:flex-row sm:items-center sm:gap-3">
         <span className="truncate text-sm font-medium">{transaction.name}</span>
