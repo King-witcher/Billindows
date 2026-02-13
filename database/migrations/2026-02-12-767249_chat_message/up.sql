@@ -30,3 +30,11 @@ CREATE INDEX chat_message_user_id_idx ON chat_message(
   "user_id",
   "id" DESC
 );
+
+CREATE FUNCTION uuidv7_timestamp(uuid UUID)
+  RETURNS TIMESTAMP WITHOUT TIME ZONE
+  LANGUAGE sql
+  IMMUTABLE
+AS $function$
+  SELECT to_timestamp(('x'||replace(uuid::text, '-', ''))::bit(48)::bigint / 1000) AS result;
+$function$;

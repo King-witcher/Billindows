@@ -4,7 +4,7 @@ CREATE TABLE "category" (
     "id" UUID PRIMARY KEY,
     "user_id" UUID NOT NULL,
     "name" TEXT NOT NULL,
-    "color", TEXT NOT NULL,
+    "color" TEXT NOT NULL,
     "goal" INTEGER
 );
 
