@@ -3,11 +3,15 @@ import { fail } from '@/lib/server-wrappers'
 import { DBTime } from '@/utils/time'
 import { prisma } from '../prisma'
 import type { FixedTransactionRow, OneTimeTransactionRow } from '../types'
-import type { GenericTransaction } from '../types/generic-transaction'
+import type { AbstractTransaction } from '../types/generic-transaction'
+import type { BOOLEAN, INTEGER, TEXT, UUID } from '../types/postgres'
 
 export type TransactionRecurrence = 'fixed' | 'one-time'
 
-/** Abstracts both one-time-txs and fixed-txs tables as a single transaction object with type. */
+/**
+ * Abstracts both one-time-txs and fixed-txs tables as a single transaction object with type.
+ * @deprecated
+ */
 export type Transaction = {
   id: number
   name: string
@@ -20,11 +24,12 @@ export type Transaction = {
   category_id: number
 }
 
+/** Represents a unified repository that abstracts the separation between one-time and fixed transactions. */
 export class TransactionsRepository {
   constructor(private readonly ctx: DependencyContainer) {}
 
   /** Create a transaction regardless of the owner of it's transaction */
-  async create(tx: Omit<GenericTransaction, 'id'>) {
+  async create(tx: Omit<AbstractTransaction, 'id'>) {
     if (tx.type === 'fixed' && !tx.forecast) fail('FixedTransactionShouldForecast')
 
     const date = new Date(tx.date.year, tx.date.month - 1, tx.date.day)
@@ -50,7 +55,7 @@ export class TransactionsRepository {
     }
   }
 
-  async createOneTimeTransaction(t: Omit<OneTimeTransactionRow, 'id'>) {
+  private async createOneTimeTransaction(t: Omit<OneTimeTransactionRow, 'id'>) {
     await this.ctx.db.sql`
       INSERT INTO
           one_time_transaction (
@@ -72,7 +77,7 @@ export class TransactionsRepository {
     `
   }
 
-  async createFixedTransaction(t: Omit<FixedTransactionRow, 'id' | 'fixed_transaction'>) {
+  private async createFixedTransaction(t: Omit<FixedTransactionRow, 'id' | 'fixed_transaction'>) {
     await this.ctx.db.sql`
       INSERT INTO
           fixed_transaction (
@@ -102,6 +107,7 @@ export class TransactionsRepository {
     recurrence: TransactionRecurrence,
     tx: Omit<Transaction, 'id' | 'type'>,
   ) {
+    fail('NotImplemented')
     const month = DBTime.fromYMToDB(tx.year, tx.month)
     if (recurrence === 'fixed' && !tx.forecast) {
       throw new Error('fixed-transaction-should-forecast')
@@ -144,29 +150,34 @@ export class TransactionsRepository {
   }
 
   /** Delete a transaction regardless of its owner. */
-  async delete(id: string, recurrence: TransactionRecurrence, userId: number) {
+  async delete(id: UUID, userId: UUID) {
     const db = this.ctx.db
 
-    switch (recurrence) {
-      case 'one-time': {
-        await db.sql`
-          DELETE FROM one_time_txs
-          WHERE id = ${id}
-        `
-        break
-      }
-      case 'fixed': {
-        // await prisma.fixedTx.delete({
-        //   where: {
-        //     id,
-        //   },
-        // })
-        break
-      }
-      default: {
-        console.error(`Invalid transaction recurrence type: ${recurrence}`)
-        throw new Error(`invalid-recurrence`)
-      }
+    const [row] = await db.sql<{ id: UUID }>`
+      WITH deleted_one_time AS (
+          DELETE FROM
+              one_time_transaction
+          WHERE
+              id = ${id}
+              AND user_id = ${userId}
+          RETURNING id
+      ),
+      deleted_fixed AS (
+          DELETE FROM
+              fixed_transaction
+          WHERE
+              id = ${id}
+              AND user_id = ${userId}
+              AND NOT EXISTS (SELECT 1 FROM deleted_one_time)
+          RETURNING id
+      )
+      SELECT id FROM deleted_one_time
+      UNION ALL
+      SELECT id FROM deleted_fixed;
+    `
+
+    if (!row) {
+      fail('TransactionNotFound')
     }
   }
 
@@ -178,19 +189,18 @@ export class TransactionsRepository {
    * @param month - The month from 1 to 12 of the transactions
    * @returns A promise that resolves to an array of transactions
    */
-  async list(userId: number, year: number, month: number): Promise<Transaction[]> {
+  async list(userId: number, year: number, month: number): Promise<AbstractTransaction[]> {
     const lastDayOfTheMonth = new Date(year, month, 0)
     const firstDayOfTheMonth = new Date(year, month - 1, 1)
 
-    console.log(lastDayOfTheMonth, month)
     type QueryResult = {
-      id: number
-      type: 'fixed' | 'one-time'
-      name: string
-      amount: number
-      day: number
-      forecast: boolean
-      category_id: number
+      id: UUID
+      category_id: UUID
+      type: TransactionRecurrence
+      name: TEXT
+      amount: INTEGER
+      day: INTEGER
+      forecast: BOOLEAN
     }
 
     const now = Date.now()
@@ -200,12 +210,12 @@ export class TransactionsRepository {
           -- Fixed
           SELECT
               "id",
+              "category_id",
               'fixed' AS "type",
               "name",
               "amount",
               EXTRACT(DAY FROM "start_date") as "day",
-              TRUE AS "forecast",
-              "category_id"
+              TRUE AS "forecast"
           FROM
               fixed_transaction
           WHERE
@@ -218,39 +228,41 @@ export class TransactionsRepository {
           -- One-time
           SELECT
               "id",
+              "category_id",
               'one-time' AS "type",
               "name",
               "amount",
               EXTRACT(DAY FROM "date") as "day",
-              "forecast",
-              "category_id"
+              "forecast"
           FROM
               one_time_transaction
           WHERE
               "user_id" = ${userId}
               AND "date" >= ${firstDayOfTheMonth}
               AND "date" <= ${lastDayOfTheMonth}
-        ) q
+        )
       ORDER BY
-        q.day DESC,
-        q.name ASC,
-        q.type ASC,
-        q.id ASC`
+        "day" DESC,
+        "name" ASC,
+        "type" ASC,
+        "id" ASC`
     console.debug(
       `Fetched ${results.length} transactions for user ${userId} in ${Date.now() - now}ms`,
     )
 
-    return results.map(({ id, type, name, value, day, forecast, category_id }) => {
+    return results.map((result): AbstractTransaction => {
       return {
-        id,
-        type,
-        name,
-        value,
-        day,
-        forecast,
-        category_id,
-        year,
-        month,
+        id: result.id,
+        category_id: result.category_id,
+        type: result.type,
+        name: result.name,
+        amount: result.amount,
+        date: {
+          day: result.day,
+          month,
+          year,
+        },
+        forecast: result.forecast,
       }
     })
   }
