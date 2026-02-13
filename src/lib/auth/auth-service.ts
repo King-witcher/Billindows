@@ -1,12 +1,13 @@
 import { jwtVerify, SignJWT } from 'jose'
 import { cookies } from 'next/headers'
+import type { UUID_v7 } from '../database/types/postgres'
 import { fail } from '../server-wrappers/errors'
 
 const COOKIE_NAME = 'session'
 const COOKIE_LIFESPAN = 1000 * 60 * 60 * 24 // 1 day
 
 export type JWTPaylaod = {
-  id: number
+  id: UUID_v7
   name: string
   email: string
   role: 'user'
