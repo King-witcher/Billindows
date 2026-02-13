@@ -9,10 +9,10 @@ CREATE TYPE chat_message_role as ENUM (
 );
 
 CREATE TYPE chat_message_llm_provider as ENUM (
-  'openai',
-  'gemini',
+  'anthropic',
   'azure',
-  'anthropic'
+  'gemini',
+  'openai'
 );
 
 CREATE TABLE chat_message (

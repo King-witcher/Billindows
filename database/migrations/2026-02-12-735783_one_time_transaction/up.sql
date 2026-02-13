@@ -1,7 +1,7 @@
 -- Migration generated on 2026-02-12 20:26:18
 
 CREATE TABLE one_time_transaction (
-    "id"            UUID    PRIMARY KEY,
+    "id"            UUID    PRIMARY KEY DEFAULT gen_random_uuid(),
     "user_id"       UUID    NOT NULL,
     "category_id"   UUID    NOT NULL,
     "name"          TEXT    NOT NULL,
