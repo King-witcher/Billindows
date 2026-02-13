@@ -11,7 +11,7 @@
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "generate-migration": "tsx database/generate.ts",
+    "db:new": "tsx database/generate.ts",
     "start": "next start",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
     "test": "vitest",

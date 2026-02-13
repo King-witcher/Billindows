@@ -1,6 +1,8 @@
+version: "3.8"
+
 services:
   postgres:
-    image: postgres:16
+    image: postgres:18-alpine
     # command: ["postgres", "-c", "log_statement=all"]
     environment:
       POSTGRES_DB: postgres
@@ -9,4 +11,4 @@ services:
     ports:
       - 6543:5432
     volumes:
-      - ${POSTGRES_DATA}:/var/lib/postgresql/data
+      - ${POSTGRES_DATA}:/var/lib/postgresql
