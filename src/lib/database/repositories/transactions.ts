@@ -1,6 +1,9 @@
 import type { DependencyContainer } from '@/lib/injector/dependencies'
+import { fail } from '@/lib/server-wrappers'
 import { DBTime } from '@/utils/time'
 import { prisma } from '../prisma'
+import type { FixedTransactionRow, OneTimeTransactionRow } from '../types'
+import type { GenericTransaction } from '../types/generic-transaction'
 
 export type TransactionRecurrence = 'fixed' | 'one-time'
 
@@ -21,35 +24,72 @@ export class TransactionsRepository {
   constructor(private readonly ctx: DependencyContainer) {}
 
   /** Create a transaction regardless of the owner of it's transaction */
-  async create(tx: Omit<Transaction, 'id'>) {
-    const month = DBTime.fromYMToDB(tx.year, tx.month)
-    if (tx.type === 'fixed' && !tx.forecast) {
-      throw new Error('fixed-transaction-should-forecast')
-    }
+  async create(tx: Omit<GenericTransaction, 'id'>) {
+    if (tx.type === 'fixed' && !tx.forecast) fail('FixedTransactionShouldForecast')
+
+    const date = new Date(tx.date.year, tx.date.month - 1, tx.date.day)
 
     if (tx.type === 'one-time') {
-      await prisma.oneTimeTx.create({
-        data: {
-          month,
-          day: tx.day,
-          name: tx.name,
-          value: tx.amount,
-          forecast: tx.forecast,
-          category_id: tx.category_id,
-        },
+      await this.createOneTimeTransaction({
+        user_id: tx.user_id,
+        amount: tx.amount,
+        category_id: tx.category_id,
+        name: tx.name,
+        date,
+        forecast: tx.forecast,
       })
     } else if (tx.type === 'fixed') {
-      await prisma.fixedTx.create({
-        data: {
-          start_month: month,
-          end_month: null,
-          day: tx.day,
-          name: tx.name,
-          value: tx.amount,
-          category_id: tx.category_id,
-        },
+      await this.createFixedTransaction({
+        user_id: tx.user_id,
+        amount: tx.amount,
+        category_id: tx.category_id,
+        name: tx.name,
+        start_date: date,
+        end_date: null,
       })
     }
+  }
+
+  async createOneTimeTransaction(t: Omit<OneTimeTransactionRow, 'id'>) {
+    await this.ctx.db.sql`
+      INSERT INTO
+          one_time_transaction (
+              "user_id",
+              "category_id",
+              "name",
+              "amount",
+              "forecast",
+              "date"
+          )
+      VALUES(
+          ${t.user_id},
+          ${t.category_id},
+          ${t.name},
+          ${t.amount},
+          ${t.forecast},
+          ${t.date}
+      )
+    `
+  }
+
+  async createFixedTransaction(t: Omit<FixedTransactionRow, 'id' | 'fixed_transaction'>) {
+    await this.ctx.db.sql`
+      INSERT INTO
+          fixed_transaction (
+              "user_id",
+              "category_id",
+              "name",
+              "amount",
+              "start_date"
+          )
+      VALUES(
+          ${t.user_id},
+          ${t.category_id},
+          ${t.name},
+          ${t.amount},
+          ${t.start_date}
+      )
+    `
   }
 
   /**
