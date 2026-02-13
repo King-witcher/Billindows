@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
     const authService = new AuthService()
     const session = await authService.verifySession()
     if (!session) {
-      const url = new URL('/sign-in', request.nextUrl)
+      const url = new URL('/login', request.nextUrl)
       url.searchParams.set('referrer', request.nextUrl.pathname)
       return NextResponse.redirect(url)
     }
