@@ -1,6 +1,6 @@
 'use server'
 
-import { action } from '@/lib/server-actions'
+import { action } from '@/lib/server-wrappers'
 
 export const listCategoriesAction = action(async (ctx) => {
   // Require auth

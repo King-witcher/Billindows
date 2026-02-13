@@ -41,7 +41,7 @@ export class MessagesRepository {
     const id = uuidv7()
 
     const [message] = await this.ctx.db.sql<MessageRow>`
-      INSERT INTO messages ("id", "user_id", "content")
+      INSERT INTO chat_message ("id", "user_id", "content")
       VALUES (${id}, ${row.user_id}, ${row.content})
       RETURNING *
     `
@@ -57,7 +57,7 @@ export class MessagesRepository {
   async listByUser(user_id: number): Promise<ProcessedMessage[]> {
     const messages = await this.ctx.db.sql<ProcessedMessage>`
       SELECT "id", "user_id", "content", uuidv7_timestamp("id") AS "date"
-      FROM messages
+      FROM chat_message
       WHERE "user_id" = ${user_id}
       ORDER BY "id" DESC
     `

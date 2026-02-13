@@ -1,12 +1,12 @@
 'use client'
 
-import type { Category } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { useNow } from '@/contexts/now/now-context'
 import { useUser } from '@/contexts/user-context'
-import type { Transaction } from '@/database/repositories/transactions'
-import { listTxs } from './actions'
+import type { AbstractTransaction, CategoryRow } from '@/lib/database/types'
+import { listTransactionsAction } from './actions'
 import { DeleteTxForm } from './dialogs/delete-tx-form'
 import { TxDialog } from './dialogs/tx-dialog'
 import { TransactionList } from './transaction-list'
@@ -14,17 +14,16 @@ import { TransactionSummary } from './transaction-summary'
 import { TransactionToolbar } from './transaction-toolbar'
 
 interface Props {
-  categories: Category[]
-  now: Date
+  categories: CategoryRow[]
 }
 
-export function ClientComponent({ categories, now }: Props) {
+export function ClientComponent({ categories }: Props) {
   const user = useUser()
   const [txModalOpen, setTxModalOpen] = useState(false)
   const [deleteTxDialogOpen, setDeleteTxDialogOpen] = useState(false)
-  const [txToDelete, setTxToDelete] = useState<Transaction | null>(null)
-  const [txToEdit, setTxToEdit] = useState<Transaction | undefined>()
-  const [categoriesFilter, setCategoriesFilter] = useState<number[]>([])
+  const [txToDelete, setTxToDelete] = useState<AbstractTransaction | null>(null)
+  const [txToEdit, setTxToEdit] = useState<AbstractTransaction | undefined>()
+  const [categoriesFilter, setCategoriesFilter] = useState<string[]>([])
   const [showFuture, setShowFuture] = useState(false)
   const [showFixed, setShowFixed] = useState(false)
   const [showOneTime, setShowOneTime] = useState(true)
@@ -33,26 +32,33 @@ export function ClientComponent({ categories, now }: Props) {
   const [showIncome, setShowIncome] = useState(true)
   const [showExpenses, setShowExpenses] = useState(true)
 
+  const now = useNow()
+
   const txQuery = useQuery({
-    queryKey: ['transactions', user.email],
+    queryKey: ['transactions', user.email, now.month],
     queryFn: async () => {
-      return listTxs({ now })
+      return listTransactionsAction({
+        filter: {
+          year: now.year,
+          month: now.month,
+        },
+      })
     },
   })
 
   const filteredTransactions = useMemo(() => {
     const result = txQuery.data?.filter((tx) => {
       if (categoriesFilter.length > 0 && !categoriesFilter.includes(tx.category_id)) return false
-      if (!showFuture && tx.day > now.getDate()) return false
+      if (!showFuture && tx.date.day > now.day) return false
 
-      if (!showFixed && tx.type === 'fixed') return false
-      if (!showOneTime && tx.type === 'one-time') return false
+      if (!showFixed && tx.recurrence === 'fixed') return false
+      if (!showOneTime && tx.recurrence === 'one-time') return false
 
       if (!showForecasted && tx.forecast) return false
       if (!showNotForecasted && !tx.forecast) return false
 
-      if (!showIncome && tx.value > 0) return false
-      if (!showExpenses && tx.value < 0) return false
+      if (!showIncome && tx.amount > 0) return false
+      if (!showExpenses && tx.amount < 0) return false
       return true
     })
     return result
@@ -66,7 +72,7 @@ export function ClientComponent({ categories, now }: Props) {
     showNotForecasted,
     showIncome,
     showExpenses,
-    now,
+    now.day,
   ])
 
   function handleOpenCreateModal() {
@@ -74,12 +80,12 @@ export function ClientComponent({ categories, now }: Props) {
     setTxModalOpen(true)
   }
 
-  function handleClickEdit(tx: Transaction) {
+  function handleClickEdit(tx: AbstractTransaction) {
     setTxToEdit(tx)
     setTxModalOpen(true)
   }
 
-  function handleClickDelete(tx: Transaction) {
+  function handleClickDelete(tx: AbstractTransaction) {
     setTxToDelete(tx)
     setDeleteTxDialogOpen(true)
   }
@@ -120,7 +126,6 @@ export function ClientComponent({ categories, now }: Props) {
           <TransactionList
             transactions={filteredTransactions}
             categories={categories}
-            now={now}
             onEdit={handleClickEdit}
             onDelete={handleClickDelete}
           />

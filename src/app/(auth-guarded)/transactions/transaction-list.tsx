@@ -1,28 +1,28 @@
 'use client'
 
-import type { Category } from '@prisma/client'
 import { ReceiptText } from 'lucide-react'
 import { useMemo } from 'react'
-import type { Transaction } from '@/database/repositories/transactions'
+import { useNow } from '@/contexts/now/now-context'
+import type { AbstractTransaction, CategoryRow } from '@/lib/database/types'
 import { DayGroup } from './day-group'
 import { TransactionCard } from './transaction-card'
 
 interface Props {
-  transactions: Transaction[]
-  categories: Category[]
-  now: Date
-  onEdit: (tx: Transaction) => void
-  onDelete: (tx: Transaction) => void
+  transactions: AbstractTransaction[]
+  categories: CategoryRow[]
+  onEdit: (t: AbstractTransaction) => void
+  onDelete: (t: AbstractTransaction) => void
 }
 
-export function TransactionList({ transactions, categories, now, onEdit, onDelete }: Props) {
+export function TransactionList({ transactions, categories, onEdit, onDelete }: Props) {
   const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
+  const now = useNow()
 
   const groupedByDay = useMemo(() => {
-    const groups = Object.groupBy(transactions, (tx) => tx.day)
+    const groups = Object.groupBy(transactions, (tx) => tx.date.day)
     return Object.entries(groups).sort(([dayA], [dayB]) => Number(dayB) - Number(dayA)) as [
       string,
-      Transaction[],
+      AbstractTransaction[],
     ][]
   }, [transactions])
 
@@ -38,29 +38,25 @@ export function TransactionList({ transactions, categories, now, onEdit, onDelet
     )
   }
 
-  const today = now.getDate()
-  const month = now.getMonth()
-  const year = now.getFullYear()
-
   return (
     <div className="flex flex-col gap-4">
-      {groupedByDay.map(([day, txs]) => (
+      {groupedByDay.map(([day, ts]) => (
         <DayGroup
           key={day}
           day={Number(day)}
-          year={year}
-          month={month}
-          isToday={Number(day) === today}
+          year={now.year}
+          month={now.month}
+          isToday={Number(day) === now.day}
         >
-          {txs.map((tx) => {
-            const category = categoryMap.get(tx.category_id)
+          {ts.map((t) => {
+            const category = categoryMap.get(t.category_id)
             if (!category) return null
             return (
               <TransactionCard
-                key={`${tx.type}-${tx.id}`}
-                transaction={tx}
+                key={t.id}
+                transaction={t}
                 category={category}
-                isFuture={tx.day > today}
+                isFuture={t.date.day > now.day}
                 onEdit={onEdit}
                 onDelete={onDelete}
               />

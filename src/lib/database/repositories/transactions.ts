@@ -3,8 +3,8 @@ import { fail } from '@/lib/server-wrappers'
 import { DBTime } from '@/utils/time'
 import { prisma } from '../prisma'
 import type { FixedTransactionRow, OneTimeTransactionRow } from '../types'
-import type { AbstractTransaction } from '../types/generic-transaction'
-import type { BOOLEAN, INTEGER, TEXT, UUID } from '../types/postgres'
+import type { AbstractTransaction } from '../types/abstract-transaction'
+import type { BOOLEAN, DATE, INTEGER, TEXT, UUID, UUID_v7 } from '../types/postgres'
 
 export type TransactionRecurrence = 'fixed' | 'one-time'
 
@@ -29,23 +29,23 @@ export class TransactionsRepository {
   constructor(private readonly ctx: DependencyContainer) {}
 
   /** Create a transaction regardless of the owner of it's transaction */
-  async create(tx: Omit<AbstractTransaction, 'id'>) {
-    if (tx.type === 'fixed' && !tx.forecast) fail('FixedTransactionShouldForecast')
+  async create(user_id: UUID_v7, tx: Omit<AbstractTransaction, 'id'>) {
+    if (tx.recurrence === 'fixed' && !tx.forecast) fail('FixedTransactionShouldForecast')
 
     const date = new Date(tx.date.year, tx.date.month - 1, tx.date.day)
 
-    if (tx.type === 'one-time') {
+    if (tx.recurrence === 'one-time') {
       await this.createOneTimeTransaction({
-        user_id: tx.user_id,
+        user_id,
         amount: tx.amount,
         category_id: tx.category_id,
         name: tx.name,
         date,
         forecast: tx.forecast,
       })
-    } else if (tx.type === 'fixed') {
+    } else if (tx.recurrence === 'fixed') {
       await this.createFixedTransaction({
-        user_id: tx.user_id,
+        user_id,
         amount: tx.amount,
         category_id: tx.category_id,
         name: tx.name,
@@ -102,11 +102,7 @@ export class TransactionsRepository {
    *
    * Transaction recurrence cannot be changed after creation.
    */
-  async update(
-    id: number,
-    recurrence: TransactionRecurrence,
-    tx: Omit<Transaction, 'id' | 'type'>,
-  ) {
+  async update(id: UUID, recurrence: TransactionRecurrence, tx: Omit<Transaction, 'id' | 'type'>) {
     fail('NotImplemented')
     const month = DBTime.fromYMToDB(tx.year, tx.month)
     if (recurrence === 'fixed' && !tx.forecast) {
@@ -150,7 +146,7 @@ export class TransactionsRepository {
   }
 
   /** Delete a transaction regardless of its owner. */
-  async delete(id: UUID, userId: UUID) {
+  async delete(id: UUID, userId: UUID_v7) {
     const db = this.ctx.db
 
     const [row] = await db.sql<{ id: UUID }>`
@@ -189,7 +185,7 @@ export class TransactionsRepository {
    * @param month - The month from 1 to 12 of the transactions
    * @returns A promise that resolves to an array of transactions
    */
-  async list(userId: number, year: number, month: number): Promise<AbstractTransaction[]> {
+  async list(userId: UUID, year: number, month: number): Promise<AbstractTransaction[]> {
     const lastDayOfTheMonth = new Date(year, month, 0)
     const firstDayOfTheMonth = new Date(year, month - 1, 1)
 
@@ -253,8 +249,9 @@ export class TransactionsRepository {
     return results.map((result): AbstractTransaction => {
       return {
         id: result.id,
+        user_id: userId,
         category_id: result.category_id,
-        type: result.type,
+        recurrence: result.type,
         name: result.name,
         amount: result.amount,
         date: {
@@ -267,21 +264,86 @@ export class TransactionsRepository {
     })
   }
 
-  /** Gets the userId of a transaction */
-  async getTxOwner(id: number, recurrence: TransactionRecurrence): Promise<number> {
+  async find(id: UUID, recurrence: TransactionRecurrence): Promise<AbstractTransaction | null> {
+    type QueryResult = {
+      id: UUID
+      user_id: UUID
+      category_id: UUID
+      name: TEXT
+      amount: INTEGER
+      date: DATE
+      forecast: BOOLEAN
+    }
+
+    const [result] =
+      recurrence === 'fixed'
+        ? await this.ctx.db.sql<QueryResult>`
+            SELECT
+                "id",
+                "user_id",
+                "category_id",
+                "name",
+                "amount",
+                "start_date",
+                TRUE AS "forecast"
+            FROM
+                fixed_transaction
+            WHERE
+                "id" = ${id}
+        `
+        : await this.ctx.db.sql<QueryResult>`
+            SELECT
+                "id",
+                "user_id",
+                "category_id",
+                "name",
+                "amount",
+                "date",
+                "forecast"
+            FROM
+                one_time_transaction
+            WHERE
+                "id" = ${id}
+        `
+
+    if (!result) {
+      return null
+    }
+
+    return {
+      id: result.id,
+      user_id: result.user_id,
+      category_id: result.category_id,
+      recurrence,
+      name: result.name,
+      forecast: result.forecast,
+      amount: result.amount,
+      date: {
+        day: result.date.getDate(),
+        month: result.date.getMonth() + 1,
+        year: result.date.getFullYear(),
+      },
+    }
+  }
+
+  /**
+   * Gets the userId of a transaction
+   * @deprecated
+   */
+  async getTxOwner(id: UUID, recurrence: TransactionRecurrence): Promise<UUID_v7> {
     const [{ user_id }] =
       recurrence === 'fixed'
-        ? await this.ctx.db.sql<{ user_id: number }>`
+        ? await this.ctx.db.sql<{ user_id: UUID_v7 }>`
             SELECT c.user_id
-            FROM categories c
-            JOIN fixed_txs t
+            FROM category c
+            JOIN fixed_transaction t
                 ON c.id = t.category_id
             WHERE t.id = ${id}
         `
-        : await this.ctx.db.sql<{ user_id: number }>`
+        : await this.ctx.db.sql<{ user_id: UUID_v7 }>`
             SELECT c.user_id
             FROM categories c
-            JOIN one_time_txs t
+            JOIN one_time_transaction t
                 ON c.id = t.category_id
             WHERE t.id = ${id}
         `

@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import type { Transaction } from '@/database/repositories/transactions'
-import type { WithId } from '@/types/with-id'
+import type { AbstractTransaction } from '@/lib/database/types/abstract-transaction'
 import { createTxAction } from '../actions/create-tx'
 import { updateTxAction } from '../actions/update-tx'
 import { TxForm } from './tx-form'
 
 type Props = {
-  txToEdit?: WithId<Transaction>
+  txToEdit?: AbstractTransaction
   open: boolean
   onOpenChange?: (open: boolean) => void
 }
@@ -39,11 +38,11 @@ export function TxDialog(props: Props) {
     onError: () => toast.error('Error creating transaction'),
   })
 
-  async function handleSubmit(data: Omit<Transaction, 'id'>) {
+  async function handleSubmit(data: Omit<AbstractTransaction, 'id'>) {
     if (txToEdit) {
       await updateMutation.mutateAsync({
         id: txToEdit.id,
-        recurrence: txToEdit.type,
+        recurrence: txToEdit.recurrence,
         updateData: data,
       })
     } else {

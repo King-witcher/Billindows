@@ -1,8 +1,8 @@
 'use server'
 
 import * as z from 'zod'
-import type { Transaction } from '@/database/repositories/transactions'
-import { action, fail } from '@/lib/server-actions'
+import type { Transaction } from '@/lib/database/repositories/transactions'
+import { action, fail } from '@/lib/server-wrappers'
 
 export type UpdateTxParams = {
   id: number
@@ -34,7 +34,7 @@ export const updateTxAction = action(schema, async ({ id, recurrence, updateData
   if (txOwner !== jwt.id) fail('TransactionNotFound')
 
   // Validate new category ownership
-  const category = await ctx.repositories.categories.find(jwt.id, updateData.category_id)
+  const category = await ctx.repositories.categories.get(jwt.id, updateData.category_id)
   if (category?.user_id !== jwt.id) fail('CategoryNotFound')
 
   // Update the transaction

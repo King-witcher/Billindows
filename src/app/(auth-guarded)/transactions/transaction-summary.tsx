@@ -2,12 +2,12 @@
 
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { type ComponentProps, useMemo } from 'react'
-import type { Transaction } from '@/database/repositories/transactions'
+import type { AbstractTransaction } from '@/lib/database/types'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/utils/utils'
 
 interface Props extends ComponentProps<'div'> {
-  transactions: Transaction[]
+  transactions: AbstractTransaction[]
 }
 
 export function TransactionSummary({ transactions, className, ...props }: Props) {
@@ -15,8 +15,8 @@ export function TransactionSummary({ transactions, className, ...props }: Props)
     let income = 0
     let expenses = 0
     for (const tx of transactions) {
-      if (tx.value > 0) income += tx.value
-      else expenses += tx.value
+      if (tx.amount > 0) income += tx.amount
+      else expenses += tx.amount
     }
     return { income, expenses, balance: income + expenses }
   }, [transactions])

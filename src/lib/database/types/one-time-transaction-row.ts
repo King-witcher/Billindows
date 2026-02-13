@@ -1,12 +1,11 @@
-import type { INTEGER, TEXT, UUID, UUID_v7 } from './postgres'
+import type { BOOLEAN, DATE, INTEGER, TEXT, UUID } from './postgres'
 
 export type OneTimeTransactionRow = {
   id: UUID
-  category_id: UUID
   user_id: UUID
+  category_id: UUID
   name: TEXT
-  value: INTEGER
-  yearn: INTEGER
-  month: INTEGER
-  day: INTEGER
+  amount: INTEGER
+  forecast: BOOLEAN
+  date: DATE
 }

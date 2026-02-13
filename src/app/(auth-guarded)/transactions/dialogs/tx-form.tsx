@@ -23,7 +23,7 @@ import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useToday } from '@/contexts/today-context'
 import { useUser } from '@/contexts/user-context'
-import type { Transaction } from '@/database/repositories'
+import type { AbstractTransaction } from '@/lib/database/types/abstract-transaction'
 import { listCategoriesAction } from '../actions/list-categories'
 
 const formSchema = zod.object({
@@ -39,9 +39,9 @@ const formSchema = zod.object({
 export type FormData = zod.infer<typeof formSchema>
 
 type Props = {
-  initValue?: Transaction
+  initValue?: AbstractTransaction
   isEditting: boolean
-  onSubmit: (data: Omit<Transaction, 'id'>) => Promise<void>
+  onSubmit: (data: Omit<AbstractTransaction, 'id'>) => Promise<void>
   onClose: () => void
 }
 
@@ -96,11 +96,13 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initValue?.name || '',
-      date: initValue ? new Date(initValue.year, initValue.month, initValue.day) : today,
-      value: initValue ? Math.abs(initValue.value) : 100,
+      date: initValue
+        ? new Date(initValue.date.year, initValue.date.month - 1, initValue.date.day)
+        : today,
+      value: initValue ? Math.abs(initValue.amount) : 100,
       categoryId: initValue ? String(initValue.category_id) : '',
-      fixed: initValue ? initValue.type === 'fixed' : false,
-      type: initValue ? (initValue.value >= 0 ? 'income' : 'expense') : 'expense',
+      fixed: initValue ? initValue.recurrence === 'fixed' : false,
+      type: initValue ? (initValue.amount >= 0 ? 'income' : 'expense') : 'expense',
       ignoreFromForecast: initValue ? !initValue.forecast : false,
     },
   })
@@ -112,18 +114,20 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
     if (pending) return
 
     const year = data.date.getFullYear()
-    const month = data.date.getMonth()
+    const month = data.date.getMonth() + 1
     const day = data.date.getDate()
 
     setPending(true)
     onSubmit({
-      category_id: Number(data.categoryId),
-      day,
-      month,
-      year,
+      category_id: data.categoryId,
+      date: {
+        year,
+        month,
+        day,
+      },
       name: data.name,
-      type: fixed ? 'fixed' : 'one-time',
-      value: data.type === 'income' ? data.value : -data.value,
+      recurrence: fixed ? 'fixed' : 'one-time',
+      amount: data.type === 'income' ? data.value : -data.value,
       forecast: data.fixed || !data.ignoreFromForecast,
     }).finally(() => setPending(false))
   }
@@ -192,7 +196,7 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
                 name={field.name}
                 value={field.value}
                 onChange={(v) => field.onChange(v)}
-                defaultValue={initValue ? Math.abs(initValue.value) : undefined}
+                defaultValue={initValue ? Math.abs(initValue.amount) : undefined}
               />
             )}
           />
