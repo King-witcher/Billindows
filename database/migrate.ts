@@ -77,6 +77,8 @@ async function apply(migrations: Migration[]) {
 
 async function main() {
   try {
+    const start = Date.now()
+
     const [migrations, applied] = await Promise.all([
       listFsMigrations(),
       ensureMigrationsTable().then(listAppliedMigrations),
@@ -94,6 +96,9 @@ async function main() {
     }
 
     await apply(pending)
+
+    const end = Date.now()
+    console.log(`Successfully applied ${pending.length} migrations in ${end - start}ms.`)
   } catch (error) {
     console.error('Migration process failed:', (error as Error).message)
   } finally {
