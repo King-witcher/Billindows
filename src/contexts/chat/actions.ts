@@ -1,9 +1,10 @@
 'use server'
 
 import * as z from 'zod'
-import { Agent } from '@/lib/agent'
-import { action } from '@/lib/server-actions'
+import { Agent } from '@/lib/agents/agent'
+import { action } from '@/lib/server-wrappers'
 import { CreateTransactionTool } from '@/lib/tools/create-transaction'
+import type { ClientMessage } from './types'
 
 const schema = z.object({
   history: z.array(
@@ -39,4 +40,29 @@ export const callAgentAction = action(schema, async (data, ctx) => {
       transactions: !!response.toolCalls.create_transaction,
     },
   }
+})
+
+const sendMessageSchema = z.string().max(512)
+
+export const sendMessageAction = action(sendMessageSchema, async (message, ctx) => {
+  const jwt = await ctx.requireAuth()
+})
+
+export const listMessagesAction = action(async (ctx): Promise<ClientMessage[]> => {
+  const jwt = await ctx.requireAuth()
+  const messages = await ctx.repositories.messages.listByUser(jwt.id)
+
+  const clientMessagesOrNull: (ClientMessage | null)[] = messages.map(
+    (msg): ClientMessage | null => {
+      if (msg.content.type !== 'message') return null
+      return {
+        id: msg.id,
+        content: msg.content.content,
+        role: msg.content.role,
+        sentAt: msg.date,
+      }
+    },
+  )
+
+  return clientMessagesOrNull.filter((msg) => msg !== null)
 })
