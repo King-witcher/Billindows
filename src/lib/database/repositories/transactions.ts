@@ -1,12 +1,22 @@
 import type { DependencyContainer } from '@/lib/injector/dependencies'
-import { fail } from '@/lib/server-wrappers'
-import { DBTime } from '@/utils/time'
-import { prisma } from '../prisma'
+import { fail, fatal } from '@/lib/server-wrappers'
 import type { FixedTransactionRow, OneTimeTransactionRow } from '../types'
 import type { AbstractTransaction } from '../types/abstract-transaction'
 import type { BOOLEAN, DATE, INTEGER, TEXT, UUID, UUID_v7 } from '../types/postgres'
 
 export type TransactionRecurrence = 'fixed' | 'one-time'
+
+export type UpdateTransactionInput = {
+  name: string
+  amount: number
+  category_id: UUID
+  date: {
+    year: number
+    month: number
+    day: number
+  }
+  forecast: boolean
+}
 
 /**
  * Abstracts both one-time-txs and fixed-txs tables as a single transaction object with type.
@@ -102,45 +112,38 @@ export class TransactionsRepository {
    *
    * Transaction recurrence cannot be changed after creation.
    */
-  async update(id: UUID, recurrence: TransactionRecurrence, tx: Omit<Transaction, 'id' | 'type'>) {
-    fail('NotImplemented')
-    const month = DBTime.fromYMToDB(tx.year, tx.month)
-    if (recurrence === 'fixed' && !tx.forecast) {
-      throw new Error('fixed-transaction-should-forecast')
-    }
-
+  async update(id: UUID, recurrence: TransactionRecurrence, t: UpdateTransactionInput) {
+    const db = this.ctx.db
+    const date = new Date(t.date.year, t.date.month - 1, t.date.day)
     switch (recurrence) {
       case 'one-time': {
-        await prisma.oneTimeTx.update({
-          where: { id },
-          data: {
-            month,
-            day: tx.day,
-            name: tx.name,
-            value: tx.amount,
-            forecast: tx.forecast,
-            category_id: tx.category_id,
-          },
-        })
+        db.sql`
+          UPDATE one_time_transaction
+          SET
+              "name" = ${t.name},
+              "amount" = ${t.amount},
+              "category_id" = ${t.category_id},
+              "date" = ${date},
+              "forecast" = ${t.forecast}
+          WHERE id = ${id}
+        `
         break
       }
       case 'fixed': {
-        await prisma.fixedTx.update({
-          where: { id },
-          data: {
-            start_month: month,
-            end_month: null,
-            day: tx.day,
-            name: tx.name,
-            value: tx.amount,
-            category_id: tx.category_id,
-          },
-        })
+        if (!t.forecast) fail('FixedTransactionShouldForecast')
+        db.sql`
+          UPDATE fixed_transaction
+          SET
+              "name" = ${t.name},
+              "amount" = ${t.amount},
+              "category_id" = ${t.category_id},
+              "start_date" = ${date}
+          WHERE id = ${id}
+        `
         break
       }
       default: {
-        console.error(`Invalid transaction recurrence type: ${recurrence}`)
-        throw new Error(`invalid-recurrence`)
+        fatal(`Invalid transaction recurrence: ${recurrence}`)
       }
     }
   }

@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { AbstractTransaction } from '@/lib/database/types/abstract-transaction'
 import { createTxAction } from '../actions/create-tx'
-import { updateTxAction } from '../actions/update-tx'
+import { updateTransactionAction } from '../actions/update-tx'
 import { TxForm } from './tx-form'
 
 type Props = {
@@ -18,7 +18,7 @@ export function TxDialog(props: Props) {
 
   const updateMutation = useMutation({
     mutationKey: ['update-transaction', txToEdit?.id],
-    mutationFn: updateTxAction,
+    mutationFn: updateTransactionAction,
     onSuccess: () => {
       client.refetchQueries({ queryKey: ['transactions'] })
       toast.success('Transaction updated successfully')
