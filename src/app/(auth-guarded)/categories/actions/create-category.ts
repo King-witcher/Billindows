@@ -1,7 +1,7 @@
 'use server'
 
 import * as z from 'zod'
-import { action } from '@/lib/server-actions'
+import { action } from '@/lib/server-wrappers'
 import { sanitizeSpaces } from '@/utils/utils'
 
 const schema = z.object({
