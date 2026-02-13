@@ -1,7 +1,7 @@
 'use server'
 
 import bcrypt from 'bcrypt'
-import { action, ClientError } from '@/lib/server-actions'
+import { action, ClientError } from '@/lib/server-wrappers'
 import { sanitizeSpaces } from '@/utils/utils'
 import { SignUpError } from './_error'
 import { schema } from './schema'
