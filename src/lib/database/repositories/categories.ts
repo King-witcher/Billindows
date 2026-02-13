@@ -1,32 +1,36 @@
-import type { Category } from '@prisma/client'
 import type { DependencyContainer } from '@/lib/injector/dependencies'
-import { prisma } from '../prisma'
+import type { CategoryRow } from '../types'
+import type { UUID, UUID_v7 } from '../types/postgres'
 
 export class CategoriesRepository {
   constructor(private readonly ctx: DependencyContainer) {}
 
-  async create(data: Omit<Category, 'id'>): Promise<Category> {
-    return prisma.category.create({
-      data,
-    })
+  async create(data: Omit<CategoryRow, 'id'>): Promise<CategoryRow> {
+    const [category] = await this.ctx.db.sql<CategoryRow>`
+      INSERT INTO category ("user_id", "name", "color", "goal")
+      VALUES (${data.user_id}, ${data.name}, ${data.color}, ${data.goal})
+      RETURNING *
+    `
+
+    return category
   }
 
-  async find(userId: number, id: number): Promise<Category | null> {
-    return prisma.category.findFirst({
-      where: {
-        id,
-        user_id: userId,
-      },
-    })
+  async get(id: UUID): Promise<CategoryRow | null> {
+    const [category] = await this.ctx.db.sql<CategoryRow | null>`
+      SELECT *
+      FROM category
+      WHERE id = ${id}
+    `
+    return category ?? null
   }
 
-  async list(userId: number): Promise<Category[]> {
+  async list(userId: UUID_v7): Promise<CategoryRow[]> {
     const now = Date.now()
-    const categories = await this.ctx.db.sql<Omit<Category, 'user_id'>>`
-      SELECT c.id, c.name, c.color, c.goal
-      FROM category c
-      WHERE c.user_id = ${userId}
-      ORDER BY c.name ASC
+    const categories = await this.ctx.db.sql<Omit<CategoryRow, 'user_id'>>`
+      SELECT "id", "name", "color", "goal"
+      FROM category
+      WHERE "user_id" = ${userId}
+      ORDER BY "name" ASC
     `
     console.debug(
       `Fetched ${categories.length} categories for user ${userId} in ${Date.now() - now}ms`,
@@ -38,13 +42,13 @@ export class CategoriesRepository {
     }))
   }
 
-  async updateForUser(
-    userId: number,
-    id: number,
-    category: Omit<Category, 'id' | 'user_id'>,
-  ): Promise<number> {
-    const rows = await this.ctx.db.sql<{ id: number }>`
-      UPDATE categories
+  async update(
+    id: UUID,
+    userId: UUID_v7,
+    category: Omit<CategoryRow, 'id' | 'user_id'>,
+  ): Promise<UUID | null> {
+    const rows = await this.ctx.db.sql<{ id: UUID }>`
+      UPDATE category
       SET
         name = ${category.name},
         color = ${category.color},
@@ -54,15 +58,16 @@ export class CategoriesRepository {
       RETURNING id
     `
 
-    return rows.length
+    return rows.length > 0 ? rows[0].id : null
   }
 
-  async deleteForUser(userId: number, id: number): Promise<number> {
-    const rows = await this.ctx.db.sql<{ id: number }>`
-      DELETE FROM categories
-      WHERE id = ${id} AND user_id = ${userId}
-      RETURNING id
+  async delete(id: UUID, userId: UUID_v7): Promise<UUID | null> {
+    const rows = await this.ctx.db.sql<{ id: UUID }>`
+      DELETE FROM "category"
+      WHERE "id" = ${id}
+      AND "user_id" = ${userId}
+      RETURNING "id"
     `
-    return rows.length
+    return rows.length > 0 ? rows[0].id : null
   }
 }
