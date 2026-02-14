@@ -2,15 +2,12 @@
 
 import { BotIcon, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import Markdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { Textarea } from '@/components/ui/textarea'
-import { useChat } from '@/contexts/chat-context'
-import { cn } from '@/lib/utils'
-import { ChatMessage } from './chat-message'
+import { useChat } from '@/contexts/chat/chat-context'
+import { ChatMessage } from '../../atoms/chat-message/chat-message'
 
 export function ChatWindow() {
   const { messages, writting, sendMessage } = useChat()
