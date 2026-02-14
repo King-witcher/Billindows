@@ -8,6 +8,7 @@ export type NowData = {
   /** Month from 1 to 12 */
   month: number
   day: number
+  daysInMonth: number
 }
 
 const NowContext = createContext<NowData | null>(null)
@@ -21,6 +22,7 @@ export function NowProvider({ children }: { children: React.ReactNode }) {
       year: now.getFullYear(),
       month: now.getMonth() + 1,
       day: now.getDate(),
+      daysInMonth: new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(),
     }),
     [now],
   )

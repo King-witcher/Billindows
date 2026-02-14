@@ -1,7 +1,7 @@
 import type { Category } from '@prisma/client'
 import type { ZodObject } from 'zod'
 import * as zod from 'zod'
-import { TransactionsRepository } from '@/database/repositories/transactions'
+import { TransactionsRepository } from '@/lib/database/repositories/transactions'
 import { slugify } from '@/utils/utils'
 import type { Tool, ToolExecuteArgs } from './tool'
 
@@ -65,11 +65,11 @@ export class CreateTransactionTool implements Tool {
 
       await txRepo.create({
         name: args.name,
-        value: (args.sign === 'income' ? 1 : -1) * args.value * 100,
+        amount: (args.sign === 'income' ? 1 : -1) * args.value * 100,
         year: args.year,
         month: args.month,
         day: args.day,
-        type: args.type,
+        recurrence: args.type,
         forecast: args.forecast,
         category_id: this.categoryMap.get(args.category)!.id,
       })

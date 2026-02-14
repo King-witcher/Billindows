@@ -1,5 +1,6 @@
 import { BanknoteArrowDown, BanknoteArrowUp, Calendar, TrendingUp } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 import type { BalanceType, TransactionType } from '../helpers'
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
   balanceType: BalanceType
   onChangeTransactionType: (type: TransactionType) => void
   onChangeBalanceType: (type: BalanceType) => void
+  className?: string
 }
 
 export function ChartFilters({
@@ -14,9 +16,10 @@ export function ChartFilters({
   balanceType,
   onChangeTransactionType,
   onChangeBalanceType,
+  className,
 }: Props) {
   return (
-    <div className="flex flex-row gap-3">
+    <div className={cn('flex flex-row gap-3', className)}>
       <Tabs
         value={transactionType}
         onValueChange={(v) => onChangeTransactionType(v as TransactionType)}

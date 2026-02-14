@@ -1,17 +1,18 @@
 'use client'
 
-import type { Category } from '@prisma/client'
 import { useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import type { CategoryRow } from '@/lib/database/types'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/utils/utils'
 import { forecast, type TarnsactionsSummary } from '../helpers'
 
 type CategoryTableProps = {
   categorySummaries: Record<string, TarnsactionsSummary>
-  categoriesMap: Map<string, Category>
+  categoriesMap: Map<string, CategoryRow>
   monthProgress: number
+  loading: boolean
 }
 
 function ColorBadge({ color }: { color: string }) {
@@ -22,6 +23,7 @@ export function CategoryTable({
   categorySummaries,
   categoriesMap,
   monthProgress,
+  loading,
 }: CategoryTableProps) {
   const sortedCategories = useMemo(() => {
     return Object.entries(categorySummaries).sort(([, a], [, b]) => {

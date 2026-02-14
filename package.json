@@ -3,7 +3,7 @@
   "version": "0.4.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 80",
+    "dev": "next dev -p 80",
     "build": "next build",
     "db:new": "tsx database/generate.ts",
     "db:migrate": "tsx --env-file .env database/scripts/migrate.ts",
@@ -75,6 +75,7 @@
     "@faker-js/faker": "^9.6.0",
     "@giuseppelanna/biomejs-configs": "^3.0.0",
     "@tailwindcss/postcss": "^4",
+    "@tanstack/react-query-devtools": "^5.91.3",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",

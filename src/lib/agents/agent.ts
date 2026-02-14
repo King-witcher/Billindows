@@ -1,8 +1,8 @@
 import type { Tool as OpenAITool, ResponseInput } from 'openai/resources/responses/responses.mjs'
 import type { ResponsesModel } from 'openai/resources/shared.mjs'
 import * as zod from 'zod'
-import { openai } from './openai'
-import type { Tool } from './tools/tool'
+import { openai } from '../openai'
+import type { Tool } from '../tools/tool'
 
 export type CreateAgentParams<TToolName extends string = string> = {
   model?: ResponsesModel

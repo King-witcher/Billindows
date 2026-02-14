@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { ReactNode } from 'react'
 import { NowProvider } from '@/contexts/now/now-context'
 import { TodayProvider } from '@/contexts/today-context'
@@ -21,6 +22,7 @@ export function Providers({ children }: Props) {
           </ThemeProvider>
         </TodayProvider>
       </AppRouterCacheProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
 }
