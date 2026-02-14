@@ -137,7 +137,7 @@ export function ClientComponent({ categories }: Props) {
       <Dialog open={deleteTxDialogOpen} onOpenChange={setDeleteTxDialogOpen}>
         <DialogContent>
           {txToDelete && (
-            <DeleteTxForm tx={txToDelete} onClose={() => setDeleteTxDialogOpen(false)} />
+            <DeleteTxForm transaction={txToDelete} onClose={() => setDeleteTxDialogOpen(false)} />
           )}
         </DialogContent>
       </Dialog>
