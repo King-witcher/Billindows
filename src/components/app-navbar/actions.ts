@@ -1,9 +1,9 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { deleteSession } from '@/lib/session'
+import { action } from '@/lib/server-wrappers'
 
-export async function logoutAction() {
-  deleteSession()
-  redirect('/sign-in')
-}
+export const logoutAction = action(async (ctx) => {
+  await ctx.authService.deleteSession()
+  redirect('/login')
+})
