@@ -95,7 +95,6 @@ export default function Page() {
                 aria-invalid={!!errors.password}
                 autoComplete="current-password"
                 {...register('password')}
-                required
               />
               <InputGroupAddon align="inline-end">
                 <button

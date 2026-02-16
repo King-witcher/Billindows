@@ -1,9 +1,9 @@
-import { CircularProgress } from '@mui/material'
+import { Spinner } from '../ui/spinner'
 
 export function Loading() {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <CircularProgress size="70px" />
+      <Spinner />
     </div>
   )
 }
