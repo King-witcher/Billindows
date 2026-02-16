@@ -19,11 +19,11 @@ export type DependencyContainer = {
     transactions: TransactionsRepository
     categories: CategoriesRepository
     users: UsersRepository
-    messages: ChatRepository
+    chat: ChatRepository
   }
   db: DbPool
   authService: AuthService
-  userIdAsync: Promise<number | null>
+  userIdAsync: Promise<string | null>
   /** @deprecated Use requireAuth instead */
   jwtAsync: Promise<JWTPaylaod>
   requireAuth: () => Promise<JWTPaylaod>
@@ -49,7 +49,7 @@ export function buildDefaultContainer(): DependencyContainer {
       transactions: fromClass(TransactionsRepository),
       categories: fromClass(CategoriesRepository),
       users: fromClass(UsersRepository),
-      messages: fromClass(ChatRepository),
+      chat: fromClass(ChatRepository),
     },
     db: factory(() => DbPool.instance),
     authService: fromClass(AuthService),

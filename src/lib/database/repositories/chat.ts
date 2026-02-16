@@ -1,69 +1,21 @@
-import type {
-  ResponseFunctionToolCall,
-  ResponseInputItem,
-} from 'openai/resources/responses/responses.mjs'
-import { uuidv7 } from 'uuidv7'
 import type { DependencyContainer } from '@/lib/injector/dependencies'
-import type { ChatMessageRow } from '../types'
+import type { ClientMessageRow } from '../types'
 import type { UUID } from '../types/postgres'
-
-export type InternalMessage = {
-  type: 'message'
-  role: 'internal'
-  content: string
-}
-
-export type MessageRowContent =
-  | ResponseFunctionToolCall // Hidden from client
-  | ResponseInputItem.FunctionCallOutput // Hidden from client
-  | {
-      type: 'message'
-      role: 'user' | 'assistant' | 'internal'
-      content: string
-    }
-
-export type CreateMessageRowData = {
-  user_id: UUID
-  content: MessageRowContent
-  order?: number
-}
-
-export type ProcessedMessage = {
-  id: UUID
-  user_id: UUID
-  content: MessageRowContent
-  date: Date // Extracted from the id
-}
 
 export class ChatRepository {
   constructor(private ctx: DependencyContainer) {}
 
-  async create(row: CreateMessageRowData): Promise<ProcessedMessage> {
-    const id = uuidv7()
-
-    const [message] = await this.ctx.db.sql<ChatMessageRow>`
-      INSERT INTO chat_message ("id", "user_id", "content")
-      VALUES (${id}, ${row.user_id}, ${row.content})
-      RETURNING *
+  async listClientMessages(userId: UUID): Promise<Omit<ClientMessageRow, 'user_id'>[]> {
+    const now = Date.now()
+    const messages = await this.ctx.db.sql<Omit<ClientMessageRow, 'user_id'>>`
+      SELECT id, "role", content, "date"
+      FROM client_chat_message_view
+      WHERE user_id = ${userId}
+      ORDER BY id DESC
     `
-
-    return {
-      id: message.id,
-      user_id: message.user_id,
-      content: message.content as unknown as MessageRowContent,
-      date: new Date(),
-    }
-  }
-
-  async listClientMessagesByUser(userId: UUID): Promise<ProcessedMessage[]> {}
-
-  async listByUser(user_id: UUID): Promise<ProcessedMessage[]> {
-    const messages = await this.ctx.db.sql<ProcessedMessage>`
-      SELECT "id", "user_id", "content", uuidv7_timestamp("id") AS "date"
-      FROM chat_message
-      WHERE "user_id" = ${user_id}
-      ORDER BY "id" DESC
-    `
+    console.debug(
+      `Fetched ${messages.length} chat messages for user ${userId} in ${Date.now() - now}ms`,
+    )
 
     return messages
   }
