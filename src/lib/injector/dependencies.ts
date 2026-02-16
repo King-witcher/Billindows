@@ -1,6 +1,6 @@
 import {
   CategoriesRepository,
-  MessagesRepository,
+  ChatRepository,
   TransactionsRepository,
   UsersRepository,
 } from '@/lib/database'
@@ -19,7 +19,7 @@ export type DependencyContainer = {
     transactions: TransactionsRepository
     categories: CategoriesRepository
     users: UsersRepository
-    messages: MessagesRepository
+    messages: ChatRepository
   }
   db: DbPool
   authService: AuthService
@@ -49,7 +49,7 @@ export function buildDefaultContainer(): DependencyContainer {
       transactions: fromClass(TransactionsRepository),
       categories: fromClass(CategoriesRepository),
       users: fromClass(UsersRepository),
-      messages: fromClass(MessagesRepository),
+      messages: fromClass(ChatRepository),
     },
     db: factory(() => DbPool.instance),
     authService: fromClass(AuthService),

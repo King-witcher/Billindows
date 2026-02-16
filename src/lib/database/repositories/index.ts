@@ -1,4 +1,4 @@
 export * from './categories'
-export * from './messages'
+export * from './chat'
 export * from './transactions'
 export * from './users'

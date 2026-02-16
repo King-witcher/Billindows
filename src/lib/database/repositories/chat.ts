@@ -35,7 +35,7 @@ export type ProcessedMessage = {
   date: Date // Extracted from the id
 }
 
-export class MessagesRepository {
+export class ChatRepository {
   constructor(private ctx: DependencyContainer) {}
 
   async create(row: CreateMessageRowData): Promise<ProcessedMessage> {
