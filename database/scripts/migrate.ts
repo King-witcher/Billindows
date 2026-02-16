@@ -1,3 +1,4 @@
+import { exec } from 'node:child_process'
 import { close, transaction } from './db'
 import {
   ensureMigrationsTable,
@@ -34,6 +35,7 @@ async function apply(migrations: Migration[]) {
 
 async function main() {
   try {
+    await exec('docker compose up -d') // Ensure the database is running before starting migrations
     const start = Date.now()
 
     const [migrations, applied] = await Promise.all([

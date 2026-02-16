@@ -2,10 +2,12 @@
 
 CREATE TABLE "category" (
     "id"        UUID    PRIMARY KEY DEFAULT gen_random_uuid(),
-    "user_id"   UUID    NOT NULL,
+    "user_id"   UUID    NOT NULL        REFERENCES "user"("id") ON DELETE CASCADE,
     "name"      TEXT    NOT NULL,
     "color"     CHAR(7) NOT NULL,
-    "goal"      INTEGER
+    "goal"      INTEGER,
+
+    UNIQUE("id", "user_id")
 );
 
-CREATE INDEX "category_user_id_idx" ON "category"("user_id");
+CREATE INDEX "category_user_id_idx" ON "category"("id", "user_id");

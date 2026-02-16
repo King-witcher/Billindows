@@ -1,6 +1,6 @@
--- Migration generated on 2026-02-12 21:18:44
+-- Migration generated on 2026-02-16 0:59:25
 
-DROP FUNCTION uuidv7_timestamp;
+DROP TABLE function_call;
 DROP TABLE chat_message;
 DROP TYPE chat_message_role;
 DROP TYPE chat_message_llm_provider;

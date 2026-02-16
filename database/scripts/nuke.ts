@@ -11,6 +11,7 @@ async function main() {
   console.log('💣 Database being nuked...')
   await rm(process.env.POSTGRES_DATA, { recursive: true, force: true })
   console.log('💥 Database nuked.')
+  await exec('docker compose up -d')
   process.exit(0)
 }
 

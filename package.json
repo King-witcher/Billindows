@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 80",
     "build": "next build",
-    "db:new": "tsx database/generate.ts",
+    "db:new": "tsx database/scripts/generate.ts",
     "db:migrate": "tsx --env-file .env database/scripts/migrate.ts",
     "db:nuke": "tsx --env-file .env database/scripts/nuke.ts",
     "db:seed": "tsx --env-file .env database/scripts/seed.ts",

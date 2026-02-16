@@ -1,10 +1,11 @@
-import type { MessageRow } from '@prisma/client'
 import type {
   ResponseFunctionToolCall,
   ResponseInputItem,
 } from 'openai/resources/responses/responses.mjs'
 import { uuidv7 } from 'uuidv7'
 import type { DependencyContainer } from '@/lib/injector/dependencies'
+import type { ChatMessageRow } from '../types'
+import type { UUID } from '../types/postgres'
 
 export type InternalMessage = {
   type: 'message'
@@ -22,14 +23,14 @@ export type MessageRowContent =
     }
 
 export type CreateMessageRowData = {
-  user_id: string
+  user_id: UUID
   content: MessageRowContent
   order?: number
 }
 
 export type ProcessedMessage = {
-  id: string
-  user_id: number
+  id: UUID
+  user_id: UUID
   content: MessageRowContent
   date: Date // Extracted from the id
 }
@@ -40,7 +41,7 @@ export class MessagesRepository {
   async create(row: CreateMessageRowData): Promise<ProcessedMessage> {
     const id = uuidv7()
 
-    const [message] = await this.ctx.db.sql<MessageRow>`
+    const [message] = await this.ctx.db.sql<ChatMessageRow>`
       INSERT INTO chat_message ("id", "user_id", "content")
       VALUES (${id}, ${row.user_id}, ${row.content})
       RETURNING *
@@ -54,7 +55,9 @@ export class MessagesRepository {
     }
   }
 
-  async listByUser(user_id: number): Promise<ProcessedMessage[]> {
+  async listClientMessagesByUser(userId: UUID): Promise<ProcessedMessage[]> {}
+
+  async listByUser(user_id: UUID): Promise<ProcessedMessage[]> {
     const messages = await this.ctx.db.sql<ProcessedMessage>`
       SELECT "id", "user_id", "content", uuidv7_timestamp("id") AS "date"
       FROM chat_message

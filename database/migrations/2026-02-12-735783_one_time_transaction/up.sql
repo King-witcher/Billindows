@@ -7,7 +7,10 @@ CREATE TABLE one_time_transaction (
     "name"          TEXT    NOT NULL,
     "amount"        INTEGER NOT NULL,
     "forecast"      BOOLEAN NOT NULL,
-    "date"          DATE    NOT NULL
+    "date"          DATE    NOT NULL,
+
+    FOREIGN KEY (user_id, category_id)
+        REFERENCES category(user_id, id) ON DELETE CASCADE
 );
 
 CREATE INDEX ott_user_id_date_idx ON one_time_transaction("user_id", "date" DESC);
