@@ -8,7 +8,7 @@
     "db:new": "tsx database/scripts/generate.ts",
     "db:migrate": "tsx --env-file .env database/scripts/migrate.ts",
     "db:nuke": "tsx --env-file .env database/scripts/nuke.ts",
-    "db:seed": "tsx --env-file .env database/scripts/seed.ts",
+    "db:seed": "tsx --env-file .env database/scripts/seed/seed.ts",
     "start": "next start",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
     "test": "vitest",
