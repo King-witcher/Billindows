@@ -14,7 +14,7 @@ import value = Injector.instance
 import { DBTime } from '@/utils/time'
 import { DbPool } from '../database/db'
 
-export type DependencyContainer = {
+export type DefaultContainer = {
   repositories: {
     transactions: TransactionsRepository
     categories: CategoriesRepository
@@ -38,7 +38,7 @@ export type DependencyContainer = {
   }
 }
 
-export function buildDefaultContainer(): DependencyContainer {
+export function buildDefaultContainer(): DefaultContainer {
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1

@@ -1,9 +1,9 @@
-import type { DependencyContainer } from '@/lib/injector/dependencies'
+import type { DefaultContainer } from '@/lib/injector/dependencies'
 import type { CategoryRow } from '../types'
 import type { UUID, UUID_v7 } from '../types/postgres'
 
 export class CategoriesRepository {
-  constructor(private readonly ctx: DependencyContainer) {}
+  constructor(private readonly ctx: DefaultContainer) {}
 
   async create(data: Omit<CategoryRow, 'id'>): Promise<CategoryRow> {
     const [category] = await this.ctx.db.sql<CategoryRow>`

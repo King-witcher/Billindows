@@ -4,26 +4,26 @@ import type { ReactNode } from 'react'
 import * as z from 'zod'
 import {
   buildDefaultContainer as buildDefaultContext,
-  type DependencyContainer,
+  type DefaultContainer,
 } from '../injector/dependencies'
 import { ClientError, InternalError } from './errors'
 
 // Overload 1: Sem schema, apenas função
 export function action<TOutput>(
-  fn: (ctx: DependencyContainer) => Promise<TOutput> | TOutput,
+  fn: (ctx: DefaultContainer) => Promise<TOutput> | TOutput,
 ): () => Promise<TOutput>
 
 // Overload 2: Com schema e função
 export function action<TSchema extends z.ZodTypeAny, TOutput>(
   schema: TSchema,
-  fn: (input: z.infer<TSchema>, ctx: DependencyContainer) => Promise<TOutput> | TOutput,
+  fn: (input: z.infer<TSchema>, ctx: DefaultContainer) => Promise<TOutput> | TOutput,
 ): (input: z.infer<TSchema>) => Promise<TOutput>
 
 // Implementação
 export function action<TOutput>(
-  schemaOrFn: z.ZodTypeAny | ((ctx: DependencyContainer) => Promise<TOutput> | TOutput),
-  fn?: (input: any, ctx: DependencyContainer) => Promise<TOutput> | TOutput,
-): (input?: any, ctx?: DependencyContainer) => Promise<TOutput> {
+  schemaOrFn: z.ZodTypeAny | ((ctx: DefaultContainer) => Promise<TOutput> | TOutput),
+  fn?: (input: any, ctx: DefaultContainer) => Promise<TOutput> | TOutput,
+): (input?: any, ctx?: DefaultContainer) => Promise<TOutput> {
   // If the first argument is a function, it's the no-schema version
   if (typeof schemaOrFn === 'function') {
     return wrapWithoutParams(schemaOrFn)
@@ -38,7 +38,7 @@ export const page = wrapWithoutParams<ReactNode>
 export function layout<TParams>(
   fn: (
     params: { children: ReactNode } & TParams,
-    ctx: DependencyContainer,
+    ctx: DefaultContainer,
   ) => Promise<ReactNode> | ReactNode,
 ): (params: { children: ReactNode } & TParams) => Promise<ReactNode> {
   return async (params: { children: ReactNode } & TParams) => {
@@ -60,7 +60,7 @@ export function layout<TParams>(
 }
 
 function wrapWithoutParams<TOutput>(
-  fn: (ctx: DependencyContainer) => Promise<TOutput> | TOutput,
+  fn: (ctx: DefaultContainer) => Promise<TOutput> | TOutput,
 ): () => Promise<TOutput> {
   return async () => {
     try {
@@ -82,7 +82,7 @@ function wrapWithoutParams<TOutput>(
 
 export function wrapWithSchema<TSchema extends z.ZodTypeAny, TOutput>(
   schema: TSchema,
-  fn: (input: z.infer<TSchema>, ctx: DependencyContainer) => Promise<TOutput> | TOutput,
+  fn: (input: z.infer<TSchema>, ctx: DefaultContainer) => Promise<TOutput> | TOutput,
 ): (input: z.infer<TSchema>) => Promise<TOutput> {
   return async (input) => {
     try {

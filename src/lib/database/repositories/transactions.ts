@@ -1,4 +1,4 @@
-import type { DependencyContainer } from '@/lib/injector/dependencies'
+import type { DefaultContainer } from '@/lib/injector/dependencies'
 import { fail, fatal } from '@/lib/server-wrappers'
 import type { FixedTransactionRow, OneTimeTransactionRow } from '../types'
 import type { AbstractTransaction } from '../types/abstract-transaction'
@@ -36,10 +36,10 @@ export type Transaction = {
 
 /** Represents a unified repository that abstracts the separation between one-time and fixed transactions. */
 export class TransactionsRepository {
-  constructor(private readonly ctx: DependencyContainer) {}
+  constructor(private readonly ctx: DefaultContainer) {}
 
   /** Create a transaction regardless of the owner of it's transaction */
-  async create(user_id: UUID_v7, tx: Omit<AbstractTransaction, 'id'>) {
+  async create(user_id: UUID_v7, tx: Omit<AbstractTransaction, 'id' | 'user_id'>) {
     if (tx.recurrence === 'fixed' && !tx.forecast) fail('FixedTransactionShouldForecast')
 
     const date = new Date(tx.date.year, tx.date.month - 1, tx.date.day)

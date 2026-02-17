@@ -2,8 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createContext, type ReactNode, use } from 'react'
+import { toast } from 'sonner'
 import { useUser } from '../user-context'
-import { listMessagesAction } from './actions'
+import { listMessagesAction, sendMessageAction } from './actions'
 import type { ClientMessage } from './types'
 
 type ChatContextData = {
@@ -30,11 +31,9 @@ export function ChatProvider({ children }: Props) {
 
   const client = useQueryClient()
 
-  const callAgentMutation = useMutation({
-    mutationKey: ['call-agent'],
-    mutationFn: async (message: string) => {
-      // return await callAgentAction({ history: messages.slice(-20), input: message })
-    },
+  const sendMessageMutation = useMutation({
+    mutationKey: ['send-message'],
+    mutationFn: async (message: string) => sendMessageAction(message),
     onMutate: async (message: string) => {
       const newMessage: ClientMessage = {
         id: `${Date.now()}`,
@@ -42,27 +41,32 @@ export function ChatProvider({ children }: Props) {
         content: message,
         sentAt: new Date(),
       }
-      // setMessages((prev) => [...prev, newMessage])
-    },
-    onSuccess: async (response) => {
-      // const assistantMessage: ClientMessage = {
-      //   id: `${Date.now()}`,
-      //   role: 'assistant',
-      //   content: response.text,
-      //   sentAt: new Date(),
-      // }
-      // setMessages((prev) => [...prev, assistantMessage])
-      // if (response.invalidate.transactions) {
-      //   client.refetchQueries({ queryKey: ['transactions'] })
-      // }
+      client.setQueryData(['chat-messages', user?.email], (old: ClientMessage[] | undefined) => {
+        if (!old) return [newMessage]
+        return [newMessage, ...old]
+      })
     },
     onError: async (error) => {
-      console.error('Error calling agent:', error)
+      toast.error('Failed to send message.')
+      messagesQuery.refetch()
+      console.error(error)
+    },
+    onSuccess(data) {
+      client.setQueryData(['chat-messages', user?.email], (old: ClientMessage[] | undefined) => {
+        if (!old) return old
+        const assistantMessage: ClientMessage = {
+          id: `${Date.now()}`,
+          role: 'assistant',
+          content: data.response,
+          sentAt: new Date(),
+        }
+        return [assistantMessage, ...old]
+      })
     },
   })
 
   async function sendMessage(request: string) {
-    callAgentMutation.mutate(request)
+    sendMessageMutation.mutate(request)
   }
 
   function clear() {
@@ -73,7 +77,7 @@ export function ChatProvider({ children }: Props) {
     <ChatContextContext
       value={{
         messages: messagesQuery.data || [],
-        writting: callAgentMutation.isPending,
+        writting: sendMessageMutation.isPending,
         sendMessage,
         clear,
       }}

@@ -1,11 +1,11 @@
 import { type PoolClient as PgClient, Pool as PgPool } from 'pg'
 
-export interface IClient {
+export interface IDBClient {
   query<T>(text: string, values?: unknown[]): Promise<T[]>
   sql<T>(strings: TemplateStringsArray, ...values: unknown[]): Promise<T[]>
 }
 
-export class DbPool implements IClient {
+export class DbPool implements IDBClient {
   private pool: PgPool = new PgPool({
     connectionString: process.env.POSTGRES_URL,
   })
@@ -50,7 +50,7 @@ export class DbPool implements IClient {
   }
 }
 
-export class DbClient implements IClient, Disposable {
+export class DbClient implements IDBClient, Disposable {
   constructor(private readonly client: PgClient) {}
 
   async query<T>(text: string, values?: unknown[]): Promise<T[]> {

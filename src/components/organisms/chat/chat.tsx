@@ -19,7 +19,6 @@ export function Chat({ className, ...rest }: ComponentProps<'div'>) {
     const formData = new FormData(e.currentTarget as HTMLFormElement)
     const message = formData.get('message')?.toString()
     if (message) {
-      console.log(message)
       sendMessage(message)
       e.currentTarget.reset()
     }
@@ -27,10 +26,11 @@ export function Chat({ className, ...rest }: ComponentProps<'div'>) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scrolling
   useEffect(() => {
+    console.log('rerolando')
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [messages[messages.length - 1]?.sentAt])
+  }, [messages[0]?.id])
 
   function handleEnterPress(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -46,7 +46,7 @@ export function Chat({ className, ...rest }: ComponentProps<'div'>) {
         <div className="flex-1 relative">
           <div className="absolute inset-0 overflow-y-scroll scroll-smooth p-4" ref={scrollRef}>
             <div className="flex flex-col gap-2 min-h-full justify-end">
-              {messages.map((message) => (
+              {[...messages].reverse().map((message) => (
                 <ChatMessage key={message.sentAt.toISOString()} message={message} />
               ))}
               {writting && <Spinner />}

@@ -16,7 +16,14 @@ export type LLMChatMessageRowFunctionCall = {
 export type LLMChatMessageRow = {
   id: UUID_v7
   user_id: UUID
-  role: LLMChatMessageRowRole
   content: string | null
-  function_calls: LLMChatMessageRowFunctionCall[]
-}
+} & (
+  | {
+      role: Exclude<LLMChatMessageRowRole, 'function_call'>
+      function_calls: null
+    }
+  | {
+      role: 'function_call'
+      function_calls: LLMChatMessageRowFunctionCall[]
+    }
+)

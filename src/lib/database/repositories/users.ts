@@ -1,9 +1,9 @@
 import { uuidv7 } from 'uuidv7'
-import type { DependencyContainer } from '@/lib/injector/dependencies'
+import type { DefaultContainer } from '@/lib/injector/dependencies'
 import type { UserRow } from '../types'
 
 export class UsersRepository {
-  constructor(private readonly ctx: DependencyContainer) {}
+  constructor(private readonly ctx: DefaultContainer) {}
 
   async findByEmail(email: string): Promise<UserRow | null> {
     const [user] = await this.ctx.db.sql<UserRow | null>`

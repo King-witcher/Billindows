@@ -1,6 +1,7 @@
-import type { Tool as OpenAITool, ResponseInput } from 'openai/resources/responses/responses.mjs'
+import type { Tool as OpenAITool } from 'openai/resources/responses/responses.mjs'
 import type { ResponsesModel } from 'openai/resources/shared.mjs'
 import * as zod from 'zod'
+import type { LLMChatMessageRow } from '../database/types/llm-message-row'
 import { openai } from '../openai'
 import type { Tool } from '../tools/tool'
 
@@ -8,7 +9,7 @@ export type CreateAgentParams<TToolName extends string = string> = {
   model?: ResponsesModel
   instructions: string
   tools: (Tool & { name: TToolName })[]
-  history?: ResponseInput
+  history?: LLMChatMessageRow[]
 }
 
 export type AgentResult<TToolName extends string = string> = {
@@ -21,12 +22,12 @@ export class Agent<TToolName extends string = string> {
   private toolsMap: Map<string, Tool & { name: TToolName }>
   private model: ResponsesModel
   private instructions: string
-  private history: ResponseInput = []
+  private history: LLMChatMessageRow[] = []
 
   constructor({ model, instructions, tools, history = [] }: CreateAgentParams<TToolName>) {
     this.model = model || process.env.OPENAI_MODEL!
     this.instructions = instructions
-    this.history = history
+    this.history = history || []
     this.toolsMap = new Map(tools.map((tool) => [tool.name, tool]))
   }
 

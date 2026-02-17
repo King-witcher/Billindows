@@ -1,10 +1,10 @@
 'use server'
 
 import * as z from 'zod'
-import { Agent } from '@/lib/agents/agent'
+import { OpenAiProvider } from '@/lib/agent/openai-provider'
+import { AppAgent } from '@/lib/agents/app-agent'
 import { action } from '@/lib/server-wrappers'
-import { CreateTransactionTool } from '@/lib/tools/create-transaction'
-import type { ClientMessage } from './types'
+import type { ClientMessage, SendMessageResult } from './types'
 
 const schema = z.object({
   history: z.array(
@@ -16,37 +16,40 @@ const schema = z.object({
   input: z.string(),
 })
 
-export const callAgentAction = action(schema, async (data, ctx) => {
-  const jwt = await ctx.requireAuth()
-  // const categories = await ctx.repositories.categories.list(jwt.id)
-  // const createTransactionTool = new CreateTransactionTool()
-
-  // const agent = new Agent({
-  //   history: data.history
-  //     .filter((msg) => msg.role !== 'internal')
-  //     .map((msg) => ({
-  //       role: msg.role as 'user' | 'assistant',
-  //       content: msg.content,
-  //     })),
-  //   instructions: `You are an assistant responsible for creating transactions in a financial application. The current user name is ${jwt.name}, and today is ${new Date().toISOString().split('T')[0]}. You should avoid answering questions that are not related to the scope of the app.`,
-  //   tools: [createTransactionTool],
-  // })
-
-  // const response = await agent.run(data.input)
-  // console.log(`Agent used a total of ${response.tokens} tokens.`)
-  // return {
-  //   text: response.response,
-  //   invalidate: {
-  //     transactions: !!response.toolCalls.create_transaction,
-  //   },
-  // }
-})
-
 const sendMessageSchema = z.string().max(512)
 
-export const sendMessageAction = action(sendMessageSchema, async (message, ctx) => {
-  const jwt = await ctx.requireAuth()
-})
+export const sendMessageAction = action(
+  sendMessageSchema,
+  async (input, ctx): Promise<SendMessageResult> => {
+    const jwt = await ctx.requireAuth()
+
+    const saveInputPromise = ctx.repositories.chat.createClientMessage({
+      user_id: jwt.id,
+      content: input,
+    })
+    const history = await ctx.repositories.chat.listLLMessages(jwt.id, 10)
+
+    const provider = new OpenAiProvider(process.env.OPENAI_MODEL || 'gpt-5.1')
+    const agent = new AppAgent({
+      ctx,
+      history,
+      provider,
+      userName: jwt.name,
+    })
+
+    const response = await agent.run(input)
+    await saveInputPromise
+    ctx.repositories.chat.createLLMMessages(jwt.id, ...response.output)
+
+    return {
+      response: response.outputText,
+      invalidate: {
+        transactions: true,
+        categories: false,
+      },
+    }
+  },
+)
 
 export const listMessagesAction = action(async (ctx): Promise<ClientMessage[]> => {
   const jwt = await ctx.requireAuth()

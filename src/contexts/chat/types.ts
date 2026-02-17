@@ -4,3 +4,11 @@ export type ClientMessage = {
   content: string
   sentAt: Date
 }
+
+export type SendMessageResult = {
+  response: string
+  invalidate: {
+    transactions: boolean
+    categories: boolean
+  }
+}
