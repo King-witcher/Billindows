@@ -11,6 +11,7 @@ import {
   type LucideIcon,
   User2,
 } from 'lucide-react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ComponentProps } from 'react'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
@@ -74,10 +75,10 @@ export function AppNavbar({ className, ...props }: ComponentProps<'nav'>) {
             className={cn('flex items-center gap-2', selected && 'font-bold')}
             asChild
           >
-            <a href={item.url} title={item.label}>
+            <Link href={item.url} title={item.label}>
               <item.Icon className={selected ? 'stroke-3' : undefined} />
               <span className="hidden md:inline-block">{item.label}</span>
-            </a>
+            </Link>
           </Button>
         )
       })}
