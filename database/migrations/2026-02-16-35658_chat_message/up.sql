@@ -20,6 +20,7 @@ CREATE TABLE chat_message (
   "user_id"                     UUID              NOT NULL,     -- Identifies the conversation
   "role"                        chat_message_role NOT NULL,
   "content"                     TEXT,
+  "order"                       INTEGER           NOT NULL DEFAULT 0, -- For ordering messages with same id within a conversation
 
   CONSTRAINT fk_user
     FOREIGN KEY(user_id)
@@ -29,7 +30,8 @@ CREATE TABLE chat_message (
 
 CREATE INDEX chat_message_user_id_idx ON chat_message(
   "user_id",
-  "id" DESC
+  "id" DESC,
+  "order" DESC
 );
 
 CREATE TABLE function_call (
@@ -56,7 +58,8 @@ CREATE VIEW client_chat_message_view AS (
     user_id,
     "role",
     content,
-    uuidv7_timestamp(id) AS date
+    uuidv7_timestamp(id) AS date,
+    "order"
   FROM chat_message
   WHERE "role" IN ('user', 'assistant', 'internal')
 );
@@ -80,7 +83,8 @@ CREATE VIEW llm_chat_message_view AS (
           )
         )
       ELSE NULL
-    END as function_calls
+    END as function_calls,
+    m."order"
   FROM chat_message m
   LEFT JOIN function_call fc
     ON m.role = 'function_call' AND m.id = fc.message_id

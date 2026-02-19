@@ -1,15 +1,18 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createContext, type ReactNode, use } from 'react'
 import { toast } from 'sonner'
-import { useUser } from '../user-context'
-import { listMessagesAction, sendMessageAction } from './actions'
+import { sendMessageAction } from './actions'
 import type { ClientMessage } from './types'
+import { useConversation } from './use-conversation'
 
 type ChatContextData = {
   messages: ClientMessage[]
+  isLoadingMore: boolean
+  hasMore: boolean
   writting: boolean
+  fetchMore: () => void
   sendMessage(content: string): Promise<void>
   clear(): void
 }
@@ -21,15 +24,7 @@ interface Props {
 const ChatContextContext = createContext<ChatContextData | null>(null)
 
 export function ChatProvider({ children }: Props) {
-  const user = useUser()
-  const messagesQuery = useQuery({
-    queryKey: ['chat-messages', user?.email],
-    queryFn: async () => {
-      return await listMessagesAction()
-    },
-  })
-
-  const client = useQueryClient()
+  const conversation = useConversation()
 
   const sendMessageMutation = useMutation({
     mutationKey: ['send-message'],
@@ -41,26 +36,19 @@ export function ChatProvider({ children }: Props) {
         content: message,
         sentAt: new Date(),
       }
-      client.setQueryData(['chat-messages', user?.email], (old: ClientMessage[] | undefined) => {
-        if (!old) return [newMessage]
-        return [newMessage, ...old]
-      })
+      conversation.appendMessage(newMessage)
     },
     onError: async (error) => {
       toast.error('Failed to send message.')
-      messagesQuery.refetch()
+      conversation.refetch()
       console.error(error)
     },
     onSuccess(data) {
-      client.setQueryData(['chat-messages', user?.email], (old: ClientMessage[] | undefined) => {
-        if (!old) return old
-        const assistantMessage: ClientMessage = {
-          id: `${Date.now()}`,
-          role: 'assistant',
-          content: data.response,
-          sentAt: new Date(),
-        }
-        return [assistantMessage, ...old]
+      conversation.appendMessage({
+        id: `${Date.now()}`,
+        role: 'assistant',
+        content: data.response,
+        sentAt: new Date(),
       })
     },
   })
@@ -76,8 +64,11 @@ export function ChatProvider({ children }: Props) {
   return (
     <ChatContextContext
       value={{
-        messages: messagesQuery.data || [],
+        messages: conversation.messages,
         writting: sendMessageMutation.isPending,
+        isLoadingMore: conversation.isFetchingNextPage,
+        hasMore: conversation.hasNextPage ?? false,
+        fetchMore: conversation.fetchMore,
         sendMessage,
         clear,
       }}

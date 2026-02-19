@@ -1,16 +1,31 @@
 'use client'
 
-import { type ComponentProps, type KeyboardEvent, type SubmitEvent, useEffect, useRef } from 'react'
+import {
+  type ComponentProps,
+  type KeyboardEvent,
+  type SubmitEvent,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import { ChatMessage } from '@/components/atoms/chat-message/chat-message'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { useChat } from '@/contexts/chat/chat-context'
+import { useInView } from '@/hooks/use-intersection-observer'
 import { cn } from '@/lib/utils'
 
 export function Chat({ className, ...rest }: ComponentProps<'div'>) {
-  const { messages, writting, sendMessage } = useChat()
+  const { messages, writting, hasMore, fetchMore, sendMessage } = useChat()
   const scrollRef = useRef<HTMLDivElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const initializedRef = useRef(false)
+
+  const observerRef = useInView({
+    callback: () => {
+      if (initializedRef.current) fetchMore()
+    },
+  })
 
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -25,10 +40,12 @@ export function Chat({ className, ...rest }: ComponentProps<'div'>) {
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scrolling
-  useEffect(() => {
-    console.log('rerolando')
+  useLayoutEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+      })
+      initializedRef.current = true
     }
   }, [messages[0]?.id])
 
@@ -44,12 +61,21 @@ export function Chat({ className, ...rest }: ComponentProps<'div'>) {
       <div className="flex flex-col h-full">
         {/* Messages container */}
         <div className="flex-1 relative">
-          <div className="absolute inset-0 overflow-y-scroll scroll-smooth p-4" ref={scrollRef}>
-            <div className="flex flex-col gap-2 min-h-full justify-end">
-              {[...messages].reverse().map((message) => (
-                <ChatMessage key={message.sentAt.toISOString()} message={message} />
-              ))}
+          <div className="absolute inset-0 overflow-y-scroll p-4" ref={scrollRef}>
+            <div className="flex flex-col-reverse gap-2 min-h-full justify-end">
               {writting && <Spinner />}
+              {messages.map((message, index) => (
+                <ChatMessage
+                  key={message.id}
+                  ref={index === 0 ? observerRef : undefined}
+                  message={message}
+                />
+              ))}
+              {hasMore && (
+                <div className="flex justify-center w-full pb-2" ref={observerRef}>
+                  <Spinner />
+                </div>
+              )}
             </div>
           </div>
         </div>

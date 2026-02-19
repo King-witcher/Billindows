@@ -6,16 +6,6 @@ import { AppAgent } from '@/lib/agents/app-agent'
 import { action } from '@/lib/server-wrappers'
 import type { ClientMessage, SendMessageResult } from './types'
 
-const schema = z.object({
-  history: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant', 'internal']),
-      content: z.string(),
-    }),
-  ),
-  input: z.string(),
-})
-
 const sendMessageSchema = z.string().max(512)
 
 export const sendMessageAction = action(
@@ -51,14 +41,50 @@ export const sendMessageAction = action(
   },
 )
 
-export const listMessagesAction = action(async (ctx): Promise<ClientMessage[]> => {
-  const jwt = await ctx.requireAuth()
+export type Cursor = {
+  id: string
+}
 
-  const messages = await ctx.repositories.chat.listClientMessages(jwt.id)
-  return messages.map((msg) => ({
-    id: msg.id,
-    role: msg.role,
-    content: msg.content,
-    sentAt: msg.date,
-  }))
+export type ListMessagesResult = {
+  messages: ClientMessage[]
+  cursor: Cursor | null
+}
+
+const querySchema = z.object({
+  limit: z.int().positive().max(100).optional().default(10),
+  cursor: z
+    .object({
+      id: z.string(),
+    })
+    .nullable()
+    .optional()
+    .default(null),
 })
+
+export const listMessagesAction = action(
+  querySchema,
+  async (query, ctx): Promise<ListMessagesResult> => {
+    const jwt = await ctx.requireAuth()
+
+    const lastId = query.cursor?.id ?? null
+
+    const messages = await ctx.repositories.chat.listClientMessages(jwt.id, {
+      limit: query.limit,
+      before: lastId ? { id: lastId } : null,
+    })
+
+    const results = messages.map((msg) => ({
+      id: msg.id,
+      role: msg.role,
+      content: msg.content,
+      sentAt: msg.date,
+    }))
+
+    const newCursor = results.length < query.limit ? null : { id: results[results.length - 1].id }
+
+    return {
+      messages: results,
+      cursor: newCursor,
+    }
+  },
+)

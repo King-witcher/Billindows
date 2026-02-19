@@ -1,3 +1,4 @@
+import { SELECT } from 'pg-chain'
 import { uuidv7 } from 'uuidv7'
 import type { DefaultContainer } from '@/lib/injector/dependencies'
 import type { IDBClient } from '../db'
@@ -5,38 +6,51 @@ import type { ClientMessageRow } from '../types'
 import type { LLMChatMessageRow } from '../types/llm-message-row'
 import type { UUID } from '../types/postgres'
 
+export type ListClientMessagesQuery = {
+  limit?: number
+  before?: {
+    id: UUID
+  } | null
+}
+
 export class ChatRepository {
   constructor(private ctx: DefaultContainer) {}
 
-  async listClientMessages(userId: UUID): Promise<Omit<ClientMessageRow, 'user_id'>[]> {
+  async listClientMessages(
+    conversationId: UUID,
+    { limit = 10, before = null }: ListClientMessagesQuery = {},
+  ): Promise<Omit<ClientMessageRow, 'user_id'>[]> {
+    const query = SELECT`id, "role", content, "date"` //
+      .FROM`client_chat_message_view` //
+      .WHERE`user_id = ${conversationId}` //
+      .if(before !== null, (q) => q.AND`id < ${before?.id}`) //
+      .ORDER_BY`id DESC` //
+      .LIMIT`${limit}`
+
     const now = Date.now()
-    const messages = await this.ctx.db.sql<Omit<ClientMessageRow, 'user_id'>>`
-      SELECT id, "role", content, "date"
-      FROM client_chat_message_view
-      WHERE user_id = ${userId}
-      ORDER BY id DESC
-    `
+    const messages = await this.ctx.db.query<Omit<ClientMessageRow, 'user_id'>>(query)
+
     console.debug(
-      `Fetched ${messages.length} client chat messages for user ${userId} in ${Date.now() - now}ms`,
+      `Fetched ${messages.length} client chat messages for user ${conversationId} in ${Date.now() - now}ms`,
     )
 
     return messages
   }
 
   async listLLMessages(
-    userId: UUID,
+    conversationId: UUID,
     limit: number = 10,
   ): Promise<Omit<LLMChatMessageRow, 'user_id'>[]> {
     const now = Date.now()
     const messages = await this.ctx.db.sql<Omit<LLMChatMessageRow, 'user_id'>>`
       SELECT id, "role", content, "function_calls"
       FROM llm_chat_message_view
-      WHERE user_id = ${userId}
+      WHERE user_id = ${conversationId}
       ORDER BY id DESC
       LIMIT ${limit}
     `
     console.debug(
-      `Fetched ${messages.length} LLM chat messages for user ${userId} in ${Date.now() - now}ms`,
+      `Fetched ${messages.length} LLM chat messages for user ${conversationId} in ${Date.now() - now}ms`,
     )
     return messages
   }
@@ -56,14 +70,17 @@ export class ChatRepository {
     console.debug(`Created chat message for user ${message.user_id} in ${Date.now() - now}ms`)
   }
 
-  async createLLMMessages(userId: UUID, ...messages: Omit<LLMChatMessageRow, 'id' | 'user_id'>[]) {
+  async createLLMMessages(
+    conversationId: UUID,
+    ...messages: Omit<LLMChatMessageRow, 'id' | 'user_id'>[]
+  ) {
     await this.ctx.db.transaction(async (conn) => {
       for (const msg of messages) {
         const messageId = uuidv7()
 
         await conn.sql`
           INSERT INTO chat_message (id, user_id, "role", content)
-          VALUES (${messageId}, ${userId}, ${msg.role}, ${msg.content})
+          VALUES (${messageId}, ${conversationId}, ${msg.role}, ${msg.content})
         `
 
         if (msg.function_calls && msg.function_calls.length > 0) {

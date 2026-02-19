@@ -1,7 +1,14 @@
-import { type PoolClient as PgClient, Pool as PgPool } from 'pg'
+import {
+  type PoolClient as PgClient,
+  Pool as PgPool,
+  type QueryConfig,
+  type QueryConfigValues,
+} from 'pg'
 
 export interface IDBClient {
   query<T>(text: string, values?: unknown[]): Promise<T[]>
+  query<T>(params: { text: string; values: unknown[] }): Promise<T[]>
+
   sql<T>(strings: TemplateStringsArray, ...values: unknown[]): Promise<T[]>
 }
 
@@ -23,9 +30,18 @@ export class DbPool implements IDBClient {
     return new DbClient(client)
   }
 
-  async query<T>(text: string, values?: unknown[]): Promise<T[]> {
+  query<T>(text: string, values?: unknown[]): Promise<T[]>
+  query<T>(params: { text: string; values: unknown[] }): Promise<T[]>
+  async query<T>(
+    textOrParams: string | { text: string; values: unknown[] },
+    values?: unknown[],
+  ): Promise<T[]> {
     using client = await this.getClient()
-    return client.query<T>(text, values)
+    if (typeof textOrParams === 'string') {
+      return client.query<T>(textOrParams, values)
+    } else {
+      return client.query<T>(textOrParams.text, textOrParams.values)
+    }
   }
 
   async sql<T>(strings: TemplateStringsArray, ...values: unknown[]): Promise<T[]> {
@@ -53,15 +69,19 @@ export class DbPool implements IDBClient {
 export class DbClient implements IDBClient, Disposable {
   constructor(private readonly client: PgClient) {}
 
-  async query<T>(text: string, values?: unknown[]): Promise<T[]> {
-    return this.client.query(text, values).then((result) => result.rows)
+  query<T>(text: string, values?: unknown[]): Promise<T[]>
+  query<T>(params: { text: string; values: unknown[] }): Promise<T[]>
+  async query<T, I>(
+    queryTextOrConfig: string | QueryConfig<I>,
+    values?: QueryConfigValues<I>,
+  ): Promise<T[]> {
+    return this.client.query(queryTextOrConfig, values).then((result) => result.rows)
   }
 
   async sql<T>(strings: TemplateStringsArray, ...values: unknown[]): Promise<T[]> {
     let text = ''
     for (let i = 0; i < values.length; i++) text += `${strings.raw[i]}$${i + 1}`
     text += strings.raw[values.length]
-
     return this.query<T>(text, values)
   }
 

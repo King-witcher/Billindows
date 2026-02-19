@@ -1,8 +1,9 @@
 import clsx from 'clsx'
-import type { ClientMessage } from '@/contexts/chat/chat-context'
+import type { ComponentProps } from 'react'
+import type { ClientMessage } from '@/contexts/chat/types'
 import { cn } from '@/lib/utils'
 
-type Props = {
+type Props = ComponentProps<'div'> & {
   message: ClientMessage
 }
 
