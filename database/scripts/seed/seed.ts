@@ -4,7 +4,7 @@ import { buildDefaultContainer } from '@/lib/injector/dependencies'
 async function createTestUser() {
   const ctx = buildDefaultContainer()
   const email = 'test@test.com'
-  const password = ''
+  const password = '1234'
   const name = 'Test User'
 
   const user = await ctx.repositories.users.create({
