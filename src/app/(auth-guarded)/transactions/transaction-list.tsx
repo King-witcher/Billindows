@@ -28,7 +28,7 @@ export function TransactionList({ transactions, categories, onEdit, onDelete }: 
 
   if (transactions.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground pt-8">
         <ReceiptText className="size-12 opacity-40" />
         <div className="text-center">
           <p className="text-sm font-medium">No transactions found</p>

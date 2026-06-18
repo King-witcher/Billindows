@@ -29,7 +29,7 @@ export default async function Layout(props: Props) {
             <div className="flex-1 relative bg-blue">
               <div className="absolute inset-0 overflow-y-auto">{props.children}</div>
             </div>
-            <Chat className="hidden xl:block" />
+            {/* <Chat className="hidden xl:block" /> */}
           </main>
         </div>
       </ChatProvider>
