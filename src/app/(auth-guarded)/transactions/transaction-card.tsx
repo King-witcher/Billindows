@@ -1,6 +1,5 @@
 'use client'
 
-import type { Category } from '@prisma/client'
 import { MoreHorizontal, Pencil, Repeat, Trash2 } from 'lucide-react'
 import type { MouseEvent } from 'react'
 import { Badge } from '@/components/atoms/badge'
@@ -12,16 +11,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { Transaction } from '@/database/repositories/transactions'
+import type { AbstractTransaction, CategoryRow } from '@/lib/database/types'
 import { cn } from '@/lib/utils'
 import { formatMoney } from '@/utils/utils'
 
 interface Props {
-  transaction: Transaction
-  category: Category
+  transaction: AbstractTransaction
+  category: CategoryRow
   isFuture: boolean
-  onEdit: (tx: Transaction) => void
-  onDelete: (tx: Transaction) => void
+  onEdit: (tx: AbstractTransaction) => void
+  onDelete: (tx: AbstractTransaction) => void
 }
 
 export function TransactionCard({ transaction, category, isFuture, onEdit, onDelete }: Props) {
@@ -30,8 +29,8 @@ export function TransactionCard({ transaction, category, isFuture, onEdit, onDel
   }
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
       onClick={() => onEdit(transaction)}
       className={cn(
         'group flex w-full items-center gap-3 rounded-lg border bg-card px-4 py-2.5 text-left transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
@@ -46,7 +45,7 @@ export function TransactionCard({ transaction, category, isFuture, onEdit, onDel
 
       {/* Value */}
       <div className="flex shrink-0 items-center gap-1.5">
-        {transaction.type === 'fixed' && (
+        {transaction.recurrence === 'fixed' && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Repeat className="size-3.5 text-muted-foreground" />
@@ -57,12 +56,12 @@ export function TransactionCard({ transaction, category, isFuture, onEdit, onDel
         <span
           className={cn(
             'text-sm font-semibold tabular-nums',
-            transaction.value < 0
+            transaction.amount < 0
               ? 'text-red-600 dark:text-red-400'
               : 'text-emerald-600 dark:text-emerald-400',
           )}
         >
-          {formatMoney(transaction.value)}
+          {formatMoney(transaction.amount)}
         </span>
       </div>
 
@@ -100,6 +99,6 @@ export function TransactionCard({ transaction, category, isFuture, onEdit, onDel
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </button>
+    </div>
   )
 }

@@ -245,7 +245,7 @@ export default function Page() {
         </div>
         <div className="text-center text-sm text-muted-foreground">Already have an account?</div>
         <Button asChild variant="outline" className="w-full">
-          <Link href="/sign-in">Sign in</Link>
+          <Link href="/login">Login</Link>
         </Button>
       </CardFooter>
     </Card>

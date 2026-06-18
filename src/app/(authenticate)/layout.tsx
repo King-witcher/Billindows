@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
+import { buildDefaultContainer } from '@/lib/injector/dependencies'
 
 interface Props {
   children: ReactNode

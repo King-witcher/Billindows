@@ -1,4 +1,4 @@
-import { buildDefaultContainer } from '@/lib/server-actions/dependencies'
+import { buildDefaultContainer } from '@/lib/injector/dependencies'
 import { ClientComponent } from './client-component'
 
 export const metadata = {

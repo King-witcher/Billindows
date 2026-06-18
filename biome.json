@@ -25,7 +25,8 @@
           "fix": "none",
           "options": {}
         }
-      }
+      },
+      "a11y": "off"
     }
   },
   "javascript": {

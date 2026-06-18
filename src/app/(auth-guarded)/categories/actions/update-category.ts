@@ -1,11 +1,11 @@
 'use server'
 
 import { z } from 'zod'
-import { action, fail } from '@/lib/server-actions'
+import { action, fail } from '@/lib/server-wrappers'
 import { sanitizeSpaces } from '@/utils/utils'
 
 const schema = z.object({
-  id: z.coerce.number().gt(0),
+  id: z.uuid(),
   updateData: z.object({
     name: z.string().nonempty().max(30).transform(sanitizeSpaces),
     goal: z.int().nullable(),
@@ -16,11 +16,11 @@ const schema = z.object({
 export const updateCategoryAction = action(schema, async (data, ctx) => {
   const jwt = await ctx.requireAuth()
 
-  const result = await ctx.repositories.categories.updateForUser(jwt.id, data.id, {
+  const result = await ctx.repositories.categories.update(data.id, jwt.id, {
     color: data.updateData.color,
     goal: data.updateData.goal,
     name: data.updateData.name,
   })
 
-  if (result === 0) fail('CategoryNotFound')
+  if (result === null) fail('CategoryNotFound')
 })

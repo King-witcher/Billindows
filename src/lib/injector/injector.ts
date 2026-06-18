@@ -52,7 +52,9 @@ export namespace Injector {
     return new FactoryInjector(factory)
   }
 
-  export function fromClass<T>(Class: new () => T): ClassInjector<unknown, T> {
+  export function fromClass<TContext, TProperty>(
+    Class: new (ctx: TContext) => TProperty,
+  ): ClassInjector<TContext, TProperty> {
     return new ClassInjector(Class)
   }
 
@@ -102,13 +104,13 @@ export namespace Injector {
   class ClassInjector<TContext, TProperty> extends PropInjector<TContext, TProperty> {
     private _instance: TProperty | null = null
 
-    constructor(private readonly Class: new () => TProperty) {
+    constructor(private readonly Class: new (ctx: TContext) => TProperty) {
       super()
     }
 
-    getInstance(): TProperty {
+    getInstance(ctx: TContext): TProperty {
       if (this._instance === null) {
-        this._instance = new this.Class()
+        this._instance = new this.Class(ctx)
       }
       return this._instance
     }

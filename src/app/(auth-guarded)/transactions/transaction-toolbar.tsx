@@ -1,8 +1,6 @@
 'use client'
 
-import type { Category } from '@prisma/client'
 import { Filter, Plus, SlidersHorizontal } from 'lucide-react'
-import { useMemo } from 'react'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,11 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import type { CategoryRow } from '@/lib/database/types'
 
 interface Props {
-  categories: Category[]
-  categoriesFilter: number[]
-  onCategoriesFilterChange: (ids: number[]) => void
+  categories: CategoryRow[]
+  categoriesFilter: string[]
+  onCategoriesFilterChange: (ids: string[]) => void
   showFuture: boolean
   onShowFutureChange: (show: boolean) => void
   showFixed: boolean
@@ -33,12 +32,6 @@ interface Props {
   showExpenses: boolean
   onShowExpensesChange: (show: boolean) => void
   onCreateClick: () => void
-}
-
-type FilterOption = {
-  label: string
-  value: boolean
-  onChange: (show: boolean) => void
 }
 
 export function TransactionToolbar({
@@ -61,7 +54,7 @@ export function TransactionToolbar({
   onShowExpensesChange,
   onCreateClick,
 }: Props) {
-  function toggleCategory(id: number) {
+  function toggleCategory(id: string) {
     if (categoriesFilter.includes(id)) {
       onCategoriesFilterChange(categoriesFilter.filter((c) => c !== id))
     } else {

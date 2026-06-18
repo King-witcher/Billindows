@@ -3,14 +3,12 @@
   "version": "0.4.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 80",
+    "dev": "next dev -p 80",
     "build": "next build",
-    "db:codegen": "prisma generate",
-    "db:migrate": "prisma migrate dev --skip-seed",
-    "db:reset": "prisma migrate reset --skip-seed",
-    "db:push": "prisma db push",
-    "db:seed": "prisma db seed",
-    "db:studio": "prisma studio",
+    "db:new": "tsx database/scripts/generate.ts",
+    "db:migrate": "tsx --env-file .env database/scripts/migrate.ts",
+    "db:nuke": "tsx --env-file .env database/scripts/nuke.ts",
+    "db:seed": "tsx --env-file .env database/scripts/seed/seed.ts",
     "start": "next start",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
     "test": "vitest",
@@ -57,17 +55,20 @@
     "next-themes": "^0.4.6",
     "openai": "^6.16.0",
     "pg": "^8.18.0",
+    "pg-chain": "^1.1.2",
     "radix-ui": "^1.4.3",
     "react": "^19.0.0",
     "react-day-picker": "^9.13.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.63.0",
     "react-icons": "^5.5.0",
+    "react-intersection-observer": "^10.0.2",
     "react-markdown": "^10.1.0",
     "recharts": "^3.7.0",
     "router": "^2.2.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
+    "uuidv7": "^1.1.0",
     "zod": "^4.3.6",
     "zod-form-data": "^3.0.1"
   },
@@ -76,6 +77,7 @@
     "@faker-js/faker": "^9.6.0",
     "@giuseppelanna/biomejs-configs": "^3.0.0",
     "@tailwindcss/postcss": "^4",
+    "@tanstack/react-query-devtools": "^5.91.3",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -94,8 +96,5 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.8"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed"
   }
 }
