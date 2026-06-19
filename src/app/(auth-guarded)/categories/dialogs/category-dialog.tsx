@@ -1,6 +1,5 @@
 'use client'
 
-import type { Category } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useId } from 'react'
 import { toast } from 'sonner'
@@ -13,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useUser } from '@/contexts/user-context'
+import type { CategoryRow } from '@/lib/database/types'
 import { createCategoryAction } from '../actions/create-category'
 import { updateCategoryAction } from '../actions/update-category'
 import { CategoryForm, type CategoryFormData } from './category-form'
@@ -20,7 +20,7 @@ import { CategoryForm, type CategoryFormData } from './category-form'
 interface Props {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  categoryToEdit: Category | null
+  categoryToEdit: CategoryRow | null
 }
 
 export function CategoryDialog({ onOpenChange, categoryToEdit, isOpen }: Props) {

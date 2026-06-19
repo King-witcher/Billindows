@@ -28,10 +28,7 @@ cd Billindows
 # Install dependencies
 npm i
 
-# Generate the Prisma client
-npm run db:codegen
-
-# Set up environment variables
+# Run the database migrations
 npm run db:migrate
 ```
 

@@ -1,6 +1,5 @@
 'use client'
 
-import type { Category } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -12,12 +11,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useUser } from '@/contexts/user-context'
+import type { CategoryRow } from '@/lib/database/types'
 import { deleteCategoryAction } from '../actions/delete-category'
 
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
-  category: Category | null
+  category: CategoryRow | null
 }
 
 export function DeleteCategoryDialog({ category, open, onOpenChange }: Props) {
@@ -26,9 +26,9 @@ export function DeleteCategoryDialog({ category, open, onOpenChange }: Props) {
 
   const mutation = useMutation({
     mutationKey: ['delete-category', category?.id],
-    mutationFn: async () => deleteCategoryAction({ id: category?.id ?? -1 }),
+    mutationFn: async () => deleteCategoryAction({ id: category?.id ?? '' }),
     onMutate: () => {
-      client.setQueryData<Category[]>(['categories', user.email], (oldData) => {
+      client.setQueryData<CategoryRow[]>(['categories', user.email], (oldData) => {
         if (!oldData) return oldData
         return oldData.filter((c) => c.id !== category?.id)
       })

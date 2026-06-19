@@ -1,16 +1,16 @@
-import type { Category } from '@prisma/client'
 import type { ZodObject } from 'zod'
 import * as zod from 'zod'
 import { TransactionsRepository } from '@/lib/database/repositories/transactions'
 import { slugify } from '@/utils/utils'
+import type { CategoryRow } from '../database/types'
 import type { Tool, ToolExecuteArgs } from './tool'
 
 type CreateTransactionToolParams = {
-  categories: Category[]
+  categories: CategoryRow[]
 }
 
 export class CreateTransactionTool implements Tool {
-  private categoryMap: Map<string, Category>
+  private categoryMap: Map<string, CategoryRow>
 
   readonly schema: ZodObject
   readonly name = 'create_transaction'

@@ -12,23 +12,23 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import type { Category } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useUser } from '@/contexts/user-context'
+import type { CategoryRow } from '@/lib/database/types'
 import { listCategoriesAction } from './actions/list-categories'
-import { CategoryRow } from './category-row'
+import { CategoryItem } from './category-row'
 import { CategoryDialog } from './dialogs/category-dialog'
 import { DeleteCategoryDialog } from './dialogs/delete-category-dialog'
 
 interface Props {
-  initialCategories: Category[]
+  initialCategories: CategoryRow[]
 }
 
 export function ClientComponent({ initialCategories }: Props) {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
-  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null)
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
+  const [categoryToEdit, setCategoryToEdit] = useState<CategoryRow | null>(null)
+  const [categoryToDelete, setCategoryToDelete] = useState<CategoryRow | null>(null)
   const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false)
 
   const user = useUser()
@@ -40,12 +40,12 @@ export function ClientComponent({ initialCategories }: Props) {
     initialData: initialCategories,
   })
 
-  function handleEdit(category: Category) {
+  function handleEdit(category: CategoryRow) {
     setCategoryToEdit(category)
     setCategoryDialogOpen(true)
   }
 
-  function handleDelete(category: Category) {
+  function handleDelete(category: CategoryRow) {
     setCategoryToDelete(category)
     setDeleteCategoryOpen(true)
   }
@@ -79,7 +79,7 @@ export function ClientComponent({ initialCategories }: Props) {
           </TableHead>
           <TableBody>
             {categoriesQuery.data.map((category) => (
-              <CategoryRow
+              <CategoryItem
                 onDelete={handleDelete}
                 onEdit={handleEdit}
                 key={category.id}

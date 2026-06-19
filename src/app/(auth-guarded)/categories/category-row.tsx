@@ -3,16 +3,16 @@
 import Delete from '@mui/icons-material/Delete'
 import Edit from '@mui/icons-material/Edit'
 import { IconButton, TableCell, TableRow, Tooltip } from '@mui/material'
-import type { Category } from '@prisma/client'
 import { Badge } from '@/components/atoms/badge'
+import type { CategoryRow } from '@/lib/database/types'
 
 interface Props {
-  category: Category
-  onEdit: (category: Category) => void
-  onDelete: (category: Category) => void
+  category: CategoryRow
+  onEdit: (category: CategoryRow) => void
+  onDelete: (category: CategoryRow) => void
 }
 
-export function CategoryRow({ category, onDelete, onEdit }: Props) {
+export function CategoryItem({ category, onDelete, onEdit }: Props) {
   return (
     <TableRow hover>
       <TableCell>
