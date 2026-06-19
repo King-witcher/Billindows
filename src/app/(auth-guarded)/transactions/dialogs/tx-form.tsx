@@ -41,7 +41,7 @@ export type FormData = zod.infer<typeof formSchema>
 type Props = {
   initValue?: AbstractTransaction
   isEditting: boolean
-  onSubmit: (data: Omit<AbstractTransaction, 'id'>) => Promise<void>
+  onSubmit: (data: Omit<AbstractTransaction, 'id' | 'user_id'>) => Promise<void>
   onClose: () => void
 }
 

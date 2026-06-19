@@ -38,7 +38,7 @@ export function TxDialog(props: Props) {
     onError: () => toast.error('Error creating transaction'),
   })
 
-  async function handleSubmit(data: Omit<AbstractTransaction, 'id'>) {
+  async function handleSubmit(data: Omit<AbstractTransaction, 'id' | 'user_id'>) {
     if (txToEdit) {
       await updateMutation.mutateAsync({
         id: txToEdit.id,
