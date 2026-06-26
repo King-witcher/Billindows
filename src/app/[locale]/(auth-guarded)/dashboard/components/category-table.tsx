@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { CurrencyText } from '@/components/atoms/currency-text'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import {
   Table,
   TableBody,
@@ -56,10 +55,7 @@ export function CategoryTable({
               <TableRow className="hover:bg-transparent">
                 <TableHead className="pl-6">{t('colCategory')}</TableHead>
                 <TableHead className="text-right">{t('colBalance')}</TableHead>
-                <TableHead className="text-right">{t('colForecast')}</TableHead>
-                <TableHead className="hidden w-60 pr-6 text-right md:table-cell">
-                  {t('colGoal')}
-                </TableHead>
+                <TableHead className="pr-6 text-right">{t('colForecast')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -71,9 +67,6 @@ export function CategoryTable({
                 const unforecasted = balance - summary.forecastable
                 const forecastedBalance =
                   unforecasted + forecast(summary.forecastable, monthProgress)
-                const goalPercentage = category.goal
-                  ? Math.max((100 * balance) / category.goal, 0)
-                  : 0
 
                 return (
                   <TableRow key={categoryId}>
@@ -89,27 +82,8 @@ export function CategoryTable({
                     <TableCell className="text-right">
                       <CurrencyText value={balance} />
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="pr-6 text-right">
                       <CurrencyText value={forecastedBalance} />
-                    </TableCell>
-                    <TableCell className="hidden pr-6 md:table-cell">
-                      {category.goal ? (
-                        <div className="flex flex-col gap-1.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">
-                              {goalPercentage.toFixed(0)}%
-                            </span>
-                            <CurrencyText value={category.goal} showSign className="text-xs" />
-                          </div>
-                          <Progress
-                            value={Math.min(goalPercentage, 100)}
-                            variant={category.goal < 0 && goalPercentage > 95 ? 'red' : 'default'}
-                            className="h-1.5"
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">{t('noGoal')}</span>
-                      )}
                     </TableCell>
                   </TableRow>
                 )
