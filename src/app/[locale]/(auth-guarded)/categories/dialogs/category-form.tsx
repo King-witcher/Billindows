@@ -108,7 +108,6 @@ export function CategoryForm({ formId, initData, onSubmit }: Props) {
           name="goal"
           render={({ field }) => (
             <>
-              {/** biome-ignore lint/a11y/noLabelWithoutControl: dumbiome */}
               <label className="flex items-center gap-3 cursor-pointer select-none">
                 <Switch
                   checked={field.value !== null}

@@ -1,4 +1,7 @@
+'use client'
+
 import { BanknoteArrowDown, BanknoteArrowUp, Calendar, TrendingUp } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import type { BalanceType, TransactionType } from '../helpers'
@@ -18,32 +21,34 @@ export function ChartFilters({
   onChangeBalanceType,
   className,
 }: Props) {
+  const t = useTranslations('dashboard.filters')
+
   return (
-    <div className={cn('flex flex-row gap-3', className)}>
+    <div className={cn('flex flex-row flex-wrap gap-2', className)}>
       <Tabs
         value={transactionType}
         onValueChange={(v) => onChangeTransactionType(v as TransactionType)}
       >
         <TabsList>
-          <TabsTrigger value="expenses">
-            <BanknoteArrowDown className="text-red-600" />
-            <span className="hidden sm:inline-block">Expenses</span>
+          <TabsTrigger value="expenses" aria-label={t('expenses')}>
+            <BanknoteArrowDown className="text-expense" />
+            <span className="hidden sm:inline-block">{t('expenses')}</span>
           </TabsTrigger>
-          <TabsTrigger value="income">
-            <BanknoteArrowUp className="text-green-600" />
-            <span className="hidden sm:inline-block">Income</span>
+          <TabsTrigger value="income" aria-label={t('income')}>
+            <BanknoteArrowUp className="text-income" />
+            <span className="hidden sm:inline-block">{t('income')}</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>
       <Tabs value={balanceType} onValueChange={(v) => onChangeBalanceType(v as BalanceType)}>
         <TabsList>
-          <TabsTrigger value="actual">
+          <TabsTrigger value="actual" aria-label={t('actual')}>
             <Calendar />
-            <span className="hidden sm:inline-block">Actual</span>
+            <span className="hidden sm:inline-block">{t('actual')}</span>
           </TabsTrigger>
-          <TabsTrigger value="forecast">
+          <TabsTrigger value="forecast" aria-label={t('forecast')}>
             <TrendingUp />
-            <span className="hidden sm:inline-block">Forecast</span>
+            <span className="hidden sm:inline-block">{t('forecast')}</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>

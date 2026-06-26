@@ -1,11 +1,19 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
+import { CurrencyText } from '@/components/atoms/currency-text'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import type { CategoryRow } from '@/lib/database/types'
-import { cn } from '@/lib/utils'
-import { formatMoney } from '@/utils/utils'
 import { forecast, type TarnsactionsSummary } from '../helpers'
 
 type CategoryTableProps = {
@@ -15,16 +23,14 @@ type CategoryTableProps = {
   loading: boolean
 }
 
-function ColorBadge({ color }: { color: string }) {
-  return <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: color }} />
-}
-
 export function CategoryTable({
   categorySummaries,
   categoriesMap,
   monthProgress,
   loading,
 }: CategoryTableProps) {
+  const t = useTranslations('dashboard')
+
   const sortedCategories = useMemo(() => {
     return Object.entries(categorySummaries).sort(([, a], [, b]) => {
       const aBalance = a.totalIncome - a.totalExpenses
@@ -33,95 +39,67 @@ export function CategoryTable({
     })
   }, [categorySummaries])
 
-  if (sortedCategories.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Analysis by Category</CardTitle>
-          <CardDescription>Complete breakdown of each category</CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-50 text-muted-foreground">
-          No categories found
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Analysis by Category</CardTitle>
-        <CardDescription>Complete breakdown of each category</CardDescription>
+        <CardTitle>{t('categoryAnalysis')}</CardTitle>
+        <CardDescription>{t('categoryAnalysisDesc')}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-3 px-2 font-medium text-muted-foreground">Category</th>
-                <th className="text-right py-3 px-2 font-medium text-muted-foreground">Balance</th>
-                <th className="text-right py-3 px-2 font-medium text-muted-foreground">Forecast</th>
-                <th className="text-right py-3 px-2 font-medium text-muted-foreground min-w-30 w-60 hidden md:table-cell">
-                  Goal progress
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+      <CardContent className="px-0">
+        {sortedCategories.length === 0 ? (
+          <p className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+            {loading ? '' : t('noTxForFilter')}
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="pl-6">{t('colCategory')}</TableHead>
+                <TableHead className="text-right">{t('colBalance')}</TableHead>
+                <TableHead className="text-right">{t('colForecast')}</TableHead>
+                <TableHead className="hidden w-60 pr-6 text-right md:table-cell">
+                  {t('colGoal')}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {sortedCategories.map(([categoryId, summary]) => {
                 const category = categoriesMap.get(categoryId)
-                const balance = summary.totalIncome - summary.totalExpenses
-                const goalPercentage = category?.goal
-                  ? Math.max((100 * balance) / category.goal, 0)
-                  : 0
-                const forecastedBalance = (() => {
-                  const unforecasted = balance - summary.forecastable
-                  return unforecasted + forecast(summary.forecastable, monthProgress)
-                })()
                 if (!category) throw new Error(`Category not found for ID ${categoryId}`)
 
-                return (
-                  <tr
-                    key={categoryId}
-                    className="border-b border-border last:border-0 hover:bg-muted/50"
-                  >
-                    <td className="py-3 px-2">
-                      <div className="flex items-center gap-2">
-                        <ColorBadge color={category.color} />
-                        <span className="font-medium">{category.name}</span>
-                      </div>
-                    </td>
-                    <td
-                      className={cn(
-                        'text-right py-3 px-2 font-semibold',
-                        balance < 0 ? 'text-red-600' : 'text-emerald-600',
-                      )}
-                    >
-                      {formatMoney(Math.abs(balance))}
-                    </td>
-                    <td
-                      className={cn(
-                        'text-right py-3 px-2 font-semibold',
-                        forecastedBalance < 0 ? 'text-red-600' : 'text-emerald-600',
-                      )}
-                    >
-                      {formatMoney(Math.abs(forecastedBalance))}
-                    </td>
+                const balance = summary.totalIncome - summary.totalExpenses
+                const unforecasted = balance - summary.forecastable
+                const forecastedBalance =
+                  unforecasted + forecast(summary.forecastable, monthProgress)
+                const goalPercentage = category.goal
+                  ? Math.max((100 * balance) / category.goal, 0)
+                  : 0
 
-                    <td className="py-3 px-2 hidden md:table-cell">
+                return (
+                  <TableRow key={categoryId}>
+                    <TableCell className="pl-6">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="size-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <span className="truncate font-medium">{category.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <CurrencyText value={balance} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <CurrencyText value={forecastedBalance} />
+                    </TableCell>
+                    <TableCell className="hidden pr-6 md:table-cell">
                       {category.goal ? (
-                        <div className="flex flex-col gap-1">
-                          <div className="flex justify-between text-xs">
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center justify-between text-xs">
                             <span className="text-muted-foreground">
                               {goalPercentage.toFixed(0)}%
                             </span>
-                            <span
-                              className={cn(
-                                'text-muted-foreground font-bold',
-                                category.goal >= 0 ? 'text-emerald-600' : 'text-red-600',
-                              )}
-                            >
-                              {formatMoney(Math.abs(category.goal))}
-                            </span>
+                            <CurrencyText value={category.goal} showSign className="text-xs" />
                           </div>
                           <Progress
                             value={Math.min(goalPercentage, 100)}
@@ -130,15 +108,15 @@ export function CategoryTable({
                           />
                         </div>
                       ) : (
-                        <span className="text-muted-foreground text-xs">No goal</span>
+                        <span className="text-xs text-muted-foreground">{t('noGoal')}</span>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )
               })}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   )

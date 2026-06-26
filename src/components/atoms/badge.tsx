@@ -1,43 +1,38 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps } from 'react'
+import { cn } from '@/lib/utils'
 import { sanitizeColor } from '@/utils/utils'
 
-interface Props {
-  children: ReactNode
+interface Props extends ComponentProps<'span'> {
+  /** Category hex color (#RRGGBB). Drives the dot, tint and text color. */
   color: string
 }
 
-function getRGBComponents(hex: string) {
-  const r = Number.parseInt(hex.slice(1, 3), 16)
-  const g = Number.parseInt(hex.slice(3, 5), 16)
-  const b = Number.parseInt(hex.slice(5, 7), 16)
-  return { r, g, b }
-}
-
-function getLuma(hex: string) {
-  const { r, g, b } = getRGBComponents(hex)
-  return Math.floor((0.2126 * r + 0.7152 * g + 0.0722 * b) / 2.55) / 100
-}
-
-let index = 0
-
-export function Badge({ children, color }: Props) {
-  const sanitized = sanitizeColor(color)
-  index++
-  const luma = getLuma(sanitized)
-  const darken = luma > 0.5 ? Math.floor(50 * luma ** 2) : 0
-
-  const textColor = `color-mix(in hsl, ${sanitized} ${100 - darken}%, #000 ${darken}%)`
+/**
+ * Category pill. Text color is mixed toward the current `--foreground`, so it
+ * stays legible in both light and dark mode regardless of the category hue.
+ */
+export function Badge({ color, className, children, ...props }: Props) {
+  const c = sanitizeColor(color)
 
   return (
-    <div
-      className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
+    <span
+      className={cn(
+        'inline-flex max-w-full items-center gap-1.5 truncate rounded-full border px-2 py-0.5 text-xs font-medium',
+        className,
+      )}
       style={{
-        border: `1px solid ${textColor}`,
-        backgroundColor: `${sanitized}30`,
-        color: textColor,
+        color: `color-mix(in oklab, ${c} 72%, var(--foreground))`,
+        borderColor: `color-mix(in oklab, ${c} 35%, transparent)`,
+        backgroundColor: `color-mix(in oklab, ${c} 14%, transparent)`,
       }}
+      {...props}
     >
-      {children}
-    </div>
+      <span
+        className="size-1.5 shrink-0 rounded-full"
+        style={{ backgroundColor: c }}
+        aria-hidden="true"
+      />
+      <span className="truncate">{children}</span>
+    </span>
   )
 }

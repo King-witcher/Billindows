@@ -1,7 +1,16 @@
 'use client'
 
-import { FrownIcon, ListX } from 'lucide-react'
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useLocale, useTranslations } from 'next-intl'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -27,54 +36,60 @@ export function CategoryBarChart({
   onChangeBalanceType,
   loading,
 }: Props) {
-  const description = (() => {
-    const typeLabel = transactionType === 'expenses' ? 'expenses' : 'income'
-    const balanceLabel = balanceType === 'actual' ? 'actual' : 'forecasted'
-    return `Showing ${balanceLabel} ${typeLabel} by category`
-  })()
+  const t = useTranslations('dashboard')
+  const locale = useLocale()
+  const compact = new Intl.NumberFormat(locale, { notation: 'compact' })
 
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle>Balance by Category</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle>{t('balanceByCategory')}</CardTitle>
+        <CardDescription>
+          {t(`filters.${balanceType}`)} · {t(`filters.${transactionType}`)}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        {loading && <Skeleton className="h-full w-full" />}
+        {loading && <Skeleton className="h-87.5 w-full" />}
 
-        <div className={cn('space-y-4-', loading && 'invisible')}>
+        <div className={cn('space-y-4', loading && 'hidden')}>
           <ChartFilters
             balanceType={balanceType}
             transactionType={transactionType}
             onChangeBalanceType={onChangeBalanceType}
             onChangeTransactionType={onChangeTransactionType}
           />
-          {!chartData?.length && (
-            <div className="h-[350px] w-full flex gap-4 items-center justify-center">
-              <p className="text-muted-foreground text-sm">
-                You have no transactions for the selected filter.
-              </p>
+          {!chartData?.length ? (
+            <div className="flex h-87.5 w-full items-center justify-center">
+              <p className="text-sm text-muted-foreground">{t('noTxForFilter')}</p>
             </div>
-          )}
-          {Boolean(chartData?.length) && (
+          ) : (
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={chartData ?? []} margin={{ top: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <BarChart data={chartData} margin={{ top: 16 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
                 <XAxis
                   dataKey="name"
                   tick={{ fontSize: 12 }}
                   angle={-20}
                   textAnchor="end"
-                  height={40}
+                  height={48}
                   className="fill-muted-foreground"
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <YAxis
                   tick={{ fontSize: 12 }}
+                  width={48}
                   className="fill-muted-foreground"
-                  tickFormatter={(value) => `R$ ${value}`}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `R$ ${compact.format(value)}`}
                 />
-                <Tooltip content={CustomTooltip} />
-                <Bar dataKey="value" name="Value" radius={[4, 4, 0, 0]} />
+                <Tooltip content={CustomTooltip} cursor={{ fill: 'var(--muted)', opacity: 0.5 }} />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                  {chartData.map((entry) => (
+                    <Cell key={entry.name} fill={entry.fill} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}

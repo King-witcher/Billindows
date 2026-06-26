@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { getByText, render } from '@testing-library/react'
+import { NextIntlClientProvider } from 'next-intl'
 import type { CategoryRow } from '@/lib/database/types'
 import { CategoryItem } from './category-row'
 
@@ -15,10 +16,12 @@ describe('category row', () => {
       goal: 12_345,
     }
 
-    vi.mock('next/navigation', () => require('next-router-mock'))
+    const { container } = render(
+      <NextIntlClientProvider locale="pt" messages={{}}>
+        <CategoryItem onDelete={noop} onEdit={noop} category={category} />
+      </NextIntlClientProvider>,
+    )
 
-    const { container } = render(<CategoryItem onDelete={noop} onEdit={noop} category={category} />)
-
-    getByText(container, 'R$ 123.45')
+    getByText(container, 'R$ 123,45')
   })
 })

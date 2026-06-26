@@ -1,19 +1,11 @@
 'use client'
 
-import { Add } from '@mui/icons-material'
-import {
-  Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useUser } from '@/contexts/user-context'
 import type { CategoryRow } from '@/lib/database/types'
 import { listCategoriesAction } from './actions/list-categories'
@@ -55,40 +47,56 @@ export function ClientComponent({ initialCategories }: Props) {
     setCategoryDialogOpen(true)
   }
 
+  const categories = categoriesQuery.data
+
   return (
-    <div className="p-[20px] flex flex-col gap-[20px] h-full">
-      <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-[20px] w-full ml-auto">
-        <Typography className="self-start" variant="h3" color="primary">
-          Categories
-        </Typography>
-        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleCreate}>
-          Add category
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Categories</h1>
+          <p className="text-sm text-muted-foreground">
+            Organize income and spending into categories and set monthly goals.
+          </p>
+        </div>
+        <Button onClick={handleCreate} className="shrink-0">
+          <Plus /> Add category
         </Button>
       </div>
 
-      <TableContainer component={Paper}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>Category</TableCell>
-              <TableCell align="center" className="!hidden sm:!table-cell">
-                Goal
-              </TableCell>
-              <TableCell align="right" />
+      <Card className="overflow-hidden p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Category</TableHead>
+              <TableHead className="hidden text-center sm:table-cell">Goal</TableHead>
+              <TableHead className="w-0" />
             </TableRow>
-          </TableHead>
+          </TableHeader>
           <TableBody>
-            {categoriesQuery.data.map((category) => (
+            {categories.map((category) => (
               <CategoryItem
-                onDelete={handleDelete}
-                onEdit={handleEdit}
                 key={category.id}
                 category={category}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))}
           </TableBody>
         </Table>
-      </TableContainer>
+
+        {categories.length === 0 && (
+          <div className="flex flex-col items-center gap-1 px-6 py-14 text-center">
+            <p className="text-sm font-medium">No categories yet</p>
+            <p className="max-w-xs text-sm text-muted-foreground">
+              Create your first category to start organizing your finances.
+            </p>
+            <Button onClick={handleCreate} variant="outline" size="sm" className="mt-3">
+              <Plus /> Add category
+            </Button>
+          </div>
+        )}
+      </Card>
+
       <DeleteCategoryDialog
         open={deleteCategoryOpen}
         onOpenChange={setDeleteCategoryOpen}
