@@ -1,10 +1,11 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import clsx from 'clsx'
+import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
+import { CurrencyText } from '@/components/atoms/currency-text'
 import { Button } from '@/components/ui/button'
-import { DialogDescription, DialogTitle } from '@/components/ui/dialog'
+import { DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useNow } from '@/contexts/now/now-context'
 import { useUser } from '@/contexts/user-context'
 import type { AbstractTransaction } from '@/lib/database/types'
@@ -19,8 +20,7 @@ export function DeleteTxForm({ transaction: transactionToDelete, onClose }: Prop
   const client = useQueryClient()
   const user = useUser()
   const { month } = useNow()
-
-  const value = Math.abs(transactionToDelete.amount / 100).toFixed(2)
+  const t = useTranslations('transactions.deleteDialog')
 
   const mutation = useMutation({
     mutationFn: async () =>
@@ -35,37 +35,31 @@ export function DeleteTxForm({ transaction: transactionToDelete, onClose }: Prop
       })
       onClose()
     },
-    onSuccess: () => toast.success('Transaction deleted successfully'),
+    onSuccess: () => toast.success(t('deleted')),
     onError() {
-      toast.error('Error deleting transaction')
+      toast.error(t('error'))
       client.refetchQueries({ queryKey: ['transactions', user.email, month] })
     },
   })
 
   return (
-    <div className="flex flex-col gap-[20px] items-start">
-      <DialogTitle className="text-primary">Delete transaction</DialogTitle>
-      <DialogDescription>
-        You are about to delete the transaction <b>{transactionToDelete.name}</b> of{' '}
-        <span
-          className={clsx(
-            'font-semibold',
-            transactionToDelete.amount < 0 ? 'text-red-600' : 'text-green-600',
-          )}
-        >
-          R$ {value}
-        </span>
-        .
-      </DialogDescription>
-      <div className="flex self-end gap-4">
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-
-        <Button variant="destructive" onClick={() => mutation.mutate()}>
-          Delete
-        </Button>
+    <>
+      <DialogHeader>
+        <DialogTitle>{t('title')}</DialogTitle>
+        <DialogDescription>{t('body', { name: transactionToDelete.name })}</DialogDescription>
+      </DialogHeader>
+      <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-4 py-3">
+        <span className="truncate text-sm font-medium">{transactionToDelete.name}</span>
+        <CurrencyText value={transactionToDelete.amount} className="text-sm font-semibold" />
       </div>
-    </div>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {t('cancel')}
+        </Button>
+        <Button variant="destructive" onClick={() => mutation.mutate()}>
+          {t('confirm')}
+        </Button>
+      </DialogFooter>
+    </>
   )
 }

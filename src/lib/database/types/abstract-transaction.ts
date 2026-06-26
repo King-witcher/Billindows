@@ -18,5 +18,6 @@ export type AbstractTransaction = {
   amount: INTEGER
   forecast: BOOLEAN
   date: AbstractTransactionDate
-  // end_date: GenericTransactionDate | null // Hidden since ended transactions are not queried.
+  /** True when a fixed transaction has an end_date set (recurrence ended). */
+  ended?: boolean
 }

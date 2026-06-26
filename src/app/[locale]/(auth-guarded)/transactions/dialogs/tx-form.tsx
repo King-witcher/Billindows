@@ -7,36 +7,37 @@ import {
   BanknoteArrowUp,
   Calendar1Icon,
   CalendarIcon,
+  HelpCircle,
   RepeatIcon,
 } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import * as zod from 'zod'
 import { MoneyField } from '@/components/atoms/inputs/money-input'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Combobox } from '@/components/ui/combobox'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Switch } from '@/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToday } from '@/contexts/today-context'
 import { useUser } from '@/contexts/user-context'
 import type { AbstractTransaction } from '@/lib/database/types/abstract-transaction'
 import { listCategoriesAction } from '../actions/list-categories'
 
-const formSchema = zod.object({
-  type: zod.enum(['income', 'expense']),
-  name: zod.string().min(1, 'Name is required').max(64, 'Name is too long'),
-  categoryId: zod.string().min(1, 'Category is required'),
-  value: zod.int().min(1, 'Value must be at least R$ 0,01'),
-  date: zod.date(),
-  fixed: zod.boolean(),
-  ignoreFromForecast: zod.boolean(),
-})
-
-export type FormData = zod.infer<typeof formSchema>
+export type FormData = {
+  type: 'income' | 'expense'
+  name: string
+  categoryId: string
+  value: number
+  date: Date
+  fixed: boolean
+  includeInForecast: boolean
+}
 
 type Props = {
   initValue?: AbstractTransaction
@@ -45,40 +46,20 @@ type Props = {
   onClose: () => void
 }
 
-const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-]
-
-function formatDate(now: Date, date: Date): string {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  if (today.getFullYear() === date.getFullYear()) {
-    if (today.getMonth() === date.getMonth()) {
-      if (today.getDate() === date.getDate()) return 'Today'
-      if (today.getDate() - 1 === date.getDate()) return 'Yesterday'
-      return `Day ${date.getDate()} (${weekDays[date.getDay()]})`
-    }
-    return `${months[date.getMonth()]} ${date.getDate()}`
-  }
-
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
 }
 
 export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
   const user = useUser()
   const today = useToday()
+  const locale = useLocale()
+  const t = useTranslations('transactions.form')
+  const tToday = useTranslations('transactions')
   const [pending, setPending] = useState(false)
 
   const categoriesQuery = useQuery({
@@ -88,12 +69,26 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
   })
 
   const sortedCategories = useMemo(
-    () => categoriesQuery.data.sort((a, b) => a.name.localeCompare(b.name)),
+    () => [...categoriesQuery.data].sort((a, b) => a.name.localeCompare(b.name)),
     [categoriesQuery.data],
   )
 
+  const schema = useMemo(
+    () =>
+      zod.object({
+        type: zod.enum(['income', 'expense']),
+        name: zod.string().min(1, t('name')).max(64),
+        categoryId: zod.string().min(1, t('category')),
+        value: zod.int().min(1, 'R$ 0,01'),
+        date: zod.date(),
+        fixed: zod.boolean(),
+        includeInForecast: zod.boolean(),
+      }),
+    [t],
+  )
+
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: initValue?.name || '',
       date: initValue
@@ -103,47 +98,54 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
       categoryId: initValue ? String(initValue.category_id) : '',
       fixed: initValue ? initValue.recurrence === 'fixed' : false,
       type: initValue ? (initValue.amount >= 0 ? 'income' : 'expense') : 'expense',
-      ignoreFromForecast: initValue ? !initValue.forecast : false,
+      includeInForecast: initValue ? initValue.forecast : true,
     },
   })
 
   const [fixed] = form.watch(['fixed'])
   const errors = form.formState.errors
 
+  function formatDate(date: Date): string {
+    if (isSameDay(date, today)) return tToday('today')
+    const sameYear = date.getFullYear() === today.getFullYear()
+    return new Intl.DateTimeFormat(locale, {
+      day: 'numeric',
+      month: 'short',
+      year: sameYear ? undefined : 'numeric',
+    }).format(date)
+  }
+
   async function handleSubmit(data: FormData) {
     if (pending) return
-
-    const year = data.date.getFullYear()
-    const month = data.date.getMonth() + 1
-    const day = data.date.getDate()
 
     setPending(true)
     onSubmit({
       category_id: data.categoryId,
       date: {
-        year,
-        month,
-        day,
+        year: data.date.getFullYear(),
+        month: data.date.getMonth() + 1,
+        day: data.date.getDate(),
       },
       name: data.name,
-      recurrence: fixed ? 'fixed' : 'one-time',
+      recurrence: data.fixed ? 'fixed' : 'one-time',
       amount: data.type === 'income' ? data.value : -data.value,
-      forecast: data.fixed || !data.ignoreFromForecast,
+      forecast: data.fixed || data.includeInForecast,
     }).finally(() => setPending(false))
   }
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 items-start">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4">
       {/* Name */}
       <Field>
-        <FieldLabel>Transaction name</FieldLabel>
-        <Input placeholder="Transaction name" type="text" {...form.register('name')} />
+        <FieldLabel>{t('name')}</FieldLabel>
+        <Input placeholder={t('namePlaceholder')} type="text" {...form.register('name')} />
         <FieldError>{errors.name?.message}</FieldError>
       </Field>
-      <div className="flex gap-4 w-full">
+
+      <div className="flex gap-4">
         {/* Category */}
         <Field className="flex-2">
-          <FieldLabel>Category</FieldLabel>
+          <FieldLabel>{t('category')}</FieldLabel>
           <Controller
             name="categoryId"
             control={form.control}
@@ -163,16 +165,16 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
 
         {/* Date */}
         <Field className="flex-3">
-          <FieldLabel>Date</FieldLabel>
+          <FieldLabel>{t('date')}</FieldLabel>
           <Controller
             control={form.control}
             name="date"
             render={({ field }) => (
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="text-left">
+                  <Button variant="outline" className="justify-start text-left font-normal">
                     <CalendarIcon />
-                    {formatDate(today, field.value)}
+                    {formatDate(field.value)}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -184,29 +186,23 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
         </Field>
       </div>
 
-      <div className="flex gap-4 w-full">
+      <div className="flex gap-4">
         {/* Value */}
         <Field className="flex-1">
-          <FieldLabel>Value</FieldLabel>
+          <FieldLabel>{t('value')}</FieldLabel>
           <Controller
             control={form.control}
             name="value"
             render={({ field }) => (
-              <MoneyField
-                name={field.name}
-                value={field.value}
-                onChange={(v) => field.onChange(v)}
-                defaultValue={initValue ? Math.abs(initValue.amount) : undefined}
-              />
+              <MoneyField name={field.name} value={field.value} onChange={field.onChange} />
             )}
           />
-
           <FieldError>{errors.value?.message}</FieldError>
         </Field>
 
-        {/* Fixed */}
-        <Field className="max-w-25">
-          <FieldLabel>Type</FieldLabel>
+        {/* Recurrence */}
+        <Field className="max-w-28">
+          <FieldLabel>{t('type')}</FieldLabel>
           <Controller
             control={form.control}
             name="fixed"
@@ -218,14 +214,14 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
                 disabled={isEditting}
               >
                 {field.value ? <RepeatIcon /> : <Calendar1Icon />}
-                {field.value ? 'Fixed' : 'Single'}
+                {field.value ? t('fixed') : t('single')}
               </Button>
             )}
           />
         </Field>
 
-        {/* Signal */}
-        <Field className="max-w-25">
+        {/* Sign */}
+        <Field className="max-w-28">
           <FieldLabel>&nbsp;</FieldLabel>
           <Controller
             control={form.control}
@@ -234,59 +230,62 @@ export function TxForm({ onClose, onSubmit, initValue, isEditting }: Props) {
               <Button
                 variant="outline"
                 type="button"
-                className={
-                  field.value === 'income'
-                    ? 'text-green-600 hover:text-green-700'
-                    : 'text-red-600 hover:text-red-700'
-                }
+                className={field.value === 'income' ? 'text-income' : 'text-expense'}
                 onClick={() => field.onChange(field.value === 'income' ? 'expense' : 'income')}
               >
                 {field.value === 'income' ? <BanknoteArrowUp /> : <BanknoteArrowDown />}
-                {field.value === 'income' ? 'Income' : 'Expense'}
+                {field.value === 'income' ? t('income') : t('expense')}
               </Button>
             )}
           />
         </Field>
       </div>
 
-      {/* Ignore from forecast */}
+      {/* Include in forecast (the product's core, least-obvious concept) */}
       <Controller
         control={form.control}
-        name="ignoreFromForecast"
-        render={({ field }) => (
-          <div className="flex gap-2">
-            <Checkbox
-              id={field.name}
-              name={field.name}
-              checked={fixed || field.value}
-              onCheckedChange={(data) => {
-                console.log(data)
-                field.onChange(data.valueOf())
-              }}
-              disabled={fixed}
-            />
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={field.name}>Ignore from forecast</Label>
-              <p className="text-sm text-muted-foreground">
-                {fixed
-                  ? 'Fixed transactions are always included in the forecast.'
-                  : field.value
-                    ? 'This transaction will be ignored from the forecast calculation.'
-                    : 'This transaction will be included in the forecast calculation.'}
-              </p>
+        name="includeInForecast"
+        render={({ field }) => {
+          const checked = fixed || field.value
+          return (
+            <div className="flex items-start gap-3 rounded-lg border p-3">
+              <Switch
+                id="includeInForecast"
+                checked={checked}
+                disabled={fixed}
+                onCheckedChange={field.onChange}
+              />
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="includeInForecast">{t('includeInForecast')}</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="size-3.5 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-60">
+                      {t('includeInForecastHint')}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {fixed
+                    ? t('fixedAlwaysForecast')
+                    : checked
+                      ? t('includeInForecastHint')
+                      : t('excludedHint')}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }}
       />
 
-      <FieldError>{errors.value?.message}</FieldError>
-
-      <div className="flex gap-4 self-end">
+      <div className="flex gap-3 self-end">
         <Button variant="secondary" onClick={onClose} type="button" disabled={pending}>
-          Cancel
+          {t('cancel')}
         </Button>
-        <Button variant="default" type="submit" disabled={pending}>
-          {initValue ? 'Save' : 'Create'}
+        <Button type="submit" disabled={pending}>
+          {isEditting ? t('save') : t('create')}
         </Button>
       </div>
     </form>

@@ -1,6 +1,7 @@
 'use client'
 
 import { Filter, Plus, SlidersHorizontal } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -54,6 +55,9 @@ export function TransactionToolbar({
   onShowExpensesChange,
   onCreateClick,
 }: Props) {
+  const t = useTranslations('transactions')
+  const tf = useTranslations('transactions.filters')
+
   function toggleCategory(id: string) {
     if (categoriesFilter.includes(id)) {
       onCategoriesFilterChange(categoriesFilter.filter((c) => c !== id))
@@ -62,54 +66,56 @@ export function TransactionToolbar({
     }
   }
 
+  const categoryLabel =
+    categoriesFilter.length === 0
+      ? tf('allCategories')
+      : categoriesFilter.length === 1
+        ? (categories.find((c) => c.id === categoriesFilter[0])?.name ?? tf('allCategories'))
+        : tf('categoriesCount', { count: categoriesFilter.length })
+
   return (
     <div className="flex items-stretch gap-2 lg:flex-col-reverse">
-      {/* Include filters */}
-      <div className="flex gap-2 flex-1">
+      <div className="flex flex-1 gap-2">
+        {/* Include filters */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="gap-1.5 lg:flex-1">
               <SlidersHorizontal className="size-3.5" />
-              <span className="hidden sm:inline">Include</span>
+              <span className="hidden sm:inline">{tf('include')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            <DropdownMenuLabel>Show transactions</DropdownMenuLabel>
+            <DropdownMenuLabel>{tf('show')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem checked={showFuture} onCheckedChange={onShowFutureChange}>
-              Future transactions
+              {tf('future')}
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={showFixed}
-              onCheckedChange={(e) => {
-                onShowFixedChange(e)
-              }}
-            >
-              Fixed transactions
+            <DropdownMenuCheckboxItem checked={showFixed} onCheckedChange={onShowFixedChange}>
+              {tf('fixed')}
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem checked={showOneTime} onCheckedChange={onShowOneTimeChange}>
-              One-time transactions
+              {tf('oneTime')}
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem
               checked={showForecasted}
               onCheckedChange={onShowForecastedChange}
             >
-              Forecasted transactions
+              {tf('forecasted')}
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={showNotForecasted}
               onCheckedChange={onShowNotForecastedChange}
             >
-              Not forecasted transactions
+              {tf('notForecasted')}
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem checked={showIncome} onCheckedChange={onShowIncomeChange}>
-              Income transactions
+              {tf('income')}
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem checked={showExpenses} onCheckedChange={onShowExpensesChange}>
-              Expenses transactions
+              {tf('expenses')}
             </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -119,17 +125,11 @@ export function TransactionToolbar({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="gap-1.5 lg:flex-1">
               <Filter className="size-3.5" />
-              <span className="hidden sm:inline">
-                {categoriesFilter.length === 0
-                  ? 'All categories'
-                  : categoriesFilter.length === 1
-                    ? (categories.find((c) => c.id === categoriesFilter[0])?.name ?? '1 category')
-                    : `${categoriesFilter.length} categories`}
-              </span>
+              <span className="hidden truncate sm:inline">{categoryLabel}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="max-h-70 lg:max-h-90 overflow-y-auto">
-            <DropdownMenuLabel>Filter by category</DropdownMenuLabel>
+          <DropdownMenuContent align="start" className="max-h-70 overflow-y-auto lg:max-h-90">
+            <DropdownMenuLabel>{tf('filterByCategory')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {categories.map((category) => (
               <DropdownMenuCheckboxItem
@@ -147,7 +147,7 @@ export function TransactionToolbar({
                   checked={false}
                   onCheckedChange={() => onCategoriesFilterChange([])}
                 >
-                  Clear filters
+                  {tf('clear')}
                 </DropdownMenuCheckboxItem>
               </>
             )}
@@ -155,14 +155,13 @@ export function TransactionToolbar({
         </DropdownMenu>
       </div>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
       {/* Add button */}
       <Button onClick={onCreateClick} className="gap-1.5">
         <Plus className="size-4" />
-        New
-        <span className="hidden sm:inline">transaction</span>
+        <span className="hidden sm:inline">{t('newTransaction')}</span>
+        <span className="sm:hidden">{t('new')}</span>
       </Button>
     </div>
   )

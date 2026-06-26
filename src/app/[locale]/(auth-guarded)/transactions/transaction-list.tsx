@@ -1,6 +1,7 @@
 'use client'
 
 import { ReceiptText } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useNow } from '@/contexts/now/now-context'
 import type { AbstractTransaction, CategoryRow } from '@/lib/database/types'
@@ -12,9 +13,17 @@ interface Props {
   categories: CategoryRow[]
   onEdit: (t: AbstractTransaction) => void
   onDelete: (t: AbstractTransaction) => void
+  onEndRecurrence: (t: AbstractTransaction) => void
 }
 
-export function TransactionList({ transactions, categories, onEdit, onDelete }: Props) {
+export function TransactionList({
+  transactions,
+  categories,
+  onEdit,
+  onDelete,
+  onEndRecurrence,
+}: Props) {
+  const t = useTranslations('transactions')
   const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const now = useNow()
 
@@ -28,11 +37,11 @@ export function TransactionList({ transactions, categories, onEdit, onDelete }: 
 
   if (transactions.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground pt-8">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 pt-8 text-muted-foreground">
         <ReceiptText className="size-12 opacity-40" />
         <div className="text-center">
-          <p className="text-sm font-medium">No transactions found</p>
-          <p className="text-xs">Try adjusting your filters or create a new transaction.</p>
+          <p className="text-sm font-medium">{t('empty')}</p>
+          <p className="text-xs">{t('emptyHint')}</p>
         </div>
       </div>
     )
@@ -59,6 +68,7 @@ export function TransactionList({ transactions, categories, onEdit, onDelete }: 
                 isFuture={t.date.day > now.day}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onEndRecurrence={onEndRecurrence}
               />
             )
           })}

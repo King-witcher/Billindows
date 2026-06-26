@@ -1,4 +1,7 @@
+'use client'
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { AbstractTransaction } from '@/lib/database/types/abstract-transaction'
@@ -15,27 +18,28 @@ type Props = {
 export function TxDialog(props: Props) {
   const { txToEdit, open, onOpenChange } = props
   const client = useQueryClient()
+  const t = useTranslations('transactions.form')
 
   const updateMutation = useMutation({
     mutationKey: ['update-transaction', txToEdit?.id],
     mutationFn: updateTransactionAction,
     onSuccess: () => {
       client.refetchQueries({ queryKey: ['transactions'] })
-      toast.success('Transaction updated successfully')
+      toast.success(t('updated'))
       onOpenChange?.(false)
     },
-    onError: (e) => toast.error(`Error updating transaction: ${e.message}`),
+    onError: () => toast.error(t('updateError')),
   })
 
   const createMutation = useMutation({
     mutationKey: ['create-transaction'],
     mutationFn: createTxAction,
     onSuccess: () => {
-      toast.success('Transaction created successfully')
+      toast.success(t('created'))
       client.refetchQueries({ queryKey: ['transactions'] })
       onOpenChange?.(false)
     },
-    onError: () => toast.error('Error creating transaction'),
+    onError: () => toast.error(t('createError')),
   })
 
   async function handleSubmit(data: Omit<AbstractTransaction, 'id' | 'user_id'>) {
@@ -54,8 +58,8 @@ export function TxDialog(props: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-primary">
-            {txToEdit ? `Edit ${txToEdit.name}` : 'Create Transaction'}
+          <DialogTitle>
+            {txToEdit ? t('editTitle', { name: txToEdit.name }) : t('createTitle')}
           </DialogTitle>
         </DialogHeader>
         <TxForm

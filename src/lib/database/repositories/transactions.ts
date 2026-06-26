@@ -181,6 +181,23 @@ export class TransactionsRepository {
   }
 
   /**
+   * Ends a fixed (recurring) transaction by setting its end_date, so it stops
+   * appearing from `endDate` onward while past/current months are preserved.
+   */
+  async endRecurrence(id: UUID, userId: UUID_v7, endDate: Date) {
+    const [row] = await this.ctx.db.sql<{ id: UUID }>`
+      UPDATE fixed_transaction
+      SET "end_date" = ${endDate}
+      WHERE id = ${id} AND user_id = ${userId}
+      RETURNING id
+    `
+
+    if (!row) {
+      fail('TransactionNotFound')
+    }
+  }
+
+  /**
    * Lists all transactions for the current user in a given month and year
    *
    * @param userId - The ID of the user
@@ -200,6 +217,7 @@ export class TransactionsRepository {
       amount: INTEGER
       day: INTEGER
       forecast: BOOLEAN
+      end_date: DATE | null
     }
 
     const now = Date.now()
@@ -214,7 +232,8 @@ export class TransactionsRepository {
               "name",
               "amount",
               EXTRACT(DAY FROM "start_date") as "day",
-              TRUE AS "forecast"
+              TRUE AS "forecast",
+              "end_date"
           FROM
               fixed_transaction
           WHERE
@@ -232,7 +251,8 @@ export class TransactionsRepository {
               "name",
               "amount",
               EXTRACT(DAY FROM "date") as "day",
-              "forecast"
+              "forecast",
+              NULL AS "end_date"
           FROM
               one_time_transaction
           WHERE
@@ -263,6 +283,7 @@ export class TransactionsRepository {
           year,
         },
         forecast: result.forecast,
+        ended: result.end_date !== null,
       }
     })
   }
@@ -287,7 +308,7 @@ export class TransactionsRepository {
                 "category_id",
                 "name",
                 "amount",
-                "start_date",
+                "start_date" AS "date",
                 TRUE AS "forecast"
             FROM
                 fixed_transaction

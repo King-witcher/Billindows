@@ -1,16 +1,19 @@
 'use client'
 
-import { TrendingDown, TrendingUp, Wallet } from 'lucide-react'
-import { type ComponentProps, useMemo } from 'react'
+import { BanknoteArrowDown, BanknoteArrowUp, Wallet } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { type ComponentProps, type ReactNode, useMemo } from 'react'
+import { CurrencyText } from '@/components/atoms/currency-text'
 import type { AbstractTransaction } from '@/lib/database/types'
 import { cn } from '@/lib/utils'
-import { formatMoney } from '@/utils/utils'
 
 interface Props extends ComponentProps<'div'> {
   transactions: AbstractTransaction[]
 }
 
 export function TransactionSummary({ transactions, className, ...props }: Props) {
+  const t = useTranslations('transactions')
+
   const { income, expenses, balance } = useMemo(() => {
     let income = 0
     let expenses = 0
@@ -23,50 +26,38 @@ export function TransactionSummary({ transactions, className, ...props }: Props)
 
   return (
     <div className={cn('flex gap-2 sm:gap-3 lg:flex-col', className)} {...props}>
+      <SummaryCard label={t('income')} icon={<BanknoteArrowUp className="size-4 text-income" />}>
+        <CurrencyText value={income} />
+      </SummaryCard>
       <SummaryCard
-        label="Income"
-        value={income}
-        icon={<TrendingUp className="size-4" />}
-        className="text-emerald-600 dark:text-emerald-400"
-      />
-      <SummaryCard
-        label="Expenses"
-        value={expenses}
-        icon={<TrendingDown className="size-4" />}
-        className="text-red-600 dark:text-red-400"
-      />
-      <SummaryCard
-        label="Balance"
-        value={balance}
-        icon={<Wallet className="size-4" />}
-        className={
-          balance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
-        }
-      />
+        label={t('expense')}
+        icon={<BanknoteArrowDown className="size-4 text-expense" />}
+      >
+        <CurrencyText value={expenses} />
+      </SummaryCard>
+      <SummaryCard label={t('balance')} icon={<Wallet className="size-4 text-muted-foreground" />}>
+        <CurrencyText value={balance} />
+      </SummaryCard>
     </div>
   )
 }
 
 function SummaryCard({
   label,
-  value,
   icon,
-  className,
+  children,
 }: {
   label: string
-  value: number
-  icon: React.ReactNode
-  className?: string
+  icon: ReactNode
+  children: ReactNode
 }) {
   return (
-    <div className="rounded-lg border bg-card p-3 sm:p-4 flex-1">
+    <div className="flex-1 rounded-lg border bg-card p-3 sm:p-4">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground sm:text-sm">
         {icon}
         {label}
       </div>
-      <p className={cn('mt-1 text-base font-bold tabular-nums sm:text-lg', className)}>
-        {formatMoney(value)}
-      </p>
+      <p className="mt-1 text-base font-semibold sm:text-lg">{children}</p>
     </div>
   )
 }
