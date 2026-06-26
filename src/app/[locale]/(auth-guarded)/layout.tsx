@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { AppNavbar } from '@/components/app-navbar/app-navbar'
-import { Chat } from '@/components/organisms/chat/chat'
 import { ChatProvider } from '@/contexts/chat/chat-context'
 import { UserProvider } from '@/contexts/user-context'
 import { buildDefaultContainer } from '@/lib/injector/dependencies'
@@ -32,7 +31,6 @@ export default async function Layout(props: Props) {
             <div className="flex-1 relative bg-background">
               <div className="absolute inset-0 overflow-y-auto">{props.children}</div>
             </div>
-            {/* <Chat className="hidden xl:block" /> */}
           </main>
         </div>
       </ChatProvider>

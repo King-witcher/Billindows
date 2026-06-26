@@ -1,20 +1,11 @@
 'use client'
 
-import { TooltipPortal, TooltipTrigger } from '@radix-ui/react-tooltip'
-import {
-  ArrowLeftRightIcon,
-  CogIcon,
-  CreditCardIcon,
-  HomeIcon,
-  LayoutDashboard,
-  LogOut,
-  type LucideIcon,
-  User2,
-} from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { ArrowLeftRight, Home, LayoutGrid, LogOut, type LucideIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { ComponentProps } from 'react'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Logo, LogoMark } from '@/components/brand/logo'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,140 +13,103 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { LanguageToggle } from '@/components/ui/language-toggle'
+import { ModeToggle } from '@/components/ui/mode-toggle'
 import { useUser } from '@/contexts/user-context'
+import { Link, usePathname } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
-import { Button } from '../ui/button'
-import { Tooltip, TooltipContent } from '../ui/tooltip'
 import { logoutAction } from './actions'
 
-type Item = {
-  label: string
-  Icon: LucideIcon
-  url: string
-}
+type NavKey = 'home' | 'transactions' | 'categories'
 
-const items: Item[] = [
-  {
-    label: 'Home',
-    Icon: HomeIcon,
-    url: '/dashboard',
-  },
-  {
-    label: 'Transactions',
-    Icon: ArrowLeftRightIcon,
-    url: '/transactions',
-  },
-  {
-    label: 'Categories',
-    Icon: LayoutDashboard,
-    url: '/categories',
-  },
+const items: { key: NavKey; Icon: LucideIcon; url: string }[] = [
+  { key: 'home', Icon: Home, url: '/dashboard' },
+  { key: 'transactions', Icon: ArrowLeftRight, url: '/transactions' },
+  { key: 'categories', Icon: LayoutGrid, url: '/categories' },
 ]
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  const first = parts[0]?.[0] ?? ''
+  const last = parts.length > 1 ? (parts.at(-1)?.[0] ?? '') : ''
+  return (first + last).toUpperCase() || '?'
+}
 
 export function AppNavbar({ className, ...props }: ComponentProps<'nav'>) {
   const user = useUser()
-  const path = usePathname()
+  const pathname = usePathname()
+  const t = useTranslations('nav')
+  const initials = getInitials(user.name)
 
   return (
     <nav
-      className={cn(
-        'bg-white flex gap-2 items-center w-full border-b px-4 h-15 shadow-xs',
-        className,
-      )}
+      className={cn('flex h-15 w-full items-center gap-1 border-b bg-card px-3 sm:px-4', className)}
       {...props}
     >
-      {items.map((item) => {
-        const selected = path.startsWith(item.url)
+      <Link href="/dashboard" aria-label="Billindows" className="mr-2 flex items-center">
+        <Logo className="hidden sm:flex" />
+        <LogoMark className="size-7 sm:hidden" />
+      </Link>
 
-        return (
-          <Button
-            key={item.label}
-            variant="ghost"
-            size="icon-md-default"
-            className={cn('flex items-center gap-2', selected && 'font-bold')}
-            asChild
-          >
-            <Link href={item.url} title={item.label}>
-              <item.Icon className={selected ? 'stroke-3' : undefined} />
-              <span className="hidden md:inline-block">{item.label}</span>
-            </Link>
-          </Button>
-        )
-      })}
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          className={cn(
-            'ml-auto flex gap-2 p-2 md:py-1 rounded-lg items-center',
-            'hover:bg-muted cursor-pointer',
-          )}
-        >
-          <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src="https://github.com/king-witcher.png" alt={user.name} />
-          </Avatar>
-          <div className="hidden md:flex flex-col items-start text-left w-full">
-            <span className="text-sm font-medium truncate">{user.name}</span>
-            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-60">
-          <div className="flex items-center gap-2 p-2">
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src="https://github.com/king-witcher.png" alt={user.name} />
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium truncate w-45">{user.name}</span>
-              <span className="text-xs text-muted-foreground truncate w-45">{user.email}</span>
+      <div className="flex items-center gap-0.5">
+        {items.map((item) => {
+          const selected = pathname.startsWith(item.url)
+          return (
+            <Button
+              key={item.key}
+              asChild
+              variant="ghost"
+              size="sm"
+              className={cn(
+                'gap-2 text-muted-foreground',
+                selected && 'bg-accent text-accent-foreground',
+              )}
+            >
+              <Link href={item.url}>
+                <item.Icon className={cn('size-4', selected && 'stroke-[2.5]')} />
+                <span className="hidden sm:inline">{t(item.key)}</span>
+              </Link>
+            </Button>
+          )
+        })}
+      </div>
+
+      <div className="ml-auto flex items-center gap-0.5">
+        <LanguageToggle />
+        <ModeToggle />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label={user.name}>
+              <Avatar className="size-8">
+                <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60">
+            <div className="flex items-center gap-2 p-2">
+              <Avatar className="size-9">
+                <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-medium">{user.name}</span>
+                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              </div>
             </div>
-          </div>
-          <DropdownMenuSeparator />
-
-          {/* Profile */}
-          <Tooltip>
-            <TooltipPortal>
-              <TooltipContent>This is just a placeholder</TooltipContent>
-            </TooltipPortal>
-            <TooltipTrigger asChild>
-              <DropdownMenuItem>
-                <User2 className="mr-2 size-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-            </TooltipTrigger>
-          </Tooltip>
-
-          {/* Billing */}
-          <Tooltip>
-            <TooltipPortal>
-              <TooltipContent>This is just a placeholder</TooltipContent>
-            </TooltipPortal>
-            <TooltipTrigger asChild>
-              <DropdownMenuItem>
-                <CreditCardIcon className="mr-2 size-4" />
-                <span>Billing</span>
-              </DropdownMenuItem>
-            </TooltipTrigger>
-          </Tooltip>
-
-          {/* Settings */}
-          <Tooltip>
-            <TooltipPortal>
-              <TooltipContent>This is just a placeholder</TooltipContent>
-            </TooltipPortal>
-            <TooltipTrigger asChild>
-              <DropdownMenuItem>
-                <CogIcon className="mr-2 size-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-            </TooltipTrigger>
-          </Tooltip>
-
-          {/* Logout */}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={logoutAction}>
-            <LogOut className="mr-2 size-4" />
-            <span>Logout</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => logoutAction()}
+              className="text-destructive focus:text-destructive"
+            >
+              <LogOut className="mr-2 size-4" />
+              {t('logout')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </nav>
   )
 }
