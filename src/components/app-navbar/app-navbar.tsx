@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeftRight, Home, LayoutGrid, LogOut, type LucideIcon } from 'lucide-react'
+import { ArrowLeftRight, Home, LayoutGrid, LogOut, type LucideIcon, Tag } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { ComponentProps } from 'react'
 import { Logo, LogoMark } from '@/components/brand/logo'
@@ -20,12 +20,13 @@ import { Link, usePathname } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
 import { logoutAction } from './actions'
 
-type NavKey = 'home' | 'transactions' | 'categories'
+type NavKey = 'home' | 'transactions' | 'categories' | 'tags'
 
-const items: { key: NavKey; Icon: LucideIcon; url: string }[] = [
+const items: { key: NavKey; Icon: LucideIcon; url: string; disabled?: boolean }[] = [
   { key: 'home', Icon: Home, url: '/dashboard' },
   { key: 'transactions', Icon: ArrowLeftRight, url: '/transactions' },
   { key: 'categories', Icon: LayoutGrid, url: '/categories' },
+  { key: 'tags', Icon: Tag, url: '.', disabled: true },
 ]
 
 function getInitials(name: string): string {
@@ -57,18 +58,26 @@ export function AppNavbar({ className, ...props }: ComponentProps<'nav'>) {
           return (
             <Button
               key={item.key}
-              asChild
+              asChild={!item.disabled}
               variant="ghost"
               size="sm"
+              disabled={item.disabled}
               className={cn(
                 'gap-2 text-muted-foreground',
                 selected && 'bg-accent text-accent-foreground',
               )}
             >
-              <Link href={item.url}>
-                <item.Icon className={cn('size-4', selected && 'stroke-[2.5]')} />
-                <span className="hidden sm:inline">{t(item.key)}</span>
-              </Link>
+              {item.disabled ? (
+                <>
+                  <item.Icon className={cn('size-4', selected && 'stroke-[2.5]')} />
+                  <span className="hidden sm:inline">{t(item.key)}</span>
+                </>
+              ) : (
+                <Link href={item.url}>
+                  <item.Icon className={cn('size-4', selected && 'stroke-[2.5]')} />
+                  <span className="hidden sm:inline">{t(item.key)}</span>
+                </Link>
+              )}
             </Button>
           )
         })}

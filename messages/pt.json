@@ -17,7 +17,8 @@
     "profile": "Perfil",
     "billing": "Assinatura",
     "settings": "Configurações",
-    "logout": "Sair"
+    "logout": "Sair",
+    "tags": "Etiquetas"
   },
   "theme": {
     "label": "Tema",

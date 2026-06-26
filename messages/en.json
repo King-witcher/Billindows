@@ -17,7 +17,8 @@
     "profile": "Profile",
     "billing": "Billing",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "tags": "Tags"
   },
   "theme": {
     "label": "Theme",
