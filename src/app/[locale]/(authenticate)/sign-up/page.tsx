@@ -3,8 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { Check, Eye, EyeOff, Mail, UserPlus } from 'lucide-react'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -22,15 +22,15 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
+import { Link } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
-import { getErrorMessage } from './_error'
+import { errorKey } from './_error'
 import { signUpAction } from './action'
 import { type SignUpPayload, schema } from './schema'
 
-function getPasswordStrength(password: string): {
-  score: number
-  label: string
-} {
+type StrengthLevel = 'weak' | 'fair' | 'good' | 'strong'
+
+function getPasswordStrength(password: string): { score: number; level: StrengthLevel } {
   let score = 0
   if (password.length >= 8) score++
   if (password.length >= 12) score++
@@ -38,12 +38,14 @@ function getPasswordStrength(password: string): {
   if (/\d/.test(password)) score++
   if (/[^a-zA-Z0-9]/.test(password)) score++
 
-  const label = score <= 1 ? 'Weak' : score <= 2 ? 'Fair' : score <= 3 ? 'Good' : 'Strong'
+  const level: StrengthLevel =
+    score <= 1 ? 'weak' : score <= 2 ? 'fair' : score <= 3 ? 'good' : 'strong'
 
-  return { score, label }
+  return { score, level }
 }
 
 export default function Page() {
+  const t = useTranslations('auth')
   const search = useSearchParams()
   const referrer = search.get('referrer') ?? '/'
   const [showPassword, setShowPassword] = useState(false)
@@ -81,8 +83,8 @@ export default function Page() {
           <UserPlus className="size-7 text-primary" />
         </div>
         <div>
-          <CardTitle className="text-2xl">Create account</CardTitle>
-          <CardDescription className="mt-1.5">Get started managing your finances</CardDescription>
+          <CardTitle className="text-2xl">{t('signupTitle')}</CardTitle>
+          <CardDescription className="mt-1.5">{t('signupSubtitle')}</CardDescription>
         </div>
       </CardHeader>
 
@@ -91,7 +93,7 @@ export default function Page() {
           <input type="hidden" name="referrer" value={referrer} />
 
           <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <FieldLabel htmlFor="email">{t('email')}</FieldLabel>
             <InputGroup>
               <InputGroupAddon>
                 <Mail className="size-4" />
@@ -99,7 +101,7 @@ export default function Page() {
               <InputGroupInput
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('emailPlaceholder')}
                 disabled={signUpMutation.isPending}
                 aria-invalid={!!errors.email}
                 autoComplete="email"
@@ -111,11 +113,11 @@ export default function Page() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="name">Name</FieldLabel>
+            <FieldLabel htmlFor="name">{t('name')}</FieldLabel>
             <Input
               id="name"
               type="text"
-              placeholder="How should we call you?"
+              placeholder={t('namePlaceholder')}
               disabled={signUpMutation.isPending}
               aria-invalid={!!errors.name}
               autoComplete="name"
@@ -128,12 +130,12 @@ export default function Page() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <FieldLabel htmlFor="password">{t('password')}</FieldLabel>
             <InputGroup>
               <InputGroupInput
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="At least 8 characters"
+                placeholder={t('passwordPlaceholderNew')}
                 disabled={signUpMutation.isPending}
                 aria-invalid={!!errors.password}
                 autoComplete="new-password"
@@ -144,9 +146,9 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground transition-colors hover:text-foreground"
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -158,22 +160,22 @@ export default function Page() {
                   value={(strength.score / 5) * 100}
                   className={cn(
                     'h-1.5',
-                    strength.score <= 1 && '*:data-[slot=progress-indicator]:bg-destructive',
-                    strength.score === 2 && '*:data-[slot=progress-indicator]:bg-orange-400',
-                    strength.score === 3 && '*:data-[slot=progress-indicator]:bg-yellow-400',
-                    strength.score >= 4 && '*:data-[slot=progress-indicator]:bg-emerald-500',
+                    strength.level === 'weak' && '*:data-[slot=progress-indicator]:bg-destructive',
+                    strength.level === 'fair' && '*:data-[slot=progress-indicator]:bg-orange-400',
+                    strength.level === 'good' && '*:data-[slot=progress-indicator]:bg-yellow-400',
+                    strength.level === 'strong' && '*:data-[slot=progress-indicator]:bg-income',
                   )}
                 />
                 <span
                   className={cn(
                     'shrink-0 text-xs font-medium',
-                    strength.score <= 1 && 'text-destructive',
-                    strength.score === 2 && 'text-orange-500',
-                    strength.score === 3 && 'text-yellow-600',
-                    strength.score >= 4 && 'text-emerald-600',
+                    strength.level === 'weak' && 'text-destructive',
+                    strength.level === 'fair' && 'text-orange-500',
+                    strength.level === 'good' && 'text-yellow-600',
+                    strength.level === 'strong' && 'text-income',
                   )}
                 >
-                  {strength.label}
+                  {t(`strength.${strength.level}`)}
                 </span>
               </div>
             )}
@@ -181,12 +183,12 @@ export default function Page() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="passwordConfirmation">Confirm password</FieldLabel>
+            <FieldLabel htmlFor="passwordConfirmation">{t('confirmPassword')}</FieldLabel>
             <InputGroup>
               <InputGroupInput
                 id="passwordConfirmation"
                 type={showConfirm ? 'text' : 'password'}
-                placeholder="Repeat your password"
+                placeholder={t('confirmPlaceholder')}
                 disabled={signUpMutation.isPending}
                 aria-invalid={!!errors.passwordConfirmation}
                 autoComplete="new-password"
@@ -195,14 +197,14 @@ export default function Page() {
               />
               <InputGroupAddon align="inline-end">
                 {passwordsMatch ? (
-                  <Check className="size-4 text-emerald-500" />
+                  <Check className="size-4 text-income" />
                 ) : (
                   <button
                     type="button"
                     onClick={() => setShowConfirm((v) => !v)}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-muted-foreground transition-colors hover:text-foreground"
                     tabIndex={-1}
-                    aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                    aria-label={showConfirm ? t('hidePassword') : t('showPassword')}
                   >
                     {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
@@ -214,7 +216,7 @@ export default function Page() {
 
           {signUpMutation.isError && (
             <div className="rounded-md bg-destructive/10 px-3 py-2.5 text-center text-sm text-destructive">
-              {getErrorMessage(signUpMutation.error.name)}
+              {t(`errors.${errorKey(signUpMutation.error.name)}`)}
             </div>
           )}
 
@@ -227,10 +229,10 @@ export default function Page() {
             {signUpMutation.isPending ? (
               <>
                 <Spinner />
-                Creating account...
+                {t('creatingAccount')}
               </>
             ) : (
-              'Create account'
+              t('createAccount')
             )}
           </Button>
         </form>
@@ -240,12 +242,12 @@ export default function Page() {
         <div className="relative w-full">
           <Separator />
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">
-            or
+            {t('or')}
           </span>
         </div>
-        <div className="text-center text-sm text-muted-foreground">Already have an account?</div>
+        <div className="text-center text-sm text-muted-foreground">{t('haveAccount')}</div>
         <Button asChild variant="outline" className="w-full">
-          <Link href="/login">Login</Link>
+          <Link href="/login">{t('login')}</Link>
         </Button>
       </CardFooter>
     </Card>

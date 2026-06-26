@@ -4,15 +4,18 @@ export enum SignUpError {
   PasswordsDoNotMatch = 'passwords-do-not-match',
 }
 
-export function getErrorMessage(error: string) {
-  switch (error) {
+/** Maps an error name to a key under the `auth.errors` i18n namespace. */
+export function errorKey(
+  name: string,
+): 'invalidForm' | 'emailInUse' | 'passwordsMismatch' | 'generic' {
+  switch (name) {
     case SignUpError.InvalidFormData:
-      return 'The provided form data is invalid. Please check your input and try again.'
+      return 'invalidForm'
     case SignUpError.EmailAlreadyInUse:
-      return 'The provided email is already in use. Please use a different email or contact Giuseppe for recovery.'
+      return 'emailInUse'
     case SignUpError.PasswordsDoNotMatch:
-      return 'The provided passwords do not match. Please check your input and try again.'
+      return 'passwordsMismatch'
     default:
-      return 'Supabase has spun down due to inactivity. Please, contact Giuseppe so he can restart it.'
+      return 'generic'
   }
 }

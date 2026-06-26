@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useId } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -27,19 +28,18 @@ export function CategoryDialog({ onOpenChange, categoryToEdit, isOpen }: Props) 
   const formId = useId()
   const user = useUser()
   const client = useQueryClient()
+  const t = useTranslations('categories.dialog')
 
   const createCategoryMutation = useMutation({
     mutationKey: ['create-category'],
     mutationFn: createCategoryAction,
     onSuccess: () => {
-      toast.success('Category created successfully')
+      toast.success(t('created'))
       client.refetchQueries({ queryKey: ['categories', user.email] })
       onOpenChange(false)
     },
-    onError: (error) => {
-      toast.error(
-        `Failed to create category: ${error instanceof Error ? error.message : String(error)}`,
-      )
+    onError: () => {
+      toast.error(t('createError'))
     },
   })
 
@@ -50,14 +50,12 @@ export function CategoryDialog({ onOpenChange, categoryToEdit, isOpen }: Props) 
       return data
     },
     onSuccess: (data) => {
-      toast.success(`Category ${data.updateData.name} updated successfully`)
+      toast.success(t('updated', { name: data.updateData.name }))
       client.refetchQueries({ queryKey: ['categories', user.email] })
       onOpenChange(false)
     },
-    onError: (error) => {
-      toast.error(
-        `Failed to update category: ${error instanceof Error ? error.message : String(error)}`,
-      )
+    onError: () => {
+      toast.error(t('updateError'))
     },
   })
 
@@ -87,7 +85,7 @@ export function CategoryDialog({ onOpenChange, categoryToEdit, isOpen }: Props) 
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {categoryToEdit ? `Edit ${categoryToEdit.name}` : 'Create category'}
+            {categoryToEdit ? t('editTitle', { name: categoryToEdit.name }) : t('createTitle')}
           </DialogTitle>
         </DialogHeader>
         <CategoryForm
@@ -102,10 +100,10 @@ export function CategoryDialog({ onOpenChange, categoryToEdit, isOpen }: Props) 
             variant="secondary"
             disabled={pending}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button type="submit" form={formId} disabled={pending}>
-            {categoryToEdit ? 'Save' : 'Create'}
+            {categoryToEdit ? t('save') : t('create')}
           </Button>
         </DialogFooter>
       </DialogContent>

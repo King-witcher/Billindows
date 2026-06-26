@@ -3,8 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff, LogIn, Mail } from 'lucide-react'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -20,11 +20,13 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
-import { getErrorMessage } from './_error'
+import { Link } from '@/i18n/navigation'
+import { errorKey } from './_error'
 import { signInAction } from './action'
 import { type SignInPayload, schema } from './schema'
 
 export default function Page() {
+  const t = useTranslations('auth')
   const search = useSearchParams()
   const referrer = search.get('referrer') ?? '/'
   const [showPassword, setShowPassword] = useState(false)
@@ -55,8 +57,8 @@ export default function Page() {
           <LogIn className="size-7 text-primary" />
         </div>
         <div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription className="mt-1.5">Log in to your account to continue</CardDescription>
+          <CardTitle className="text-2xl">{t('welcomeBack')}</CardTitle>
+          <CardDescription className="mt-1.5">{t('loginSubtitle')}</CardDescription>
         </div>
       </CardHeader>
 
@@ -65,7 +67,7 @@ export default function Page() {
           <input type="hidden" name="referrer" value={referrer} />
 
           <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <FieldLabel htmlFor="email">{t('email')}</FieldLabel>
             <InputGroup>
               <InputGroupAddon>
                 <Mail className="size-4" />
@@ -73,7 +75,7 @@ export default function Page() {
               <InputGroupInput
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('emailPlaceholder')}
                 disabled={signInMutation.isPending}
                 aria-invalid={!!errors.email}
                 autoComplete="email"
@@ -85,12 +87,12 @@ export default function Page() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <FieldLabel htmlFor="password">{t('password')}</FieldLabel>
             <InputGroup>
               <InputGroupInput
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Your password"
+                placeholder={t('passwordPlaceholder')}
                 disabled={signInMutation.isPending}
                 aria-invalid={!!errors.password}
                 autoComplete="current-password"
@@ -100,9 +102,9 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground transition-colors hover:text-foreground"
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -113,7 +115,7 @@ export default function Page() {
 
           {signInMutation.isError && (
             <div className="rounded-md bg-destructive/10 px-3 py-2.5 text-center text-sm text-destructive">
-              {getErrorMessage(signInMutation.error.name)}
+              {t(`errors.${errorKey(signInMutation.error.name)}`)}
             </div>
           )}
 
@@ -126,10 +128,10 @@ export default function Page() {
             {signInMutation.isPending ? (
               <>
                 <Spinner />
-                Signing in...
+                {t('signingIn')}
               </>
             ) : (
-              'Continue'
+              t('continue')
             )}
           </Button>
         </form>
@@ -139,12 +141,12 @@ export default function Page() {
         <div className="relative w-full">
           <Separator />
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">
-            or
+            {t('or')}
           </span>
         </div>
-        <div className="text-center text-sm text-muted-foreground">Don&apos;t have an account?</div>
+        <div className="text-center text-sm text-muted-foreground">{t('noAccount')}</div>
         <Button asChild variant="outline" className="w-full">
-          <Link href="/sign-up">Create account</Link>
+          <Link href="/sign-up">{t('createAccount')}</Link>
         </Button>
       </CardFooter>
     </Card>

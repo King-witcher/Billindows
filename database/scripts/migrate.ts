@@ -1,4 +1,4 @@
-import { exec } from 'node:child_process'
+import { execSync } from 'node:child_process'
 import { close, transaction } from './db'
 import {
   ensureMigrationsTable,
@@ -35,7 +35,11 @@ async function apply(migrations: Migration[]) {
 
 async function main() {
   try {
-    await exec('docker compose up -d') // Ensure the database is running before starting migrations
+    // In local dev, ensure the database container is running before migrating.
+    // In production (Vercel sets NODE_ENV=production) the database is managed externally.
+    if (process.env.NODE_ENV !== 'production') {
+      execSync('docker compose up -d', { stdio: 'inherit' })
+    }
     const start = Date.now()
 
     const [migrations, applied] = await Promise.all([

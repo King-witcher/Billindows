@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import _ from 'lodash'
 import { TrendingDown, TrendingUp } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useCallback, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -47,6 +48,7 @@ type Props = {
 type GoalType = 'expense' | 'income'
 
 export function CategoryForm({ formId, initData, onSubmit }: Props) {
+  const t = useTranslations('categories.form')
   const defaultColor = useMemo(() => initData?.color ?? getRandomColor(), [initData?.color])
 
   const form = useForm<CategoryFormData>({
@@ -78,10 +80,10 @@ export function CategoryForm({ formId, initData, onSubmit }: Props) {
     <form id={formId} onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
       {/* Name */}
       <Field>
-        <FieldLabel htmlFor={`${formId}-name`}>Name</FieldLabel>
+        <FieldLabel htmlFor={`${formId}-name`}>{t('name')}</FieldLabel>
         <Input
           id={`${formId}-name`}
-          placeholder="e.g. Groceries, Rent, Salary..."
+          placeholder={t('namePlaceholder')}
           maxLength={30}
           autoFocus
           {...form.register('name')}
@@ -91,17 +93,15 @@ export function CategoryForm({ formId, initData, onSubmit }: Props) {
 
       {/* Color */}
       <Field>
-        <FieldLabel>Color</FieldLabel>
+        <FieldLabel>{t('color')}</FieldLabel>
         <ColorPicker value={color} onChange={handleColorChange} onRandomize={handleRandomize} />
         <FieldError errors={[form.formState.errors.color]} />
       </Field>
 
       {/* Goal */}
       <Field>
-        <FieldLabel>Budget goal</FieldLabel>
-        <FieldDescription>
-          Set a monthly target to track your spending or income for this category.
-        </FieldDescription>
+        <FieldLabel>{t('goalTitle')}</FieldLabel>
+        <FieldDescription>{t('goalHint')}</FieldDescription>
 
         <Controller
           control={form.control}
@@ -113,7 +113,9 @@ export function CategoryForm({ formId, initData, onSubmit }: Props) {
                   checked={field.value !== null}
                   onCheckedChange={(value) => field.onChange(value ? 0 : null)}
                 />
-                <span className="text-sm">{field.value !== null ? 'Goal enabled' : 'No goal'}</span>
+                <span className="text-sm">
+                  {field.value !== null ? t('goalEnabled') : t('noGoal')}
+                </span>
               </label>
               {field.value !== null && (
                 <div className="flex flex-col gap-3 animate-in fade-in-0 slide-in-from-top-1 duration-200">
@@ -128,11 +130,11 @@ export function CategoryForm({ formId, initData, onSubmit }: Props) {
                     <TabsList className="w-full">
                       <TabsTrigger value="expense" className="flex-1 gap-1.5">
                         <TrendingDown className="size-3.5" />
-                        Expense
+                        {t('expense')}
                       </TabsTrigger>
                       <TabsTrigger value="income" className="flex-1 gap-1.5">
                         <TrendingUp className="size-3.5" />
-                        Income
+                        {t('income')}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>

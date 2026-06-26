@@ -3,13 +3,14 @@ export enum SignInError {
   InvalidCredentials = 'invalid-credentials',
 }
 
-export function getErrorMessage(error: string) {
-  switch (error) {
+/** Maps an error name to a key under the `auth.errors` i18n namespace. */
+export function errorKey(name: string): 'invalidForm' | 'invalidCredentials' | 'generic' {
+  switch (name) {
     case SignInError.InvalidFormData:
-      return 'The provided form data is invalid. Please check your input and try again.'
+      return 'invalidForm'
     case SignInError.InvalidCredentials:
-      return 'The provided credentials are invalid. Please check your email and password and try again.'
+      return 'invalidCredentials'
     default:
-      return 'Supabase has spun down due to inactivity. Please, contact Giuseppe so he can restart it.'
+      return 'generic'
   }
 }

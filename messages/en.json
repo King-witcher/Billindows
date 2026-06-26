@@ -31,16 +31,82 @@
     "en": "English"
   },
   "auth": {
+    "tagline": "Know how much you can still spend this month.",
     "welcomeBack": "Welcome back",
     "loginSubtitle": "Log in to your account to continue",
+    "signupTitle": "Create account",
+    "signupSubtitle": "Get started managing your finances",
     "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "name": "Name",
+    "namePlaceholder": "How should we call you?",
     "password": "Password",
+    "passwordPlaceholder": "Your password",
+    "passwordPlaceholderNew": "At least 8 characters",
+    "confirmPassword": "Confirm password",
+    "confirmPlaceholder": "Repeat your password",
     "continue": "Continue",
     "signingIn": "Signing in...",
-    "noAccount": "Don't have an account?",
+    "creatingAccount": "Creating account...",
     "createAccount": "Create account",
+    "login": "Log in",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
     "or": "or",
-    "genericError": "We couldn't sign you in right now. Please try again in a moment."
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "strength": {
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    },
+    "errors": {
+      "invalidForm": "The information provided is invalid. Please check and try again.",
+      "invalidCredentials": "Incorrect email or password.",
+      "emailInUse": "This email is already in use. Try another one.",
+      "passwordsMismatch": "Passwords do not match.",
+      "generic": "We couldn't complete that right now. Please try again in a moment."
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Organize income and spending into categories and set monthly goals.",
+    "add": "Add category",
+    "empty": "No categories yet",
+    "emptyHint": "Create your first category to start organizing your finances.",
+    "colCategory": "Category",
+    "colGoal": "Goal",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Groceries, Rent, Salary...",
+      "color": "Color",
+      "goalTitle": "Monthly goal",
+      "goalHint": "Set a monthly target to track spending or income for this category.",
+      "goalEnabled": "Goal enabled",
+      "noGoal": "No goal",
+      "expense": "Expense",
+      "income": "Income"
+    },
+    "dialog": {
+      "createTitle": "Create category",
+      "editTitle": "Edit {name}",
+      "cancel": "Cancel",
+      "save": "Save",
+      "create": "Create",
+      "created": "Category created",
+      "updated": "Category {name} updated",
+      "createError": "Failed to create category",
+      "updateError": "Failed to update category"
+    },
+    "deleteDialog": {
+      "title": "Delete category",
+      "body": "Are you sure you want to delete the {name} category? Every related transaction will be deleted as well.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleted": "Category {name} deleted",
+      "error": "Failed to delete category"
+    }
   },
   "dashboard": {
     "greeting": "Hi, {name}",

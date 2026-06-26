@@ -31,16 +31,82 @@
     "en": "English"
   },
   "auth": {
+    "tagline": "Saiba quanto ainda dá pra gastar este mês.",
     "welcomeBack": "Bem-vindo de volta",
     "loginSubtitle": "Entre na sua conta para continuar",
+    "signupTitle": "Criar conta",
+    "signupSubtitle": "Comece a organizar suas finanças",
     "email": "E-mail",
+    "emailPlaceholder": "voce@exemplo.com",
+    "name": "Nome",
+    "namePlaceholder": "Como podemos te chamar?",
     "password": "Senha",
+    "passwordPlaceholder": "Sua senha",
+    "passwordPlaceholderNew": "Pelo menos 8 caracteres",
+    "confirmPassword": "Confirmar senha",
+    "confirmPlaceholder": "Repita a senha",
     "continue": "Continuar",
     "signingIn": "Entrando...",
-    "noAccount": "Não tem uma conta?",
+    "creatingAccount": "Criando conta...",
     "createAccount": "Criar conta",
+    "login": "Entrar",
+    "noAccount": "Não tem uma conta?",
+    "haveAccount": "Já tem uma conta?",
     "or": "ou",
-    "genericError": "Não foi possível entrar agora. Tente novamente em instantes."
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "strength": {
+      "weak": "Fraca",
+      "fair": "Razoável",
+      "good": "Boa",
+      "strong": "Forte"
+    },
+    "errors": {
+      "invalidForm": "Os dados informados são inválidos. Verifique e tente de novo.",
+      "invalidCredentials": "E-mail ou senha incorretos.",
+      "emailInUse": "Este e-mail já está em uso. Tente outro.",
+      "passwordsMismatch": "As senhas não coincidem.",
+      "generic": "Não foi possível concluir agora. Tente novamente em instantes."
+    }
+  },
+  "categories": {
+    "title": "Categorias",
+    "subtitle": "Organize receitas e despesas em categorias e defina metas mensais.",
+    "add": "Adicionar categoria",
+    "empty": "Nenhuma categoria ainda",
+    "emptyHint": "Crie sua primeira categoria para começar a organizar suas finanças.",
+    "colCategory": "Categoria",
+    "colGoal": "Meta",
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Ex.: Mercado, Aluguel, Salário...",
+      "color": "Cor",
+      "goalTitle": "Meta mensal",
+      "goalHint": "Defina um alvo mensal para acompanhar gastos ou receita desta categoria.",
+      "goalEnabled": "Meta ativada",
+      "noGoal": "Sem meta",
+      "expense": "Gasto",
+      "income": "Receita"
+    },
+    "dialog": {
+      "createTitle": "Criar categoria",
+      "editTitle": "Editar {name}",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "create": "Criar",
+      "created": "Categoria criada",
+      "updated": "Categoria {name} atualizada",
+      "createError": "Falha ao criar categoria",
+      "updateError": "Falha ao atualizar categoria"
+    },
+    "deleteDialog": {
+      "title": "Excluir categoria",
+      "body": "Tem certeza que deseja excluir a categoria {name}? Todas as transações relacionadas também serão excluídas.",
+      "cancel": "Cancelar",
+      "confirm": "Excluir",
+      "deleted": "Categoria {name} excluída",
+      "error": "Falha ao excluir categoria"
+    }
   },
   "dashboard": {
     "greeting": "Olá, {name}",

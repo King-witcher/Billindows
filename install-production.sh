@@ -1,2 +1,2 @@
 npm ci
-npm run db:migrate
+npm run db:migrate:prod

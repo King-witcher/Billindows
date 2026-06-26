@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function ClientComponent({ initialCategories }: Props) {
+  const t = useTranslations('categories')
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
   const [categoryToEdit, setCategoryToEdit] = useState<CategoryRow | null>(null)
   const [categoryToDelete, setCategoryToDelete] = useState<CategoryRow | null>(null)
@@ -53,13 +55,11 @@ export function ClientComponent({ initialCategories }: Props) {
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Categories</h1>
-          <p className="text-sm text-muted-foreground">
-            Organize income and spending into categories and set monthly goals.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
         </div>
         <Button onClick={handleCreate} className="shrink-0">
-          <Plus /> Add category
+          <Plus /> {t('add')}
         </Button>
       </div>
 
@@ -67,8 +67,8 @@ export function ClientComponent({ initialCategories }: Props) {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Category</TableHead>
-              <TableHead className="hidden text-center sm:table-cell">Goal</TableHead>
+              <TableHead>{t('colCategory')}</TableHead>
+              <TableHead className="hidden text-center sm:table-cell">{t('colGoal')}</TableHead>
               <TableHead className="w-0" />
             </TableRow>
           </TableHeader>
@@ -86,12 +86,10 @@ export function ClientComponent({ initialCategories }: Props) {
 
         {categories.length === 0 && (
           <div className="flex flex-col items-center gap-1 px-6 py-14 text-center">
-            <p className="text-sm font-medium">No categories yet</p>
-            <p className="max-w-xs text-sm text-muted-foreground">
-              Create your first category to start organizing your finances.
-            </p>
+            <p className="text-sm font-medium">{t('empty')}</p>
+            <p className="max-w-xs text-sm text-muted-foreground">{t('emptyHint')}</p>
             <Button onClick={handleCreate} variant="outline" size="sm" className="mt-3">
-              <Plus /> Add category
+              <Plus /> {t('add')}
             </Button>
           </div>
         )}

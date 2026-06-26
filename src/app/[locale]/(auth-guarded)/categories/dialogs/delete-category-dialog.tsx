@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,6 +24,7 @@ interface Props {
 export function DeleteCategoryDialog({ category, open, onOpenChange }: Props) {
   const client = useQueryClient()
   const user = useUser()
+  const t = useTranslations('categories.deleteDialog')
 
   const mutation = useMutation({
     mutationKey: ['delete-category', category?.id],
@@ -34,39 +36,34 @@ export function DeleteCategoryDialog({ category, open, onOpenChange }: Props) {
       })
       onOpenChange(false)
     },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete category: ${error instanceof Error ? error.message : String(error)}`,
-      )
+    onError: () => {
+      toast.error(t('error'))
       client.refetchQueries({ queryKey: ['categories', user.email] })
     },
     onSuccess: () => {
-      toast.success(`Deleted category ${category?.name} successfully`)
+      toast.success(t('deleted', { name: category?.name ?? '' }))
     },
   })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogTitle>Delete category</DialogTitle>
-        <DialogDescription>
-          Are you sure you want to delete the <b>{category?.name}</b> category? Every transaction
-          related to this category will be deleted as well.
-        </DialogDescription>
+        <DialogTitle>{t('title')}</DialogTitle>
+        <DialogDescription>{t('body', { name: category?.name ?? '' })}</DialogDescription>
         <DialogFooter>
           <Button
             variant="secondary"
             onClick={() => onOpenChange(false)}
             disabled={mutation.isPending}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant="destructive"
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending}
           >
-            Delete
+            {t('confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>
