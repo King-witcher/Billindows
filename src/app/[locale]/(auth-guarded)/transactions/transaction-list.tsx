@@ -11,6 +11,9 @@ import { TransactionCard } from './transaction-card'
 interface Props {
   transactions: AbstractTransaction[]
   categories: CategoryRow[]
+  /** Displayed month (1-12) and year, which may differ from the current date. */
+  year: number
+  month: number
   onEdit: (t: AbstractTransaction) => void
   onDelete: (t: AbstractTransaction) => void
   onEndRecurrence: (t: AbstractTransaction) => void
@@ -19,6 +22,8 @@ interface Props {
 export function TransactionList({
   transactions,
   categories,
+  year,
+  month,
   onEdit,
   onDelete,
   onEndRecurrence,
@@ -27,12 +32,14 @@ export function TransactionList({
   const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const now = useNow()
 
+  const isCurrentMonth = year === now.year && month === now.month
+  const monthInFuture = year > now.year || (year === now.year && month > now.month)
+
   const groupedByDay = useMemo(() => {
     const groups = Object.groupBy(transactions, (tx) => tx.date.day)
-    return Object.entries(groups).sort(([dayA], [dayB]) => Number(dayB) - Number(dayA)) as [
-      string,
-      AbstractTransaction[],
-    ][]
+    return (Object.entries(groups) as [string, AbstractTransaction[]][]).sort(
+      ([dayA], [dayB]) => Number(dayB) - Number(dayA),
+    )
   }, [transactions])
 
   if (transactions.length === 0) {
@@ -53,9 +60,10 @@ export function TransactionList({
         <DayGroup
           key={day}
           day={Number(day)}
-          year={now.year}
-          month={now.month}
-          isToday={Number(day) === now.day}
+          year={year}
+          month={month}
+          isToday={year === now.year && month === now.month && Number(day) === now.day}
+          subtotal={ts.reduce((sum, tx) => sum + tx.amount, 0)}
         >
           {ts.map((t) => {
             const category = categoryMap.get(t.category_id)
@@ -65,7 +73,7 @@ export function TransactionList({
                 key={t.id}
                 transaction={t}
                 category={category}
-                isFuture={t.date.day > now.day}
+                isFuture={monthInFuture || (isCurrentMonth && t.date.day > now.day)}
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onEndRecurrence={onEndRecurrence}

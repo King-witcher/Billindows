@@ -57,10 +57,17 @@ export function TransactionCard({
         if (e.key === 'Enter') onEdit(transaction)
       }}
       className={cn(
-        'group flex w-full items-center gap-3 rounded-lg border bg-card px-4 py-2.5 text-left transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'group flex w-full items-center gap-3 rounded-lg border bg-card py-2.5 pr-2 pl-3 text-left transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         isFuture && 'opacity-60',
       )}
     >
+      {/* Category color accent */}
+      <span
+        className="h-9 w-1 shrink-0 rounded-full"
+        style={{ backgroundColor: category.color }}
+        aria-hidden="true"
+      />
+
       {/* Name + category */}
       <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 sm:flex-row sm:items-center sm:gap-3">
         <span className="truncate text-sm font-medium">{transaction.name}</span>
