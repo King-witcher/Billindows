@@ -1,0 +1,72 @@
+{
+  "common": {
+    "appName": "Billindows",
+    "tagline": "Know how much you can still spend this month.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "loading": "Loading...",
+    "comingSoon": "Coming soon"
+  },
+  "nav": {
+    "home": "Home",
+    "transactions": "Transactions",
+    "categories": "Categories",
+    "profile": "Profile",
+    "billing": "Billing",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "label": "Language",
+    "pt": "Português",
+    "en": "English"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "loginSubtitle": "Log in to your account to continue",
+    "email": "Email",
+    "password": "Password",
+    "continue": "Continue",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create account",
+    "or": "or",
+    "genericError": "We couldn't sign you in right now. Please try again in a moment."
+  },
+  "dashboard": {
+    "title": "This month",
+    "subtitle": "Financial summary for {month} {year}",
+    "projectedBalance": "Projected balance",
+    "safeToSpendPerDay": "Safe to spend per day",
+    "currentBalance": "Current balance",
+    "income": "Income",
+    "expense": "Expense",
+    "onPace": "on pace",
+    "emptyTitle": "Let's get started",
+    "emptyBody": "You have no transactions this month yet. Add your first one to see your forecast.",
+    "newTransaction": "New transaction"
+  },
+  "style": {
+    "title": "Style guide",
+    "subtitle": "Calm + Indigo visual identity — palette, typography and components.",
+    "colors": "Colors",
+    "semanticColors": "Semantic colors",
+    "typography": "Typography",
+    "components": "Components",
+    "buttons": "Buttons",
+    "sampleCard": "Sample card",
+    "radiusAndShadow": "Radius & shadow",
+    "previewBalance": "Projected balance",
+    "previewSafe": "Safe to spend",
+    "perDay": "per day"
+  }
+}

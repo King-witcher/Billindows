@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { buildDefaultContainer } from '@/lib/injector/dependencies'
 
+// Depends on the session cookie — always render per-request.
+export const dynamic = 'force-dynamic'
+
 interface Props {
   children: ReactNode
 }

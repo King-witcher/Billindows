@@ -6,6 +6,9 @@ import { ChatProvider } from '@/contexts/chat/chat-context'
 import { UserProvider } from '@/contexts/user-context'
 import { buildDefaultContainer } from '@/lib/injector/dependencies'
 
+// Depends on the session cookie — always render per-request.
+export const dynamic = 'force-dynamic'
+
 interface Props {
   children: ReactNode
 }
@@ -26,7 +29,7 @@ export default async function Layout(props: Props) {
         <div className="flex flex-col h-screen">
           <AppNavbar className="shrink-0" />
           <main className="flex flex-1">
-            <div className="flex-1 relative bg-blue">
+            <div className="flex-1 relative bg-background">
               <div className="absolute inset-0 overflow-y-auto">{props.children}</div>
             </div>
             {/* <Chat className="hidden xl:block" /> */}

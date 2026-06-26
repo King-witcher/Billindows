@@ -1,0 +1,72 @@
+{
+  "common": {
+    "appName": "Billindows",
+    "tagline": "Saiba quanto ainda dá pra gastar este mês.",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "loading": "Carregando...",
+    "comingSoon": "Em breve"
+  },
+  "nav": {
+    "home": "Início",
+    "transactions": "Transações",
+    "categories": "Categorias",
+    "profile": "Perfil",
+    "billing": "Assinatura",
+    "settings": "Configurações",
+    "logout": "Sair"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "language": {
+    "label": "Idioma",
+    "pt": "Português",
+    "en": "English"
+  },
+  "auth": {
+    "welcomeBack": "Bem-vindo de volta",
+    "loginSubtitle": "Entre na sua conta para continuar",
+    "email": "E-mail",
+    "password": "Senha",
+    "continue": "Continuar",
+    "signingIn": "Entrando...",
+    "noAccount": "Não tem uma conta?",
+    "createAccount": "Criar conta",
+    "or": "ou",
+    "genericError": "Não foi possível entrar agora. Tente novamente em instantes."
+  },
+  "dashboard": {
+    "title": "Visão do mês",
+    "subtitle": "Resumo financeiro de {month} de {year}",
+    "projectedBalance": "Saldo projetado",
+    "safeToSpendPerDay": "Pode gastar por dia",
+    "currentBalance": "Saldo atual",
+    "income": "Receita",
+    "expense": "Despesa",
+    "onPace": "no ritmo",
+    "emptyTitle": "Vamos começar",
+    "emptyBody": "Você ainda não tem transações neste mês. Adicione a primeira para ver sua projeção.",
+    "newTransaction": "Nova transação"
+  },
+  "style": {
+    "title": "Guia de estilo",
+    "subtitle": "Identidade visual Calm + Índigo — paleta, tipografia e componentes.",
+    "colors": "Cores",
+    "semanticColors": "Cores semânticas",
+    "typography": "Tipografia",
+    "components": "Componentes",
+    "buttons": "Botões",
+    "sampleCard": "Card de exemplo",
+    "radiusAndShadow": "Raio e sombra",
+    "previewBalance": "Saldo projetado",
+    "previewSafe": "Pode gastar",
+    "perDay": "por dia"
+  }
+}
